@@ -25,6 +25,27 @@
                 <v-text-field density="compact" color="primary" :label="frappe._('Mobile No')" bg-color="white"
                   hide-details v-model="mobile_no"></v-text-field>
               </v-col>
+			  <v-col cols="12">
+  <v-text-field
+    density="compact"
+    color="primary"
+    :label="__('Address Line 1')"
+    bg-color="white"
+    hide-details
+    v-model="address_line1"
+  ></v-text-field>
+</v-col>
+
+<v-col cols="6">
+  <v-text-field
+    density="compact"
+    color="primary"
+    :label="__('City')"
+    bg-color="white"
+    hide-details
+    v-model="city"
+  ></v-text-field>
+</v-col>
               <v-col cols="6">
                 <v-text-field density="compact" color="primary" :label="frappe._('Email Id')" bg-color="white"
                   hide-details v-model="email_id"></v-text-field>
@@ -95,9 +116,12 @@ export default {
     customer_name: '',
     tax_id: '',
     mobile_no: '',
+	address_line1: '',
+	city: '',
+	country: 'Pakistan', // by default
     email_id: '',
     referral_code: '',
-    birthday: new Date(),
+    birthday: '',
     birthday_menu: false,
     group: '',
     groups: [],
@@ -119,6 +143,9 @@ export default {
       this.customer_name = '';
       this.tax_id = '';
       this.mobile_no = '';
+	  this.address_line1 = '';
+	  this.city = '';
+	  this.country = 'Pakistan';
       this.email_id = '';
       this.referral_code = '';
       this.birthday = '';
@@ -221,6 +248,9 @@ export default {
           gender: this.gender,
           method: this.customer_id ? 'update' : 'create',
           pos_profile_doc: this.pos_profile,
+		  address_line1: this.address_line1,
+		  city: this.city,
+		  country: this.country,
         };
         frappe.call({
           method: 'posawesome.posawesome.api.posapp.create_customer',
@@ -260,6 +290,9 @@ export default {
       if (data) {
         this.customer_name = data.customer_name;
         this.customer_id = data.name;
+		this.address_line1 = data.address_line1 || "";
+		this.city = data.city || "";
+		this.country = data.country || "Pakistan";
         this.tax_id = data.tax_id;
         this.mobile_no = data.mobile_no;
         this.email_id = data.email_id;

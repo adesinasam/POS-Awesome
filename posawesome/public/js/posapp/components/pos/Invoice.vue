@@ -59,21 +59,49 @@
         </v-col>
       </v-row>
       <v-row align="center" class="items px-2 py-1 mt-0 pt-0" v-if="pos_profile.posa_allow_change_posting_date">
-        <v-col v-if="pos_profile.posa_allow_change_posting_date" cols="4" class="pb-2">
-          <v-menu ref="invoice_posting_date" v-model="invoice_posting_date" :close-on-content-click="false"
-            transition="scale-transition" density="default">
-            <template v-slot:activator="{ props }">
-              <v-text-field v-model="posting_date" :label="frappe._('Posting Date')" readonly variant="outlined"
-                density="compact" bg-color="white" clearable color="primary" hide-details v-bind="props"></v-text-field>
-            </template>
-            <v-date-picker v-model="posting_date" no-title scrollable color="primary" :min="frappe.datetime.add_days(frappe.datetime.now_date(true), -7)
-              " :max="frappe.datetime.add_days(frappe.datetime.now_date(true), 7)"
-              @input="invoice_posting_date = false">
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-      </v-row>
+  <!-- Posting Date Field -->
+  <v-col cols="6" class="pb-2">
+    <v-menu
+      ref="invoice_posting_date"
+      v-model="invoice_posting_date"
+      :close-on-content-click="false"
+      transition="scale-transition"
+      density="default"
+    >
+      <template v-slot:activator="{ props }">
+        <v-text-field
+          v-model="posting_date"
+          :label="frappe._('Posting Date')"
+          readonly
+          variant="outlined"
+          density="compact"
+          bg-color="white"
+          clearable
+          color="primary"
+          hide-details
+          v-bind="props"
+        ></v-text-field>
+      </template>
+      <v-date-picker
+        v-model="posting_date"
+        no-title
+        scrollable
+        color="primary"
+        :min="frappe.datetime.add_days(frappe.datetime.now_date(true), -7)"
+        :max="frappe.datetime.add_days(frappe.datetime.now_date(true), 7)"
+        @input="invoice_posting_date = false"
+      ></v-date-picker>
+    </v-menu>
+  </v-col>
 
+  <!-- Balance Field -->
+  <v-col cols="6" class="pb-2 d-flex align-center">
+    <div class="balance-field">
+      <strong>Balance:</strong>
+      <span class="balance-value">{{ formatCurrency(customer_balance) }}</span>
+    </div>
+  </v-col>
+</v-row>
       <div class="my-0 py-0 overflow-y-auto" style="max-height: 60vh">
         <v-data-table :headers="items_headers" :items="items" v-model:expanded="expanded" show-expand
           item-value="posa_row_id" class="elevation-1" :items-per-page="itemsPerPage" expand-on-click
@@ -91,8 +119,7 @@
               )
             }}</template>
           <template v-slot:item.posa_is_offer="{ item }">
-            <v-checkbox-btn :model-value="!!item.posa_is_offer || !!item.posa_is_replace" class="center"
-              disabled></v-checkbox-btn>
+            <v-checkbox-btn v-model="item.posa_is_offer" class="center"></v-checkbox-btn>
           </template>
 
           <template v-slot:expanded-row="{ columns: headers, item }">
@@ -127,7 +154,7 @@
                   <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('QTY')"
                     bg-color="white" hide-details :model-value="formatFloat(item.qty)" @change="
                       [
-                        setFormatedFloat(item, 'qty', null, false, $event),
+                        setFormatedFloat(item, 'qty', null, false, $event.target.value),
                         calc_stock_qty(item, $event),
                       ]
                       " :rules="[isNumber]" :disabled="!!item.posa_is_offer || !!item.posa_is_replace"></v-text-field>
@@ -153,7 +180,7 @@
                           false,
                           $event
                         ),
-                        calc_prices(item, $event),
+                        calc_prices(item, $event.target.value, $event),
                       ]
                       " :rules="[isNumber]" id="rate" :disabled="!!item.posa_is_offer ||
                         !!item.posa_is_replace ||
@@ -176,7 +203,7 @@
                           true,
                           $event
                         ),
-                        calc_prices(item, $event),
+                        calc_prices(item, $event.target.value, $event),
                       ]
                       " :rules="[isNumber]" id="discount_percentage" :disabled="!!item.posa_is_offer ||
                         !!item.posa_is_replace ||
@@ -200,7 +227,7 @@
                           $event
                         ),
                         ,
-                        calc_prices(item, $event),
+                        calc_prices(item, $event.target.value, $event),
                       ]
                       " :prefix="currencySymbol(pos_profile.currency)" id="discount_amount" :disabled="!!item.posa_is_offer ||
                         !!item.posa_is_replace ||
@@ -301,11 +328,6 @@
                     </v-date-picker>
                   </v-menu>
                 </v-col>
-                <v-col cols="8" v-if="pos_profile.posa_display_additional_notes">
-                  <v-textarea class="pa-0" variant="outlined" density="compact" clearable color="primary" auto-grow
-                    rows="1" :label="frappe._('Additional Notes')" v-model="item.posa_notes"
-                    :model-value="item.posa_notes"></v-textarea>
-                </v-col>
               </v-row>
             </td>
           </template>
@@ -321,20 +343,16 @@
                 density="compact" readonly hide-details color="accent"></v-text-field>
             </v-col>
             <v-col v-if="!pos_profile.posa_use_percentage_discount" cols="6" class="pa-1">
-              <v-text-field :model-value="formatCurrency(discount_amount)" @change="
-                setFormatedCurrency(
-                  discount_amount,
-                  'discount_amount',
-                  null,
-                  false,
-                  $event
-                )
-                " :rules="[isNumber]" :label="frappe._('Additional Discount')" ref="discount" variant="outlined"
-                density="compact" hide-details color="warning" :prefix="currencySymbol(pos_profile.currency)" :disabled="!pos_profile.posa_allow_user_to_edit_additional_discount ||
-                  discount_percentage_offer_name
-                  ? true
-                  : false
-                  "></v-text-field>
+              <v-text-field
+  v-model="discount_amount"
+  :label="frappe._('Additional Discount')"
+  variant="outlined"
+  density="compact"
+  color="warning"
+  :prefix="currencySymbol(pos_profile.currency)"
+  :disabled="!pos_profile.posa_allow_user_to_edit_additional_discount"
+>
+</v-text-field>
             </v-col>
             <v-col v-if="pos_profile.posa_use_percentage_discount" cols="6" class="pa-1">
               <v-text-field :model-value="formatFloat(additional_discount_percentage)" @change="
@@ -422,6 +440,7 @@ export default {
       return_doc: "",
       customer: "",
       customer_info: "",
+	  customer_balance: 0,
       discount_amount: 0,
       additional_discount_percentage: 0,
       total_tax: 0,
@@ -667,6 +686,32 @@ export default {
         : "Invoice";
       this.invoiceTypes = ["Invoice", "Order"];
     },
+	
+	async fetch_customer_balance() {
+  if (!this.customer) {
+    this.customer_balance = 0;
+    return;
+  }
+
+  try {
+    const r = await frappe.call({
+      method: "posawesome.posawesome.api.customer.get_customer_balance",
+      args: {
+        customer: this.customer
+      }
+    });
+
+    if (r && r.message) {
+      this.customer_balance = r.message.balance || 0;
+    } else {
+      this.customer_balance = 0;
+    }
+  } catch (error) {
+    console.error("Error fetching customer balance:", error);
+    this.customer_balance = 0;
+  }
+},
+
 
     async cancel_invoice() {
       const doc = this.get_invoice_doc();
@@ -1129,22 +1174,12 @@ export default {
             }
           }
         }
-        if (this.stock_settings.allow_negative_stock != 1) {
-          if (
-            this.invoiceType == "Invoice" &&
-            ((item.is_stock_item && item.stock_qty && !item.actual_qty) ||
-              (item.is_stock_item && item.stock_qty > item.actual_qty))
-          ) {
-            vm.eventBus.emit("show_message", {
-              title: __(
-                `The existing quantity '{0}' for item '{1}' is not enough`,
-                [item.actual_qty, item.item_name]
-              ),
-              color: "error",
-            });
-            value = false;
-          }
-        }
+        // Completely skip stock validation
+if (this.invoiceType == "Invoice") {
+  console.warn(`Stock validation skipped for item: ${item.item_name}`);
+  value = true; // Always allow the operation to proceed
+}
+
         if (item.qty == 0) {
           vm.eventBus.emit("show_message", {
             title: __(`Quantity for item '{0}' cannot be Zero (0)`, [
@@ -1486,41 +1521,91 @@ export default {
     },
 
     calc_prices(item, value, $event) {
-      if (event.target.id === "rate") {
-        item.discount_percentage = 0;
-        if (value < item.price_list_rate) {
-          item.discount_amount = this.flt(
-            this.flt(item.price_list_rate) - flt(value),
-            this.currency_precision
-          );
-        } else if (value < 0) {
-          item.rate = item.price_list_rate;
-          item.discount_amount = 0;
-        } else if (value > item.price_list_rate) {
-          item.discount_amount = 0;
-        }
-      } else if (event.target.id === "discount_amount") {
-        if (value < 0) {
-          item.discount_amount = 0;
+      
+      if ($event && $event.target && $event.target.id) {
+        
+        const fieldId = $event.target.id; 
+
+        if (fieldId === "rate") {
+          
           item.discount_percentage = 0;
-        } else {
-          item.rate = flt(item.price_list_rate) - flt(value);
-          item.discount_percentage = 0;
-        }
-      } else if (event.target.id === "discount_percentage") {
-        if (value < 0) {
-          item.discount_amount = 0;
-          item.discount_percentage = 0;
-        } else {
-          item.rate = this.flt(
-            flt(item.price_list_rate) -
-            (flt(item.price_list_rate) * flt(value)) / 100,
-            this.currency_precision
-          );
-          item.discount_amount = this.flt(
-            flt(item.price_list_rate) - flt(+item.rate),
-            this.currency_precision
-          );
+		  
+          // if (value < 0) {
+          //   item.rate = item.price_list_rate;
+          //   item.discount_amount = 0;
+          // } 
+          // else if (value < item.price_list_rate) {
+          //   item.discount_amount = this.flt(
+          //     this.flt(item.price_list_rate) - flt(value),
+          //     this.currency_precision
+          //   );
+          // } else if (value > item.price_list_rate) {
+          //   item.discount_amount = 0;
+          // }
+
+          if (value < 0) {
+            
+            alert("Negative rate ki ijazat nahi!");
+            item.rate = 0; // ya item.rate = item.rate 
+            item.discount_amount = 0;
+          } else {
+            item.rate = value;
+
+            //discount_amount = difference of price_list_rate - user rate
+            if (item.price_list_rate && value < item.price_list_rate) {
+              item.discount_amount = this.flt(
+                this.flt(item.price_list_rate) - flt(value),
+                this.currency_precision
+              );
+            } else {
+              item.discount_amount = 0;
+            }
+          }
+
+        } 
+        else if (fieldId === "discount_amount") {
+          if (value < 0) {
+            item.discount_amount = 0;
+            item.discount_percentage = 0;
+          } else {
+            // Original code:
+            // item.rate = flt(item.price_list_rate) - flt(value);
+            // item.discount_percentage = 0;
+
+            // Agar aap yahi logic rakhna chahte hain, theek hai,
+            // warna comment out kar dein.
+            item.rate = flt(item.price_list_rate) - flt(value);
+            item.discount_percentage = 0;
+          }
+        } 
+        else if (fieldId === "discount_percentage") {
+          if (value < 0) {
+            item.discount_amount = 0;
+            item.discount_percentage = 0;
+          } else {
+            // Original code:
+            // item.rate = this.flt(
+            //   flt(item.price_list_rate) -
+            //     (flt(item.price_list_rate) * flt(value)) / 100,
+            //   this.currency_precision
+            // );
+            // item.discount_amount = this.flt(
+            //   flt(item.price_list_rate) - flt(+item.rate),
+            //   this.currency_precision
+            // );
+
+            // Agar aap discount_percentage se rate/amount auto-calc rakhna chahte hain,
+            // to yehi logic theek hai. 
+            item.rate = this.flt(
+              flt(item.price_list_rate) - 
+              (flt(item.price_list_rate) * flt(value)) / 100,
+              this.currency_precision
+            );
+            item.discount_amount = this.flt(
+              flt(item.price_list_rate) - flt(+item.rate),
+              this.currency_precision
+            );
+          }
         }
       }
     },
@@ -2580,6 +2665,7 @@ export default {
       this.close_payments();
       this.eventBus.emit("set_customer", this.customer);
       this.fetch_customer_details();
+	  this.fetch_customer_balance();
       this.set_delivery_charges();
     },
     customer_info() {
@@ -2628,4 +2714,17 @@ export default {
 .disable-events {
   pointer-events: none;
 }
+.balance-field {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.balance-value {
+  font-size: 1.5rem; /* Larger font size */
+  font-weight: bold; /* Bold text */
+  color: #d32f2f; /* Red color for balance value */
+  margin-left: 5px; /* Add spacing between label and value */
+}
+
 </style>

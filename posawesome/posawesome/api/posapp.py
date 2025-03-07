@@ -1048,11 +1048,17 @@ def create_customer(
     customer_type=None,
     gender=None,
     method="create",
+    address_line1=None,
+    city=None,
+    country=None,
 ):
     pos_profile = json.loads(pos_profile_doc)
+    
     if method == "create":
+        
         is_exist = frappe.db.exists("Customer", {"customer_name": customer_name})
         if pos_profile.get("posa_allow_duplicate_customer_names") or not is_exist:
+            
             customer = frappe.get_doc(
                 {
                     "doctype": "Customer",
@@ -1075,27 +1081,64 @@ def create_customer(
                 customer.territory = territory
             else:
                 customer.territory = "All Territories"
+
             customer.save()
+
+            if address_line1 or city:
+                args = {
+                    "name": f"{customer.customer_name} - Shipping",
+                    "doctype": "Customer",
+                    "customer": customer.name,
+                    "address_line1": address_line1 or "",
+                    "address_line2": "",
+                    "city": city or "",
+                    "state": "",
+                    "pincode": "",
+                    "country": country or "Pakistan",
+                }
+                make_address(json.dumps(args))
+
             return customer
         else:
             frappe.throw(_("Customer already exists"))
 
     elif method == "update":
+        
         customer_doc = frappe.get_doc("Customer", customer_id)
         customer_doc.customer_name = customer_name
-        customer_doc.posa_referral_company = company
-        customer_doc.tax_id = tax_id
-        customer_doc.posa_referral_code = referral_code
-        customer_doc.posa_birthday = birthday
-        customer_doc.customer_type = customer_type
-        customer_doc.territory = territory
-        customer_doc.customer_group = customer_group
+        ...
         customer_doc.gender = gender
         customer_doc.save()
-        if mobile_no != customer_doc.mobile_no:
-            set_customer_info(customer_doc.name, "mobile_no", mobile_no)
-        if email_id != customer_doc.email_id:
-            set_customer_info(customer_doc.name, "email_id", email_id)
+
+        existing_address_name = frappe.db.get_value(
+            "Dynamic Link",
+            {"link_doctype": "Customer", "link_name": customer_id},
+            "parent"
+        )
+
+        if existing_address_name:
+            
+            address_doc = frappe.get_doc("Address", existing_address_name)
+            address_doc.address_line1 = address_line1 or ""
+            address_doc.city = city or ""
+            address_doc.country = country or "Pakistan"
+            address_doc.save()
+        else:
+            
+            if address_line1 or city:
+                args = {
+                    "name": f"{customer_doc.customer_name} - Shipping",
+                    "doctype": "Customer",
+                    "customer": customer_doc.name,
+                    "address_line1": address_line1 or "",
+                    "address_line2": "",
+                    "city": city or "",
+                    "state": "",
+                    "pincode": "",
+                    "country": country or "Pakistan",
+                }
+                make_address(json.dumps(args))
+
         return customer_doc
 
 
@@ -1707,6 +1750,40 @@ def get_customer_info(customer):
         )
         res["loyalty_points"] = lp_details.get("loyalty_points")
         res["conversion_factor"] = lp_details.get("conversion_factor")
+        
+    addresses = frappe.db.sql(
+        """
+        SELECT
+            address.name as address_name,
+            address.address_line1,
+            address.address_line2,
+            address.city,
+            address.state,
+            address.country,
+            address.address_type
+        FROM `tabAddress` address
+        INNER JOIN `tabDynamic Link` link
+            ON (address.name = link.parent)
+        WHERE
+            link.link_doctype = 'Customer'
+            AND link.link_name = %s
+            AND address.disabled = 0
+            AND address.address_type = 'Shipping'
+        ORDER BY address.creation DESC
+        LIMIT 1
+        """,
+        (customer.name,),
+        as_dict=True
+    )
+
+    if addresses:
+        
+        addr = addresses[0]
+        res["address_line1"] = addr.address_line1 or ""
+        res["address_line2"] = addr.address_line2 or ""
+        res["city"] = addr.city or ""
+        res["state"] = addr.state or ""
+        res["country"] = addr.country or "Pakistan"
 
     return res
 
