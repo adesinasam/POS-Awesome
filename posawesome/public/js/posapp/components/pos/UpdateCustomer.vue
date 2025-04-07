@@ -36,20 +36,29 @@
   ></v-text-field>
 </v-col>
 
-<v-col cols="6">
+<v-col cols="12" sm="6">
   <v-text-field
-    density="compact"
-    color="primary"
-    :label="__('City')"
-    bg-color="white"
-    hide-details
     v-model="city"
+    outlined
+    dense
+    :label="__('City')"
   ></v-text-field>
 </v-col>
-              <v-col cols="6">
-                <v-text-field density="compact" color="primary" :label="frappe._('Email Id')" bg-color="white"
-                  hide-details v-model="email_id"></v-text-field>
-              </v-col>
+
+<v-col cols="12" sm="6">
+  <v-select
+    v-model="country"
+    :items="countries"
+    outlined
+    dense
+    :label="__('Country')"
+  ></v-select>
+</v-col>
+
+<v-col cols="6">
+  <v-text-field density="compact" color="primary" :label="frappe._('Email Id')" bg-color="white"
+    hide-details v-model="email_id"></v-text-field>
+</v-col>
               <v-col cols="6">
                 <v-select density="compact" label="Gender" :items="genders" v-model="gender"></v-select>
               </v-col>
@@ -116,9 +125,9 @@ export default {
     customer_name: '',
     tax_id: '',
     mobile_no: '',
-	address_line1: '',
-	city: '',
-	country: 'Pakistan', // by default
+    address_line1: '',
+    city: '',
+    country: 'Pakistan',
     email_id: '',
     referral_code: '',
     birthday: '',
@@ -132,6 +141,43 @@ export default {
     gender: '',
     loyalty_points: null,
     loyalty_program: null,
+    countries: [
+      'Afghanistan',
+      'Australia',
+      'Bahrain',
+      'Bangladesh',
+      'Canada',
+      'China',
+      'Denmark',
+      'France',
+      'Germany',
+      'India',
+      'Indonesia',
+      'Italy',
+      'Japan',
+      'Kuwait',
+      'Malaysia',
+      'Nepal',
+      'Netherlands',
+      'New Zealand',
+      'Norway',
+      'Oman',
+      'Pakistan',
+      'Philippines',
+      'Qatar',
+      'Saudi Arabia',
+      'Singapore',
+      'South Korea',
+      'Spain',
+      'Sri Lanka',
+      'Sweden',
+      'Switzerland',
+      'Thailand',
+      'United Arab Emirates',
+      'United Kingdom',
+      'United States',
+      'Vietnam'
+    ],
   }),
   watch: {},
   methods: {
@@ -143,9 +189,9 @@ export default {
       this.customer_name = '';
       this.tax_id = '';
       this.mobile_no = '';
-	  this.address_line1 = '';
-	  this.city = '';
-	  this.country = 'Pakistan';
+      this.address_line1 = '';
+      this.city = '';
+      this.country = 'Pakistan';
       this.email_id = '';
       this.referral_code = '';
       this.birthday = '';

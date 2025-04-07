@@ -17,19 +17,21 @@
               readonly
               :prefix="currencySymbol(invoice_doc.currency)"
               density="compact"
+              @click="showPaidAmount"
             ></v-text-field>
           </v-col>
           <v-col cols="5">
             <v-text-field
               variant="outlined"
               color="primary"
-              :label="frappe._(diff_lable)"
+              label="To Be Paid"
               bg-color="white"
               hide-details
-              :value="formatCurrency(diff_payment)"
-              readonly
+              v-model="diff_payment_display"
               :prefix="currencySymbol(invoice_doc.currency)"
               density="compact"
+              @focus="showDiffPayment"
+              persistent-placeholder
             ></v-text-field>
           </v-col>
 
@@ -46,6 +48,7 @@
               density="compact"
               readonly
               type="number"
+              @click="showPaidChange"
             ></v-text-field>
           </v-col>
 
@@ -56,11 +59,11 @@
               color="primary"
               :label="frappe._('Credit Change')"
               bg-color="white"
-              hide-details
-              :value="formatCurrency(credit_change)"
-              readonly
+              v-model.number="credit_change"
               :prefix="currencySymbol(invoice_doc.currency)"
               density="compact"
+              type="number"
+              @input="updateCreditChange"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -79,10 +82,16 @@
                 bg-color="white"
                 hide-details
                 v-model.number="payment.amount"
-                :rules="[isNumber]"
+                :rules="[
+                  isNumber,
+                  v => !payment.mode_of_payment.toLowerCase().includes('cash') || 
+                       this.is_credit_sale || 
+                       v >= (this.invoice_doc.rounded_total || this.invoice_doc.grand_total) || 
+                       'Cash payment cannot be less than invoice total when credit sale is off'
+                ]"
                 :prefix="currencySymbol(invoice_doc.currency)"
                 @focus="set_rest_amount(payment.idx)"
-                :readonly="invoice_doc.is_return || (payment.mode_of_payment.toLowerCase() === 'cash' && !is_credit_sale)"
+                :readonly="invoice_doc.is_return"
               ></v-text-field>
             </v-col>
             <v-col cols="6" v-if="!is_mpesa_c2b_payment(payment)">
@@ -646,10 +655,9 @@ export default {
 
     // Difference between invoice total and total payments
     diff_payment() {
+      if (!this.invoice_doc) return 0;
       let invoice_total = this.flt(this.invoice_doc.rounded_total || this.invoice_doc.grand_total, this.currency_precision);
       let diff = this.flt(invoice_total - this.total_payments, this.currency_precision);
-      
-      // "To Be Paid" cannot be negative
       return diff >= 0 ? diff : 0;
     },
 
@@ -702,6 +710,15 @@ export default {
         (el) => el.fieldtype === "Button" && el.fieldname === "request_for_payment"
       ) || false;
     },
+
+    diff_payment_display: {
+      get() {
+        return this.formatCurrency(this.diff_payment);
+      },
+      set(value) {
+        // Handle any changes if needed
+      }
+    }
   },
   watch: {
     // Watch diff_payment to update paid_change
@@ -769,18 +786,22 @@ export default {
 
     // Watch is_credit_sale to reset cash payments
     is_credit_sale(newVal) {
-    if (newVal) {
-      // When credit sale is turned on, reset cash payments to 0
-      this.reset_cash_payments();
-    } else {
-      // When credit sale is turned off, set the cash payment back to the invoice total
-      this.invoice_doc.payments.forEach((payment) => {
-        if (payment.mode_of_payment.toLowerCase() === 'cash') {
-          payment.amount = this.invoice_doc.rounded_total || this.invoice_doc.grand_total;
-        }
-      });
-    }
-  },
+      if (newVal) {
+        // Credit sale on hone par sirf cash payment ko 0 karein, field disable nahi karein
+        this.invoice_doc.payments.forEach((payment) => {
+          if (payment.mode_of_payment.toLowerCase() === 'cash') {
+            payment.amount = 0;
+          }
+        });
+      } else {
+        // Credit sale off hone par cash payment ko invoice total ke equal karein
+        this.invoice_doc.payments.forEach((payment) => {
+          if (payment.mode_of_payment.toLowerCase() === 'cash') {
+            payment.amount = this.invoice_doc.rounded_total || this.invoice_doc.grand_total;
+          }
+        });
+      }
+    },
   },
   methods: {
     // Back to Invoice View
@@ -800,9 +821,53 @@ export default {
 
     // Submit Payment
     submit(event, payment_received = false, print = false) {
-      if (!this.invoice_doc.is_return && this.total_payments < 0) {
+      // Validate total payments only if not credit sale and invoice total is not zero
+      if (!this.is_credit_sale && !this.invoice_doc.is_return && 
+          this.total_payments <= 0 && 
+          (this.invoice_doc.rounded_total || this.invoice_doc.grand_total) > 0) {
         this.eventBus.emit("show_message", {
-          title: `Payments not correct`,
+          title: `Please enter payment amount`,
+          color: "error",
+        });
+        frappe.utils.play_sound("error");
+        return;
+      }
+
+      // Validate cash payments when credit sale is off
+      if (!this.is_credit_sale && !this.invoice_doc.is_return) {
+        let has_cash_payment = false;
+        let cash_amount = 0;
+        
+        this.invoice_doc.payments.forEach((payment) => {
+          if (payment.mode_of_payment.toLowerCase().includes('cash')) {
+            has_cash_payment = true;
+            cash_amount = this.flt(payment.amount);
+          }
+        });
+
+        if (has_cash_payment) {
+          if (!this.pos_profile.posa_allow_partial_payment && 
+              cash_amount < (this.invoice_doc.rounded_total || this.invoice_doc.grand_total) &&
+              (this.invoice_doc.rounded_total || this.invoice_doc.grand_total) > 0) {
+            this.eventBus.emit("show_message", {
+              title: `Cash payment cannot be less than invoice total when partial payment is not allowed`,
+              color: "error",
+            });
+            frappe.utils.play_sound("error");
+            return;
+          }
+        }
+      }
+
+      // Validate partial payments only if not credit sale and invoice total is not zero
+      if (
+        !this.is_credit_sale &&
+        !this.pos_profile.posa_allow_partial_payment &&
+        this.total_payments < (this.invoice_doc.rounded_total || this.invoice_doc.grand_total) &&
+        (this.invoice_doc.rounded_total || this.invoice_doc.grand_total) > 0
+      ) {
+        this.eventBus.emit("show_message", {
+          title: `The amount paid is not complete`,
           color: "error",
         });
         frappe.utils.play_sound("error");
@@ -826,36 +891,8 @@ export default {
             color: "error",
           });
           frappe.utils.play_sound("error");
-          console.error("Phone payment not requested");
           return;
         }
-      }
-
-      // Validate partial payments
-      if (
-        !this.is_credit_sale &&
-        !this.pos_profile.posa_allow_partial_payment &&
-        this.total_payments < (this.invoice_doc.rounded_total || this.invoice_doc.grand_total)
-      ) {
-        this.eventBus.emit("show_message", {
-          title: `The amount paid is not complete`,
-          color: "error",
-        });
-        frappe.utils.play_sound("error");
-        return;
-      }
-
-      if (
-        this.pos_profile.posa_allow_partial_payment &&
-        !this.pos_profile.posa_allow_credit_sale &&
-        this.total_payments === 0
-      ) {
-        this.eventBus.emit("show_message", {
-          title: `Please enter the amount paid`,
-          color: "error",
-        });
-        frappe.utils.play_sound("error");
-        return;
       }
 
       // Validate paid_change
@@ -1300,6 +1337,34 @@ export default {
       const day = (`0${d.getDate()}`).slice(-2);
       return `${year}-${month}-${day}`;
     },
+
+    showPaidAmount() {
+      this.eventBus.emit("show_message", {
+        title: `Total Paid Amount: ${this.formatCurrency(this.total_payments)}`,
+        color: "info",
+      });
+    },
+    showDiffPayment() {
+      if (!this.invoice_doc) return;
+      this.eventBus.emit("show_message", {
+        title: `To Be Paid: ${this.formatCurrency(this.diff_payment)}`,
+        color: "info",
+      });
+    },
+    showPaidChange() {
+      this.eventBus.emit("show_message", {
+        title: `Paid Change: ${this.formatCurrency(this.paid_change)}`,
+        color: "info",
+      });
+    },
+    showCreditChange(value) {
+      if (value > 0) {
+        this.credit_change = value;
+        this.paid_change = -this.diff_payment;
+      } else {
+        this.credit_change = 0;
+      }
+    },
   },
   mounted() {
     this.$nextTick(() => {
@@ -1390,3 +1455,22 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.v-text-field {
+  cursor: text;
+}
+
+.v-text-field:hover {
+  background-color: rgba(var(--v-theme-primary), 0.05);
+}
+
+/* Remove readonly styling */
+.v-text-field--readonly {
+  cursor: text;
+}
+
+.v-text-field--readonly:hover {
+  background-color: transparent;
+}
+</style>

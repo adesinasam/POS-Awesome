@@ -483,70 +483,38 @@ def add_taxes_from_tax_template(item, parent_doc):
 
 
 @frappe.whitelist()
-def update_invoice_from_order(data):
-    data = json.loads(data)
-    invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
-    invoice_doc.update(data)
-    invoice_doc.save()
-    return invoice_doc
-
-
-@frappe.whitelist()
 def update_invoice(data):
     data = json.loads(data)
-    if data.get("name"):
-        invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+    
+    # If this is a return invoice, validate items first
+    if data.get('is_return') and data.get('return_against'):
+        validation_result = validate_return_items(data.get('return_against'), data.get('items', []))
+        if not validation_result.get('valid'):
+            frappe.throw(validation_result.get('message'))
+            
+    # Continue with existing logic
+    invoice_doc = frappe.get_doc("Sales Invoice", data.get("name")) if data.get("name") else None
+    
+    if not invoice_doc:
+        invoice_doc = frappe.new_doc("Sales Invoice")
         invoice_doc.update(data)
     else:
-        invoice_doc = frappe.get_doc(data)
-
-    invoice_doc.set_missing_values()
+        invoice_doc.update(data)
+    
+    # Set update_stock to 1 for all invoices except delivery date based ones
+    if not data.get("posa_delivery_date"):
+        invoice_doc.update_stock = 1
+    else:
+        invoice_doc.update_stock = 0
+        
+    # Ensure stock is updated for returns
+    if data.get('is_return'):
+        invoice_doc.update_stock = 1
+        
     invoice_doc.flags.ignore_permissions = True
-    frappe.flags.ignore_account_permission = True
-
-    if invoice_doc.is_return and invoice_doc.return_against:
-        ref_doc = frappe.get_cached_doc(invoice_doc.doctype, invoice_doc.return_against)
-        if not ref_doc.update_stock:
-            invoice_doc.update_stock = 0
-        if len(invoice_doc.payments) == 0:
-            invoice_doc.payments = ref_doc.payments
-        invoice_doc.paid_amount = (
-            invoice_doc.rounded_total or invoice_doc.grand_total or invoice_doc.total
-        )
-        for payment in invoice_doc.payments:
-            if payment.default:
-                payment.amount = invoice_doc.paid_amount
-    allow_zero_rated_items = frappe.get_cached_value(
-        "POS Profile", invoice_doc.pos_profile, "posa_allow_zero_rated_items"
-    )
-    for item in invoice_doc.items:
-        if not item.rate or item.rate == 0:
-            if allow_zero_rated_items:
-                item.price_list_rate = 0.00
-                item.is_free_item = 1
-            else:
-                frappe.throw(
-                    _("Rate cannot be zero for item {0}").format(item.item_code)
-                )
-        else:
-            item.is_free_item = 0
-        add_taxes_from_tax_template(item, invoice_doc)
-
-    if frappe.get_cached_value(
-        "POS Profile", invoice_doc.pos_profile, "posa_tax_inclusive"
-    ):
-        if invoice_doc.get("taxes"):
-            for tax in invoice_doc.taxes:
-                tax.included_in_print_rate = 1
-
-    today_date = getdate()
-    if (
-        invoice_doc.get("posting_date")
-        and getdate(invoice_doc.posting_date) != today_date
-    ):
-        invoice_doc.set_posting_time = 1
-
+    invoice_doc.ignore_mandatory = True
     invoice_doc.save()
+    
     return invoice_doc
 
 
@@ -1094,7 +1062,7 @@ def create_customer(
                     "city": city or "",
                     "state": "",
                     "pincode": "",
-                    "country": country or "Pakistan",
+                    "country": country or "",
                 }
                 make_address(json.dumps(args))
 
@@ -1106,7 +1074,12 @@ def create_customer(
         
         customer_doc = frappe.get_doc("Customer", customer_id)
         customer_doc.customer_name = customer_name
-        ...
+        customer_doc.tax_id = tax_id
+        customer_doc.mobile_no = mobile_no
+        customer_doc.email_id = email_id
+        customer_doc.posa_referral_code = referral_code
+        customer_doc.posa_birthday = birthday
+        customer_doc.customer_type = customer_type
         customer_doc.gender = gender
         customer_doc.save()
 
@@ -1121,7 +1094,7 @@ def create_customer(
             address_doc = frappe.get_doc("Address", existing_address_name)
             address_doc.address_line1 = address_line1 or ""
             address_doc.city = city or ""
-            address_doc.country = country or "Pakistan"
+            address_doc.country = country or ""
             address_doc.save()
         else:
             
@@ -1135,7 +1108,7 @@ def create_customer(
                     "city": city or "",
                     "state": "",
                     "pincode": "",
-                    "country": country or "Pakistan",
+                    "country": country or "",
                 }
                 make_address(json.dumps(args))
 
@@ -1265,16 +1238,42 @@ def search_invoices_for_return(invoice_name, company):
         order_by="customer",
     )
     data = []
-    is_returned = frappe.get_all(
-        "Sales Invoice",
-        filters={"return_against": invoice_name, "docstatus": 1},
-        fields=["name"],
-        order_by="customer",
-    )
-    if len(is_returned):
-        return data
+    
     for invoice in invoices_list:
-        data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
+        invoice_doc = frappe.get_doc("Sales Invoice", invoice["name"])
+        
+        # Check if any items have already been returned
+        has_returns = frappe.get_all(
+            "Sales Invoice",
+            filters={
+                "return_against": invoice["name"],
+                "docstatus": 1
+            },
+            fields=["name"]
+        )
+        
+        if has_returns:
+            # Get all returned items
+            returned_items = []
+            for ret_inv in has_returns:
+                ret_doc = frappe.get_doc("Sales Invoice", ret_inv.name)
+                for item in ret_doc.items:
+                    returned_items.append(item.item_code)
+            
+            # Filter out returned items from original invoice
+            filtered_items = []
+            for item in invoice_doc.items:
+                if item.item_code not in returned_items:
+                    filtered_items.append(item)
+            
+            if filtered_items:
+                # Create a copy of invoice with filtered items
+                filtered_invoice = frappe.get_doc("Sales Invoice", invoice["name"])
+                filtered_invoice.items = filtered_items
+                data.append(filtered_invoice)
+        else:
+            data.append(invoice_doc)
+            
     return data
 
 
@@ -1783,7 +1782,7 @@ def get_customer_info(customer):
         res["address_line2"] = addr.address_line2 or ""
         res["city"] = addr.city or ""
         res["state"] = addr.state or ""
-        res["country"] = addr.country or "Pakistan"
+        res["country"] = addr.country or ""
 
     return res
 

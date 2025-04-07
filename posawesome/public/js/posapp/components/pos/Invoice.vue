@@ -23,13 +23,10 @@
       </v-card>
     </v-dialog>
     <v-card style="max-height: 70vh; height: 70vh" class="cards my-0 py-0 mt-3 bg-grey-lighten-5">
-      <v-row align="center" class="items px-2 py-1">
-        <v-col v-if="pos_profile.posa_allow_sales_order" cols="9" class="pb-2 pr-0">
-          <Customer></Customer>
-        </v-col>
-        <v-col v-if="!pos_profile.posa_allow_sales_order" cols="12" class="pb-2">
-          <Customer></Customer>
-        </v-col>
+  <v-row align="center" class="items px-2 py-1">
+    <v-col :cols="pos_profile.posa_allow_sales_order ? 9 : 12" class="pb-2 pr-0">
+      <Customer />
+    </v-col>
         <v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="pb-2">
           <v-select density="compact" hide-details variant="outlined" color="primary" bg-color="white"
             :items="invoiceTypes" :label="frappe._('Type')" v-model="invoiceType"
@@ -59,49 +56,22 @@
         </v-col>
       </v-row>
       <v-row align="center" class="items px-2 py-1 mt-0 pt-0" v-if="pos_profile.posa_allow_change_posting_date">
-  <!-- Posting Date Field -->
-  <v-col cols="6" class="pb-2">
-    <v-menu
-      ref="invoice_posting_date"
-      v-model="invoice_posting_date"
-      :close-on-content-click="false"
-      transition="scale-transition"
-      density="default"
-    >
-      <template v-slot:activator="{ props }">
-        <v-text-field
-          v-model="posting_date"
-          :label="frappe._('Posting Date')"
-          readonly
-          variant="outlined"
-          density="compact"
-          bg-color="white"
-          clearable
-          color="primary"
-          hide-details
-          v-bind="props"
-        ></v-text-field>
-      </template>
-      <v-date-picker
-        v-model="posting_date"
-        no-title
-        scrollable
-        color="primary"
-        :min="frappe.datetime.add_days(frappe.datetime.now_date(true), -7)"
-        :max="frappe.datetime.add_days(frappe.datetime.now_date(true), 7)"
-        @input="invoice_posting_date = false"
-      ></v-date-picker>
-    </v-menu>
-  </v-col>
-
-  <!-- Balance Field -->
-  <v-col cols="6" class="pb-2 d-flex align-center">
-    <div class="balance-field">
-      <strong>Balance:</strong>
-      <span class="balance-value">{{ formatCurrency(customer_balance) }}</span>
-    </div>
-  </v-col>
-</v-row>
+        <v-col cols="6" class="pb-2">
+          <PostingDate
+            v-model="posting_date"
+            :min-date="frappe.datetime.add_days(frappe.datetime.nowdate(true), -7)"
+            :max-date="frappe.datetime.add_days(frappe.datetime.nowdate(true), 7)"
+            @update:model-value="updatePostingDate"
+          />
+        </v-col>
+        <!-- Balance Field -->
+        <v-col v-if="pos_profile.posa_show_customer_balance" cols="6" class="pb-2 d-flex align-center">
+        <div class="balance-field">
+          <strong>Balance:</strong>
+          <span class="balance-value">{{ formatCurrency(customer_balance) }}</span>
+        </div>
+      </v-col>
+      </v-row>
       <div class="my-0 py-0 overflow-y-auto" style="max-height: 60vh">
         <v-data-table :headers="items_headers" :items="items" v-model:expanded="expanded" show-expand
           item-value="posa_row_id" class="elevation-1" :items-per-page="itemsPerPage" expand-on-click
@@ -119,27 +89,31 @@
               )
             }}</template>
           <template v-slot:item.posa_is_offer="{ item }">
-            <v-checkbox-btn v-model="item.posa_is_offer" class="center"></v-checkbox-btn>
-          </template>
+  <v-checkbox-btn
+    v-model="item.posa_is_offer"
+    class="center"
+    @change="toggleOffer(item)"
+  ></v-checkbox-btn>
+</template>
 
           <template v-slot:expanded-row="{ columns: headers, item }">
             <td :colspan="headers.length" class="ma-0 pa-0">
               <v-row class="ma-0 pa-0">
                 <v-col cols="1">
-                  <v-btn :disabled="!!item.posa_is_offer || !!item.posa_is_replace" icon color="error"
+                  <v-btn :disabled="!!item.posa_is_replace" icon color="error"
                     @click.stop="remove_item(item)">
                     <v-icon icon="mdi-delete">mdi-delete</v-icon>
                   </v-btn>
                 </v-col>
                 <v-spacer></v-spacer>
                 <v-col cols="1">
-                  <v-btn :disabled="!!item.posa_is_offer || !!item.posa_is_replace" icon color="secondary"
+                  <v-btn :disabled="!!item.posa_is_replace" icon color="secondary"
                     @click.stop="subtract_one(item)">
                     <v-icon icon="mdi-minus-circle-outline"></v-icon>
                   </v-btn>
                 </v-col>
                 <v-col cols="1">
-                  <v-btn :disabled="!!item.posa_is_offer || !!item.posa_is_replace" icon color="secondary"
+                  <v-btn :disabled="!!item.posa_is_replace" icon color="secondary"
                     @click.stop="add_one(item)">
                     <v-icon icon="mdi-plus-circle-outline"></v-icon>
                   </v-btn>
@@ -155,15 +129,14 @@
                     bg-color="white" hide-details :model-value="formatFloat(item.qty)" @change="
                       [
                         setFormatedFloat(item, 'qty', null, false, $event.target.value),
-                        calc_stock_qty(item, $event),
+                        calc_stock_qty(item, $event.target.value),
                       ]
-                      " :rules="[isNumber]" :disabled="!!item.posa_is_offer || !!item.posa_is_replace"></v-text-field>
+                      " :rules="[isNumber]" :disabled="!!item.posa_is_replace"></v-text-field>
                 </v-col>
                 <v-col cols="4">
                   <v-select density="compact" bg-color="white" :label="frappe._('UOM')" v-model="item.uom"
                     :items="item.item_uoms" variant="outlined" item-title="uom" item-value="uom" hide-details
                     @update:model-value="calc_uom(item, $event)" :disabled="!!invoice_doc.is_return ||
-                      !!item.posa_is_offer ||
                       !!item.posa_is_replace
                       ">
                   </v-select>
@@ -182,8 +155,7 @@
                         ),
                         calc_prices(item, $event.target.value, $event),
                       ]
-                      " :rules="[isNumber]" id="rate" :disabled="!!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
+                      " :rules="[isNumber]" id="rate" :disabled="!!item.posa_is_replace ||
                         !!item.posa_offer_applied ||
                         !pos_profile.posa_allow_user_to_edit_rate ||
                         !!invoice_doc.is_return
@@ -205,8 +177,7 @@
                         ),
                         calc_prices(item, $event.target.value, $event),
                       ]
-                      " :rules="[isNumber]" id="discount_percentage" :disabled="!!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
+                      " :rules="[isNumber]" id="discount_percentage" :disabled="!!item.posa_is_replace ||
                         item.posa_offer_applied ||
                         !pos_profile.posa_allow_user_to_edit_item_discount ||
                         !!invoice_doc.is_return
@@ -229,8 +200,7 @@
                         ,
                         calc_prices(item, $event.target.value, $event),
                       ]
-                      " :prefix="currencySymbol(pos_profile.currency)" id="discount_amount" :disabled="!!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
+                      " :prefix="currencySymbol(pos_profile.currency)" id="discount_amount" :disabled="!!item.posa_is_replace ||
                         !!item.posa_offer_applied ||
                         !pos_profile.posa_allow_user_to_edit_item_discount ||
                         !!invoice_doc.is_return
@@ -428,6 +398,7 @@
 
 import format from "../../format";
 import Customer from "./Customer.vue";
+import PostingDate from "./PostingDate.vue";
 
 export default {
   mixins: [format],
@@ -482,6 +453,7 @@ export default {
 
   components: {
     Customer,
+    PostingDate,
   },
 
   computed: {
@@ -667,47 +639,44 @@ export default {
     },
 
     clear_invoice() {
-      this.items = [];
-      this.posa_offers = [];
-      this.expanded = [];
-      this.posa_offers = [];
-      this.eventBus.emit("set_pos_coupons", []);
-      this.posa_coupons = [];
-      this.customer = this.pos_profile.customer;
-      this.invoice_doc = "";
-      this.return_doc = "";
-      this.discount_amount = 0;
-      this.additional_discount_percentage = 0;
-      this.delivery_charges_rate = 0;
-      this.selected_delivery_charge = "";
-      this.eventBus.emit("set_customer_readonly", false);
-      this.invoiceType = this.pos_profile.posa_default_sales_order
-        ? "Order"
-        : "Invoice";
-      this.invoiceTypes = ["Invoice", "Order"];
-    },
+  this.items = [];
+  this.posa_offers = [];
+  this.expanded = [];
+  this.eventBus.emit("set_pos_coupons", []);
+  this.posa_coupons = [];
+  this.invoice_doc = "";
+  this.return_doc = "";
+  this.discount_amount = 0;
+  this.additional_discount_percentage = 0;
+  this.delivery_charges_rate = 0;
+  this.selected_delivery_charge = "";
+
+  // Always reset to default customer after invoice
+  this.customer = this.pos_profile.customer;
+
+  this.eventBus.emit("set_customer_readonly", false);
+  this.invoiceType = this.pos_profile.posa_default_sales_order ? "Order" : "Invoice";
+  this.invoiceTypes = ["Invoice", "Order"];
+},
 	
 	async fetch_customer_balance() {
-  if (!this.customer) {
-    this.customer_balance = 0;
-    return;
-  }
-
   try {
+    if (!this.customer) {
+      this.customer_balance = 0;
+      return;
+    }
     const r = await frappe.call({
       method: "posawesome.posawesome.api.customer.get_customer_balance",
-      args: {
-        customer: this.customer
-      }
+      args: { customer: this.customer }
     });
-
-    if (r && r.message) {
-      this.customer_balance = r.message.balance || 0;
-    } else {
-      this.customer_balance = 0;
-    }
+    this.customer_balance = r?.message?.balance || 0;
+    
   } catch (error) {
-    console.error("Error fetching customer balance:", error);
+    console.error("Error fetching balance:", error);
+    this.eventBus.emit("show_message", {
+      title: __("Error fetching customer balance"),
+      color: "error" 
+    });
     this.customer_balance = 0;
   }
 },
@@ -1075,9 +1044,27 @@ export default {
     process_invoice() {
       const doc = this.get_invoice_doc();
       if (doc.name) {
-        return this.update_invoice(doc);
+        try {
+          return this.update_invoice(doc);
+        } catch (error) {
+          console.error('Error in process_invoice:', error);
+          this.eventBus.emit('show_message', {
+            title: __(error.message || 'Error processing invoice'),
+            color: 'error'
+          });
+          return false;
+        }
       } else {
-        return this.update_invoice(doc);
+        try {
+          return this.update_invoice(doc);
+        } catch (error) {
+          console.error('Error in process_invoice:', error);
+          this.eventBus.emit('show_message', {
+            title: __(error.message || 'Error processing invoice'),
+            color: 'error'
+          });
+          return false;
+        }
       }
     },
 
@@ -1093,206 +1080,208 @@ export default {
     },
 
     async show_payment() {
-      if (!this.customer) {
-        this.eventBus.emit("show_message", {
-          title: __(`Select a customer`),
-          color: "error",
+      try {
+        console.log('Starting show_payment process');
+        
+        if (!this.customer) {
+          console.log('Customer validation failed');
+          this.eventBus.emit("show_message", {
+            title: __(`Select a customer`),
+            color: "error",
+          });
+          return;
+        }
+
+        if (!this.items.length) {
+          console.log('Items validation failed - no items');
+          this.eventBus.emit("show_message", {
+            title: __(`Select items to sell`),
+            color: "error",
+          });
+          return;
+        }
+
+        console.log('Basic validations passed, proceeding to main validation');
+        const isValid = this.validate();
+        console.log('Main validation result:', isValid);
+
+        if (!isValid) {
+          console.log('Main validation failed');
+          return;
+        }
+
+        console.log('All validations passed, processing payment');
+        console.log('Current state:', {
+          doctype: this.invoice_doc.doctype,
+          is_return: this.invoice_doc.is_return,
+          return_against: this.invoice_doc.return_against,
+          items: this.items.map(item => ({
+            item_code: item.item_code,
+            qty: item.qty,
+            rate: item.rate
+          }))
         });
-        return;
-      }
-      if (!this.items.length) {
-        this.eventBus.emit("show_message", {
-          title: __(`Select items to sell`),
-          color: "error",
-        });
-        return;
-      }
-      if (!this.validate()) {
-        return;
-      }
-      if (this.invoice_doc.doctype == "Sales Order") {
-        this.eventBus.emit("show_payment", "true");
-        const invoice_doc = await this.process_invoice_from_order();
-        this.eventBus.emit("send_invoice_doc_payment", invoice_doc);
-      } else if (this.invoice_doc.doctype == "Sales Invoice") {
-        const sales_invoice_item = this.invoice_doc.items[0];
-        var sales_invoice_item_doc = {};
-        frappe.call({
-          method:
-            "posawesome.posawesome.api.posapp.get_sales_invoice_child_table",
-          args: {
-            sales_invoice: this.invoice_doc.name,
-            sales_invoice_item: sales_invoice_item.name,
-          },
-          async: false,
-          callback: function (r) {
-            if (r.message) {
-              sales_invoice_item_doc = r.message;
-            }
-          },
-        });
-        if (sales_invoice_item_doc.sales_order) {
+
+        if (this.invoice_doc.doctype == "Sales Order") {
+          console.log('Processing Sales Order payment');
           this.eventBus.emit("show_payment", "true");
           const invoice_doc = await this.process_invoice_from_order();
+          console.log('Sales Order processed:', invoice_doc);
           this.eventBus.emit("send_invoice_doc_payment", invoice_doc);
+        } else if (this.invoice_doc.doctype == "Sales Invoice") {
+          console.log('Processing Sales Invoice payment');
+          const sales_invoice_item = this.invoice_doc.items[0];
+          console.log('First sales invoice item:', sales_invoice_item);
+
+          var sales_invoice_item_doc = {};
+          await frappe.call({
+            method: "posawesome.posawesome.api.posapp.get_sales_invoice_child_table",
+            args: {
+              sales_invoice: this.invoice_doc.name,
+              sales_invoice_item: sales_invoice_item.name,
+            },
+            callback: function (r) {
+              if (r.message) {
+                sales_invoice_item_doc = r.message;
+                console.log('Got sales invoice child table:', r.message);
+              }
+            },
+          });
+
+          if (sales_invoice_item_doc.sales_order) {
+            console.log('Processing payment for sales order linked invoice');
+            this.eventBus.emit("show_payment", "true");
+            const invoice_doc = await this.process_invoice_from_order();
+            console.log('Order invoice processed:', invoice_doc);
+            this.eventBus.emit("send_invoice_doc_payment", invoice_doc);
+          } else {
+            console.log('Processing regular invoice payment');
+            this.eventBus.emit("show_payment", "true");
+            const invoice_doc = this.process_invoice();
+            console.log('Regular invoice processed:', invoice_doc);
+            this.eventBus.emit("send_invoice_doc_payment", invoice_doc);
+          }
         } else {
+          console.log('Processing default payment flow');
           this.eventBus.emit("show_payment", "true");
           const invoice_doc = this.process_invoice();
+          console.log('Invoice processed:', invoice_doc);
           this.eventBus.emit("send_invoice_doc_payment", invoice_doc);
         }
-      } else {
-        this.eventBus.emit("show_payment", "true");
-        const invoice_doc = this.process_invoice();
-        this.eventBus.emit("send_invoice_doc_payment", invoice_doc);
+      } catch (error) {
+        console.error('Error in show_payment:', error);
+        this.eventBus.emit("show_message", {
+          title: __("Error processing payment"),
+          color: "error",
+          message: error.message
+        });
       }
     },
 
-    validate() {
-      let value = true;
-      var vm = this;
-      this.items.forEach((item) => {
-        if (
-          this.pos_profile.posa_max_discount_allowed &&
-          !item.posa_offer_applied
-        ) {
-          if (item.discount_amount && this.flt(item.discount_amount) > 0) {
-            // calc discount percentage
-            const discount_percentage =
-              (this.flt(item.discount_amount) * 100) /
-              this.flt(item.price_list_rate);
-            if (
-              discount_percentage > this.pos_profile.posa_max_discount_allowed
-            ) {
-              vm.eventBus.emit("show_message", {
-                title: __(
-                  `Discount percentage for item '{0}' cannot be greater than {1}%`,
-                  [item.item_name, this.pos_profile.posa_max_discount_allowed]
-                ),
-                color: "error",
-              });
-              value = false;
-            }
-          }
-        }
-        // Completely skip stock validation
-if (this.invoiceType == "Invoice") {
-  console.warn(`Stock validation skipped for item: ${item.item_name}`);
-  value = true; // Always allow the operation to proceed
-}
+    async validate() {
+      console.log('Starting return validation');
+      if (this.invoice_doc.is_return && this.invoice_doc.return_against) {
+        console.log('Return doc:', this.invoice_doc);
+        console.log('Current items:', this.items);
+        
+        try {
+          // Get original invoice items for comparison
+          const original_items = await new Promise((resolve, reject) => {
+            frappe.call({
+              method: 'frappe.client.get',
+              args: {
+                doctype: 'Sales Invoice',
+                name: this.invoice_doc.return_against
+              },
+              callback: (r) => {
+                if (r.message) {
+                  console.log('Original invoice data:', r.message);
+                  resolve(r.message.items || []);
+                } else {
+                  reject(new Error('Original invoice not found'));
+                }
+              }
+            });
+          });
 
-        if (item.qty == 0) {
-          vm.eventBus.emit("show_message", {
-            title: __(`Quantity for item '{0}' cannot be Zero (0)`, [
-              item.item_name,
-            ]),
-            color: "error",
-          });
-          value = false;
-        }
-        if (
-          item.max_discount > 0 &&
-          item.discount_percentage > item.max_discount
-        ) {
-          vm.eventBus.emit("show_message", {
-            title: __(`Maximum discount for Item {0} is {1}%`, [
-              item.item_name,
-              item.max_discount,
-            ]),
-            color: "error",
-          });
-          value = false;
-        }
-        if (item.has_serial_no) {
-          if (
-            !this.invoice_doc.is_return &&
-            (!item.serial_no_selected ||
-              item.stock_qty != item.serial_no_selected.length)
-          ) {
-            vm.eventBus.emit("show_message", {
-              title: __(`Selected serial numbers of item {0} is incorrect`, [
-                item.item_name,
-              ]),
-              color: "error",
+          console.log('Original invoice items:', original_items);
+          console.log('Original item codes:', original_items.map(item => ({
+            item_code: item.item_code,
+            qty: item.qty,
+            rate: item.rate
+          })));
+
+          // Validate each return item
+          for (const item of this.items) {
+            console.log('Validating return item:', {
+              item_code: item.item_code,
+              rate: item.rate,
+              qty: item.qty
             });
-            value = false;
-          }
-        }
-        if (item.has_batch_no) {
-          if (item.stock_qty > item.actual_batch_qty) {
-            vm.eventBus.emit("show_message", {
-              title: __(
-                `The existing batch quantity of item {0} is not enough`,
-                [item.item_name]
-              ),
-              color: "error",
-            });
-            value = false;
-          }
-        }
-        if (this.pos_profile.posa_allow_user_to_edit_additional_discount) {
-          const clac_percentage = (this.discount_amount / this.Total) * 100;
-          if (clac_percentage > this.pos_profile.posa_max_discount_allowed) {
-            vm.eventBus.emit("show_message", {
-              title: __(`The discount should not be higher than {0}%`, [
-                this.pos_profile.posa_max_discount_allowed,
-              ]),
-              color: "error",
-            });
-            value = false;
-          }
-        }
-        if (this.invoice_doc.is_return) {
-          if (this.subtotal >= 0) {
-            vm.eventBus.emit("show_message", {
-              title: __(`Return Invoice Total Not Correct`),
-              color: "error",
-            });
-            value = false;
-            return value;
-          }
-          if (Math.abs(this.subtotal) > Math.abs(this.return_doc.total)) {
-            vm.eventBus.emit("show_message", {
-              title: __(`Return Invoice Total should not be higher than {0}`, [
-                this.return_doc.total,
-              ]),
-              color: "error",
-            });
-            value = false;
-            return value;
-          }
-          this.items.forEach((item) => {
-            const return_item = this.return_doc.items.find(
-              (element) => element.item_code == item.item_code
+
+            // Normalize item codes by trimming and converting to uppercase
+            const normalized_return_item_code = item.item_code.trim().toUpperCase();
+            
+            // Find matching item in original invoice
+            const original_item = original_items.find(orig => 
+              orig.item_code.trim().toUpperCase() === normalized_return_item_code
             );
 
-            if (!return_item) {
-              vm.eventBus.emit("show_message", {
-                title: __(
-                  `The item {0} cannot be returned because it is not in the invoice {1}`,
-                  [item.item_name, this.return_doc.name]
-                ),
-                color: "error",
+            if (!original_item) {
+              console.log('Item not found in original invoice:', {
+                return_item_code: normalized_return_item_code,
+                original_items: original_items.map(i => i.item_code.trim().toUpperCase())
               });
-              value = false;
-              return value;
-            } else if (
-              Math.abs(item.qty) > Math.abs(return_item.qty) ||
-              Math.abs(item.qty) == 0
-            ) {
-              vm.eventBus.emit("show_message", {
-                title: __(`The QTY of the item {0} cannot be greater than {1}`, [
-                  item.item_name,
-                  return_item.qty,
-                ]),
-                color: "error",
+              
+              this.eventBus.emit('show_message', {
+                title: __(`Item ${item.item_code} not found in original invoice`),
+                color: 'error'
               });
-              value = false;
-              return value;
+              return false;
             }
+
+            // Compare rates with precision
+            const rate_diff = Math.abs(original_item.rate - item.rate);
+            console.log('Rate comparison:', {
+              return_rate: item.rate,
+              orig_rate: original_item.rate,
+              difference: rate_diff
+            });
+
+            if (rate_diff > 0.01) {
+              this.eventBus.emit('show_message', {
+                title: __(`Rate mismatch for item ${item.item_code}`),
+                color: 'error'
+              });
+              return false;
+            }
+
+            // Compare quantities
+            const return_qty = Math.abs(item.qty);
+            const orig_qty = original_item.qty;
+            console.log('Quantity comparison:', {
+              return_qty: return_qty,
+              orig_qty: orig_qty
+            });
+
+            if (return_qty > orig_qty) {
+              this.eventBus.emit('show_message', {
+                title: __(`Return quantity cannot be greater than original quantity for item ${item.item_code}`),
+                color: 'error'
+              });
+              return false;
+            }
+          }
+        } catch (error) {
+          console.error('Error in validation:', error);
+          this.eventBus.emit('show_message', {
+            title: __(`Error validating return: ${error.message}`),
+            color: 'error'
           });
+          return false;
         }
-      });
-      return value;
+      }
+      return true;
     },
 
     get_draft_invoices() {
@@ -1336,35 +1325,41 @@ if (this.invoiceType == "Invoice") {
       this.eventBus.emit("show_payment", "false");
     },
 
-    update_items_details(items) {
-      if (!items.length > 0) {
-        return;
-      }
-      var vm = this;
-      if (!vm.pos_profile) return;
-      frappe.call({
-        method: "posawesome.posawesome.api.posapp.get_items_details",
-        async: false,
-        args: {
-          pos_profile: vm.pos_profile,
-          items_data: items,
-        },
-        callback: function (r) {
-          if (r.message) {
-            items.forEach((item) => {
-              const updated_item = r.message.find(
-                (element) => element.posa_row_id == item.posa_row_id
-              );
+    async update_items_details(items) {
+      if (!items?.length) return;
+      if (!this.pos_profile) return;
+      
+      try {
+        const response = await frappe.call({
+          method: "posawesome.posawesome.api.posapp.get_items_details",
+          args: {
+            pos_profile: this.pos_profile,
+            items_data: items
+          }
+        });
+
+        if (response?.message) {
+          items.forEach((item) => {
+            const updated_item = response.message.find(
+              (element) => element.posa_row_id == item.posa_row_id
+            );
+            if (updated_item) {
               item.actual_qty = updated_item.actual_qty;
               item.serial_no_data = updated_item.serial_no_data;
               item.batch_no_data = updated_item.batch_no_data;
               item.item_uoms = updated_item.item_uoms;
               item.has_batch_no = updated_item.has_batch_no;
               item.has_serial_no = updated_item.has_serial_no;
-            });
-          }
-        },
-      });
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error updating items:", error);
+        this.eventBus.emit("show_message", {
+          title: __("Error updating item details"),
+          color: "error"
+        });
+      }
     },
 
     update_item_detail(item) {
@@ -1521,101 +1516,71 @@ if (this.invoiceType == "Invoice") {
     },
 
     calc_prices(item, value, $event) {
-      
-      if ($event && $event.target && $event.target.id) {
-        
-        const fieldId = $event.target.id; 
+  if (!$event?.target?.id) return;
+  
+  const fieldId = $event.target.id;
+  const priceListRate = flt(item.price_list_rate, this.currency_precision);
+  let newValue = flt(value, this.currency_precision);
 
-        if (fieldId === "rate") {
-          
-          item.discount_percentage = 0;
-		  
-          // if (value < 0) {
-          //   item.rate = item.price_list_rate;
-          //   item.discount_amount = 0;
-          // } 
-          // else if (value < item.price_list_rate) {
-          //   item.discount_amount = this.flt(
-          //     this.flt(item.price_list_rate) - flt(value),
-          //     this.currency_precision
-          //   );
-          // } else if (value > item.price_list_rate) {
-          //   item.discount_amount = 0;
-          // }
+  // Handle negative values
+  if (newValue < 0) {
+    newValue = 0;
+    this.eventBus.emit("show_message", {
+      title: __("Negative values not allowed"),
+      color: "error"
+    });
+  }
 
-          if (value < 0) {
-            
-            alert("Negative rate ki ijazat nahi!");
-            item.rate = 0; // ya item.rate = item.rate 
-            item.discount_amount = 0;
-          } else {
-            item.rate = value;
+  try {
+    // Field-wise calculations
+    switch(fieldId) {
+      case "rate":
+        item.rate = this.flt(newValue, this.currency_precision);
+        item.discount_amount = this.flt(priceListRate - item.rate, this.currency_precision);
+        item.discount_percentage = this.flt((item.discount_amount / priceListRate) * 100, this.float_precision);
+        break;
 
-            //discount_amount = difference of price_list_rate - user rate
-            if (item.price_list_rate && value < item.price_list_rate) {
-              item.discount_amount = this.flt(
-                this.flt(item.price_list_rate) - flt(value),
-                this.currency_precision
-              );
-            } else {
-              item.discount_amount = 0;
-            }
-          }
+      case "discount_amount":
+        newValue = Math.min(newValue, priceListRate);
+        item.discount_amount = this.flt(newValue, this.currency_precision);
+        item.rate = this.flt(priceListRate - item.discount_amount, this.currency_precision);
+        item.discount_percentage = this.flt((item.discount_amount / priceListRate) * 100, this.float_precision);
+        break;
 
-        } 
-        else if (fieldId === "discount_amount") {
-          if (value < 0) {
-            item.discount_amount = 0;
-            item.discount_percentage = 0;
-          } else {
-            // Original code:
-            // item.rate = flt(item.price_list_rate) - flt(value);
-            // item.discount_percentage = 0;
+      case "discount_percentage":
+        newValue = Math.min(newValue, 100);
+        item.discount_percentage = this.flt(newValue, this.float_precision);
+        item.discount_amount = this.flt((priceListRate * item.discount_percentage) / 100, this.currency_precision);
+        item.rate = this.flt(priceListRate - item.discount_amount, this.currency_precision);
+        break;
+    }
 
-            // Agar aap yahi logic rakhna chahte hain, theek hai,
-            // warna comment out kar dein.
-            item.rate = flt(item.price_list_rate) - flt(value);
-            item.discount_percentage = 0;
-          }
-        } 
-        else if (fieldId === "discount_percentage") {
-          if (value < 0) {
-            item.discount_amount = 0;
-            item.discount_percentage = 0;
-          } else {
-            // Original code:
-            // item.rate = this.flt(
-            //   flt(item.price_list_rate) -
-            //     (flt(item.price_list_rate) * flt(value)) / 100,
-            //   this.currency_precision
-            // );
-            // item.discount_amount = this.flt(
-            //   flt(item.price_list_rate) - flt(+item.rate),
-            //   this.currency_precision
-            // );
+    // Ensure rate doesn't go below zero
+    if (item.rate < 0) {
+      item.rate = 0;
+      item.discount_amount = priceListRate;
+      item.discount_percentage = 100;
+    }
 
-            // Agar aap discount_percentage se rate/amount auto-calc rakhna chahte hain,
-            // to yehi logic theek hai. 
-            item.rate = this.flt(
-              flt(item.price_list_rate) - 
-              (flt(item.price_list_rate) * flt(value)) / 100,
-              this.currency_precision
-            );
-            item.discount_amount = this.flt(
-              flt(item.price_list_rate) - flt(+item.rate),
-              this.currency_precision
-            );
-          }
-        }
-      }
-    },
+    // Update stock calculations
+    this.calc_stock_qty(item, item.qty);
+    this.$forceUpdate();
+  } catch (error) {
+    console.error("Error calculating prices:", error);
+    this.eventBus.emit("show_message", {
+      title: __("Error calculating prices"),
+      color: "error"
+    });
+  }
+},
 
     calc_item_price(item) {
-      if (!item.posa_offer_applied) {
-        if (item.price_list_rate) {
-          item.rate = item.price_list_rate;
-        }
-      }
+      // Commented out the rate reset - allows manual rates
+   if (!item.posa_offer_applied) {
+     if (item.price_list_rate) {
+       item.rate = item.price_list_rate;
+     }
+   }
       if (item.discount_percentage) {
         item.rate =
           flt(item.price_list_rate) -
@@ -2507,6 +2472,22 @@ if (this.invoiceType == "Invoice") {
         true
       );
     },
+	
+	toggleOffer(item) {
+  this.$nextTick(() => {
+    if (!item.posa_is_offer) {
+      item.posa_offers = JSON.stringify([]);
+      item.posa_offer_applied = 0;
+      item.discount_percentage = 0;
+      item.discount_amount = 0;
+      item.rate = item.price_list_rate;
+      this.calc_item_price(item);
+      this.handelOffers();
+    }
+    // Ensure Vue reactivity
+    this.$forceUpdate();
+  });
+},  // Added missing comma here
 
     print_draft_invoice() {
       if (!this.pos_profile.posa_allow_print_draft_invoices) {
@@ -2575,6 +2556,11 @@ if (this.invoiceType == "Invoice") {
         this.delivery_charges_rate = 0;
       }
     },
+    updatePostingDate(date) {
+      if (!date) return;
+      this.posting_date = date;
+      this.$forceUpdate();
+    },
   },
 
   mounted() {
@@ -2638,15 +2624,22 @@ if (this.invoiceType == "Invoice") {
     });
   },
   beforeUnmount() {
-    evntBus.$off("register_pos_profile");
-    evntBus.$off("add_item");
-    evntBus.$off("update_customer");
-    evntBus.$off("fetch_customer_details");
-    evntBus.$off("clear_invoice");
-    evntBus.$off("set_offers");
-    evntBus.$off("update_invoice_offers");
-    evntBus.$off("update_invoice_coupons");
-    evntBus.$off("set_all_items");
+    // Existing cleanup
+    this.eventBus.off("register_pos_profile");
+    this.eventBus.off("add_item");
+    this.eventBus.off("update_customer");
+    this.eventBus.off("fetch_customer_details");
+    this.eventBus.off("clear_invoice");
+    this.eventBus.off("set_offers");
+    this.eventBus.off("update_invoice_offers");
+    this.eventBus.off("update_invoice_coupons");
+    this.eventBus.off("set_all_items");
+    
+    // Additional cleanup for missing events
+    this.eventBus.off("load_invoice");
+    this.eventBus.off("load_order");
+    this.eventBus.off("load_return_invoice"); 
+    this.eventBus.off("set_new_line");
   },
   created() {
     document.addEventListener("keydown", this.shortOpenPayment.bind(this));
@@ -2702,11 +2695,37 @@ if (this.invoiceType == "Invoice") {
         this.additional_discount_percentage = 0;
       }
     },
+	posting_date: {
+      handler(newVal) {
+        if (!newVal) return;
+        // Make sure the date is in YYYY-MM-DD format
+        if (typeof newVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(newVal)) {
+          return; // Already in correct format
+        }
+        
+        let dateStr;
+        if (newVal instanceof Date) {
+          const year = newVal.getFullYear();
+          const month = String(newVal.getMonth() + 1).padStart(2, '0');
+          const day = String(newVal.getDate()).padStart(2, '0');
+          dateStr = `${year}-${month}-${day}`;
+        } else {
+          dateStr = frappe.datetime.nowdate();
+        }
+        
+        this.posting_date = dateStr;
+      },
+      immediate: true
+    },
   },
 };
 </script>
 
 <style scoped>
+.v-checkbox-btn.v-selected {
+  background-color: #4CAF50 !important;
+  color: white;
+}
 .border_line_bottom {
   border-bottom: 1px solid lightgray;
 }
@@ -2721,10 +2740,48 @@ if (this.invoiceType == "Invoice") {
 }
 
 .balance-value {
-  font-size: 1.5rem; /* Larger font size */
-  font-weight: bold; /* Bold text */
-  color: #d32f2f; /* Red color for balance value */
-  margin-left: 5px; /* Add spacing between label and value */
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #d32f2f;
+  margin-left: 5px;
 }
 
+/* Add these new styles for date picker buttons */
+.v-date-picker .v-btn {
+  min-width: 80px !important;
+  margin: 0 4px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.v-date-picker .v-btn--variant-text {
+  padding: 0 12px !important;
+}
+
+.v-date-picker .v-spacer {
+  flex: 1 1 auto !important;
+}
+
+/* Updated date picker button styles */
+.date-action-btn {
+  min-width: 64px !important;
+  height: 36px !important;
+  margin: 4px !important;
+  padding: 0 16px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.25px !important;
+}
+
+.v-date-picker {
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.v-date-picker .v-card-actions {
+  padding: 8px !important;
+  border-top: 1px solid rgba(0,0,0,0.12);
+}
 </style>

@@ -6,13 +6,6 @@
 #### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify) (VERSION 15 Support)
 
 ---
-### Bugs Fixed
-1. Edit Rate Fixed
-2. Edit Discount Fixed
-3. Partial Payment Fixed
-4. Additional Discount Fixed
-5. Show Customer Ledger Aside Date Field
-6. Add Address and City Field in Add New Customer Section.
 
 ### Main Features
 
@@ -50,11 +43,21 @@
 32. A lot more bug fixes from the version 14
 ---
 
+### Bugs Fixed
+1. Edit Rate Fixed
+2. Edit Discount Fixed
+3. Partial Payment Fixed
+4. Additional Discount Fixed
+5. Show Customer Ledger Aside Date Field ( Can be enabled in Pos Awesome Advance settings )
+6. Add Address and City Field in Add New Customer Section.
+7. Auto Offers Application Fixed
+8. New Posting Date UI with 
+
 ### How to Install
 
 #### Self Hosting:
 
-1. `bench get-app branch version-15 https://github.com/defendicon/POS-Awesome-V15`
+1. `bench get-app https://github.com/defendicon/POS-Awesome-V15`
 2. `bench setup requirements`
 3. `bench build --app posawesome`
 4. `bench restart`
