@@ -619,6 +619,11 @@ export default {
       new_item.price_list_rate = item.rate;
       new_item.qty = item.qty;
       new_item.uom = item.uom ? item.uom : item.stock_uom;
+      // Ensure item_uoms is initialized
+      new_item.item_uoms = item.item_uoms || [];
+      if (new_item.item_uoms.length === 0 && new_item.stock_uom) {
+        new_item.item_uoms.push({ uom: new_item.stock_uom, conversion_factor: 1 });
+      }
       new_item.actual_batch_qty = "";
       new_item.conversion_factor = 1;
       new_item.posa_offers = JSON.stringify([]);
@@ -854,14 +859,27 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.discount_amount = flt(this.discount_amount);
-      doc.additional_discount_percentage = flt(
-        this.additional_discount_percentage
-      );
+      doc.additional_discount_percentage = flt(this.additional_discount_percentage);
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
       doc.taxes = [];
-      doc.is_return = this.invoice_doc.is_return;
-      doc.return_against = this.invoice_doc.return_against;
+      
+      // Handle return specific fields
+      if (this.invoice_doc.is_return) {
+        doc.is_return = 1;
+        doc.return_against = this.invoice_doc.return_against;
+        doc.update_stock = 1;
+        doc.ignore_pricing_rule = 1;
+        doc.is_pos = 1;
+        doc.pos_profile = this.pos_profile.name;
+        doc.warehouse = this.pos_profile.warehouse;
+        doc.cost_center = this.pos_profile.cost_center;
+        doc.conversion_rate = 1;
+        doc.currency = this.pos_profile.currency;
+        doc.customer = this.invoice_doc.customer;
+        doc.posting_date = frappe.datetime.nowdate();
+      }
+      
       doc.posa_offers = this.posa_offers;
       doc.posa_coupons = this.posa_coupons;
       doc.posa_delivery_charges = this.selected_delivery_charge.name;
@@ -1450,9 +1468,19 @@ export default {
             item.stock_qty = data.stock_qty;
             item.actual_qty = data.actual_qty;
             item.stock_uom = data.stock_uom;
-            (item.has_serial_no = data.has_serial_no),
-              (item.has_batch_no = data.has_batch_no),
-              vm.calc_item_price(item);
+            
+            // Set item UOMs from API data if available
+            if (data.item_uoms && data.item_uoms.length > 0) {
+              item.item_uoms = data.item_uoms;
+            } else if (!item.item_uoms || !item.item_uoms.length) {
+              // If no UOMs found, at least add the stock UOM
+              item.item_uoms = [{ uom: item.stock_uom, conversion_factor: 1.0 }];
+            }
+            
+            item.has_serial_no = data.has_serial_no;
+            item.has_batch_no = data.has_batch_no;
+            
+            vm.calc_item_price(item);
           }
         },
       });
