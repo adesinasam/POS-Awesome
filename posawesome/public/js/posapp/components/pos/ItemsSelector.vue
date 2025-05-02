@@ -8,7 +8,7 @@
           <v-text-field density="compact" clearable autofocus variant="outlined" color="primary"
             :label="frappe._('Search Items')" hint="Search by item code, serial number, batch no or barcode"
             bg-color="white" hide-details v-model="debounce_search" @keydown.esc="esc_event"
-            @keydown.enter="search_onchange" @click:clear="clearSearch" @blur="restoreSearch" 
+            @keydown.enter="search_onchange" @click:clear="clearSearch"
             @click="clearSearch" ref="debounce_search"></v-text-field>
         </v-col>
         <v-col cols="3" class="pb-0 mb-2" v-if="pos_profile.posa_input_qty">
@@ -68,7 +68,7 @@
       <v-row no-gutters align="center" justify="center">
         <v-col cols="12">
           <v-select :items="items_group" :label="frappe._('Items Group')" density="compact" variant="outlined"
-            hide-details v-model="item_group" v-on:update:model-value="search_onchange"></v-select>
+            hide-details v-model="item_group"></v-select>
         </v-col>
         <v-col cols="3" class="mt-1">
           <v-btn-toggle v-model="items_view" color="primary" group density="compact" rounded>
@@ -119,6 +119,9 @@ export default {
     new_line: false,
     qty: 1,
     refresh_interval: null,
+    currentRequest: null,
+    abortController: null,
+    items_loaded: false,
   }),
 
   watch: {
@@ -130,7 +133,11 @@ export default {
       }
     },
     customer() {
-      this.get_items();
+      if (this.items_loaded && this.filtered_items && this.filtered_items.length > 0) {
+        this.update_items_details(this.filtered_items);
+      } else {
+        this.get_items();
+      }
     },
     new_line() {
       this.eventBus.emit("set_new_line", this.new_line);
@@ -149,6 +156,17 @@ export default {
         console.error("No POS Profile");
         return;
       }
+      
+      // If items are already loaded and it's not a specific search or customer change, don't reload
+      if (this.items_loaded && !this.first_search && !this.pos_profile.pose_use_limit_search) {
+        console.info("Items already loaded, skipping reload");
+        // Still update quantities for displayed items
+        if (this.filtered_items && this.filtered_items.length > 0) {
+          this.update_items_details(this.filtered_items);
+        }
+        return;
+      }
+      
       const vm = this;
       this.loading = true;
       let search = this.get_search(this.first_search);
@@ -168,6 +186,7 @@ export default {
         vm.items = JSON.parse(localStorage.getItem("items_storage"));
         this.eventBus.emit("set_all_items", vm.items);
         vm.loading = false;
+        vm.items_loaded = true;
         
         // Even when loading from localStorage, refresh the quantities
         setTimeout(() => {
@@ -190,7 +209,11 @@ export default {
             vm.items = r.message;
             vm.eventBus.emit("set_all_items", vm.items);
             vm.loading = false;
+            vm.items_loaded = true;
             console.info("Items Loaded");
+            vm.$nextTick(() => {
+              if(vm.search) vm.search_onchange();
+            });
             
             // Always refresh quantities after items are loaded
             setTimeout(() => {
@@ -352,23 +375,24 @@ export default {
       }
       if (match) {
         this.add_item(new_item);
-        this.search = null;
-        this.first_search = null;
-        this.debounce_search = null;
         this.flags.serial_no = null;
         this.flags.batch_no = null;
         this.qty = 1;
         this.$refs.debounce_search.focus();
       }
     },
-    search_onchange: _.debounce(function() {
+    search_onchange: _.debounce(function(newSearchTerm) {
         const vm = this;
+        if(newSearchTerm) vm.search = newSearchTerm;
+        
         if (vm.pos_profile.pose_use_limit_search) {
             vm.get_items();
         } else {
             // Save the current filtered items before search to maintain quantity data
             const current_items = [...vm.filtered_items];
-            vm.enter_event();
+            if(vm.search && vm.search.length >=3) {
+              vm.enter_event();
+            }
             
             // After search, update quantities for newly filtered items
             if (vm.filtered_items && vm.filtered_items.length > 0) {
@@ -420,18 +444,26 @@ export default {
       this.$refs.debounce_search.focus();
     },
     update_items_details(items) {
-      // set debugger
       const vm = this;
       if (!items || !items.length) return;
+
+      // Cancel previous request
+      if (vm.currentRequest) {
+        vm.abortController.abort();
+        vm.currentRequest = null;
+      }
+
+      vm.abortController = new AbortController();
       
-      frappe.call({
+      vm.currentRequest = frappe.call({
         method: "posawesome.posawesome.api.posapp.get_items_details",
         args: {
           pos_profile: vm.pos_profile,
           items_data: items,
         },
         freeze: true,
-        callback: function (r) {
+        signal: vm.abortController.signal,
+        callback: function(r) {
           if (r.message) {
             let qtyChanged = false;
             
@@ -473,13 +505,21 @@ export default {
           }
         },
         error: function(err) {
-          console.error("Error fetching item details:", err);
-          // Retry once after short delay
-          setTimeout(() => {
-            vm.update_items_details(items);
-          }, 1000);
+          if (err.name !== 'AbortError') {
+            console.error("Error fetching item details:", err);
+            setTimeout(() => {
+              vm.update_items_details(items);
+            }, 1000);
+          }
         }
       });
+      
+      // Cleanup on component destroy
+      this.cleanupBeforeDestroy = () => {
+        if (vm.abortController) {
+          vm.abortController.abort();
+        }
+      };
     },
     update_cur_items_details() {
       if (this.filtered_items && this.filtered_items.length > 0) {
@@ -488,18 +528,30 @@ export default {
     },
     scan_barcoud() {
       const vm = this;
-      onScan.attachTo(document, {
-        suffixKeyCodes: [],
-        keyCodeMapper: function (oEvent) {
-          oEvent.stopImmediatePropagation();
-          return onScan.decodeKeyEvent(oEvent);
-        },
-        onScan: function (sCode) {
-          setTimeout(() => {
-            vm.trigger_onscan(sCode);
-          }, 300);
-        },
-      });
+      try {
+        // Check if scanner is already attached to document
+        if (document._scannerAttached) {
+          return;
+        }
+        
+        onScan.attachTo(document, {
+          suffixKeyCodes: [],
+          keyCodeMapper: function (oEvent) {
+            oEvent.stopImmediatePropagation();
+            return onScan.decodeKeyEvent(oEvent);
+          },
+          onScan: function (sCode) {
+            setTimeout(() => {
+              vm.trigger_onscan(sCode);
+            }, 300);
+          },
+        });
+        
+        // Mark document as having scanner attached
+        document._scannerAttached = true;
+      } catch (error) {
+        console.warn('Scanner initialization error:', error.message);
+      }
     },
     trigger_onscan(sCode) {
       if (this.filtered_items.length == 0) {
@@ -510,8 +562,6 @@ export default {
         frappe.utils.play_sound("error");
       } else {
         this.enter_event();
-        this.debounce_search = null;
-        this.search = null;
       }
     },
     generateWordCombinations(inputString) {
@@ -540,14 +590,14 @@ export default {
       this.search_backup = this.first_search;
       this.first_search = "";
       this.search = "";
-      this.get_items();
+      // No need to call get_items() again
     },
     
     restoreSearch() {
       if (this.first_search === "") {
         this.first_search = this.search_backup;
         this.search = this.search_backup;
-        this.get_items();
+        // No need to reload items when focus is lost
       }
     },
   },
@@ -751,6 +801,21 @@ export default {
     // Clear interval when component is destroyed
     if (this.refresh_interval) {
       clearInterval(this.refresh_interval);
+    }
+    
+    // Call cleanup function for abort controller
+    if (this.cleanupBeforeDestroy) {
+      this.cleanupBeforeDestroy();
+    }
+    
+    // Detach scanner if it was attached
+    if (document._scannerAttached) {
+      try {
+        onScan.detachFrom(document);
+        document._scannerAttached = false;
+      } catch (error) {
+        console.warn('Scanner detach error:', error.message);
+      }
     }
   },
 };

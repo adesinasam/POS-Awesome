@@ -167,6 +167,7 @@ def get_items(
 
         if use_limit_search:
             search_limit = pos_profile.get("posa_search_limit") or 500
+            data = {}
             if search_value:
                 data = search_serial_or_batch_or_barcode_number(
                     search_value, search_serial_no
@@ -448,13 +449,21 @@ def get_customer_names(pos_profile):
 
 @frappe.whitelist()
 def get_sales_person_names():
-    sales_persons = frappe.get_list(
-        "Sales Person",
-        filters={"enabled": 1},
-        fields=["name", "sales_person_name"],
-        limit_page_length=100000,
-    )
-    return sales_persons
+    import json
+    print("Fetching sales persons...")
+    try:
+        sales_persons = frappe.get_list(
+            "Sales Person",
+            filters={"enabled": 1},
+            fields=["name", "sales_person_name"],
+            limit_page_length=100000,
+        )
+        print(f"Found {len(sales_persons)} sales persons: {json.dumps(sales_persons)}")
+        return sales_persons
+    except Exception as e:
+        print(f"Error fetching sales persons: {str(e)}")
+        frappe.log_error(f"Error fetching sales persons: {str(e)}", "POS Sales Person Error")
+        return []
 
 
 def add_taxes_from_tax_template(item, parent_doc):
@@ -493,7 +502,7 @@ def add_taxes_from_tax_template(item, parent_doc):
 def update_invoice(data):
     data = json.loads(data)
     
-    # If this is a return invoice, validate items first
+    # If this is a return invoice with a reference invoice, validate items
     if data.get('is_return') and data.get('return_against'):
         validation_result = validate_return_items(data.get('return_against'), data.get('items', []))
         if not validation_result.get('valid'):
@@ -1095,6 +1104,22 @@ def create_customer(
 ):
     pos_profile = json.loads(pos_profile_doc)
     
+    # Format birthday to MySQL compatible format (YYYY-MM-DD) if provided
+    formatted_birthday = None
+    if birthday:
+        try:
+            # Try to parse date in DD-MM-YYYY format
+            if '-' in birthday:
+                date_parts = birthday.split('-')
+                if len(date_parts) == 3:
+                    day, month, year = date_parts
+                    formatted_birthday = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+            # If format is already YYYY-MM-DD, use as is
+            elif len(birthday) == 10 and birthday[4] == '-' and birthday[7] == '-':
+                formatted_birthday = birthday
+        except Exception:
+            frappe.log_error(f"Error formatting birthday: {birthday}", "POS Awesome")
+    
     if method == "create":
         
         is_exist = frappe.db.exists("Customer", {"customer_name": customer_name})
@@ -1109,7 +1134,7 @@ def create_customer(
                     "mobile_no": mobile_no,
                     "email_id": email_id,
                     "posa_referral_code": referral_code,
-                    "posa_birthday": birthday,
+                    "posa_birthday": formatted_birthday,
                     "customer_type": customer_type,
                     "gender": gender,
                 }
@@ -1151,7 +1176,7 @@ def create_customer(
         customer_doc.mobile_no = mobile_no
         customer_doc.email_id = email_id
         customer_doc.posa_referral_code = referral_code
-        customer_doc.posa_birthday = birthday
+        customer_doc.posa_birthday = formatted_birthday
         customer_doc.customer_type = customer_type
         customer_doc.gender = gender
         customer_doc.save()
@@ -1297,29 +1322,144 @@ def set_customer_info(customer, fieldname, value=""):
 
 
 @frappe.whitelist()
-def search_invoices_for_return(invoice_name, company):
+def search_invoices_for_return(invoice_name, company, customer_name=None, customer_id=None, 
+                               mobile_no=None, tax_id=None, from_date=None, to_date=None, 
+                               min_amount=None, max_amount=None, page=1):
+    """
+    Search for invoices that can be returned with separate customer search fields and pagination
+    
+    Args:
+        invoice_name: Invoice ID to search for
+        company: Company to search in
+        customer_name: Customer name to search for
+        customer_id: Customer ID to search for
+        mobile_no: Mobile number to search for
+        tax_id: Tax ID to search for
+        from_date: Start date for filtering
+        to_date: End date for filtering
+        min_amount: Minimum invoice amount to filter by
+        max_amount: Maximum invoice amount to filter by
+        page: Page number for pagination (starts from 1)
+    
+    Returns:
+        Dictionary with:
+            - invoices: List of invoice documents
+            - has_more: Boolean indicating if there are more invoices to load
+    """
+    # Start with base filters
+    filters = {
+        "company": company,
+        "docstatus": 1,
+        "is_return": 0,
+    }
+    
+    # Convert page to integer if it's a string
+    if page and isinstance(page, str):
+        page = int(page)
+    else:
+        page = 1  # Default to page 1
+    
+    # Items per page - can be adjusted based on performance requirements
+    page_length = 100
+    start = (page - 1) * page_length
+    
+    # Add invoice name filter if provided
+    if invoice_name:
+        filters["name"] = ["like", f"%{invoice_name}%"]
+    
+    # Add date range filters if provided
+    if from_date:
+        filters["posting_date"] = [">=", from_date]
+    
+    if to_date:
+        if "posting_date" in filters:
+            filters["posting_date"] = ["between", [from_date, to_date]]
+        else:
+            filters["posting_date"] = ["<=", to_date]
+    
+    # Add amount filters if provided
+    if min_amount:
+        filters["grand_total"] = [">=", float(min_amount)]
+    
+    if max_amount:
+        if "grand_total" in filters:
+            # If min_amount was already set, change to between
+            filters["grand_total"] = ["between", [float(min_amount), float(max_amount)]]
+        else:
+            filters["grand_total"] = ["<=", float(max_amount)]
+    
+    # If any customer search criteria is provided, find matching customers
+    customer_ids = []
+    if customer_name or customer_id or mobile_no or tax_id:
+        conditions = []
+        params = {}
+        
+        if customer_name:
+            conditions.append("customer_name LIKE %(customer_name)s")
+            params["customer_name"] = f"%{customer_name}%"
+            
+        if customer_id:
+            conditions.append("name LIKE %(customer_id)s")
+            params["customer_id"] = f"%{customer_id}%"
+            
+        if mobile_no:
+            conditions.append("mobile_no LIKE %(mobile_no)s")
+            params["mobile_no"] = f"%{mobile_no}%"
+            
+        if tax_id:
+            conditions.append("tax_id LIKE %(tax_id)s")
+            params["tax_id"] = f"%{tax_id}%"
+        
+        # Build the WHERE clause for the query
+        where_clause = " OR ".join(conditions)
+        customer_query = f"""
+            SELECT name 
+            FROM `tabCustomer`
+            WHERE {where_clause}
+            LIMIT 100
+        """
+        
+        customers = frappe.db.sql(customer_query, params, as_dict=True)
+        customer_ids = [c.name for c in customers]
+        
+        # If we found matching customers, add them to the filter
+        if customer_ids:
+            filters["customer"] = ["in", customer_ids]
+        # If customer search criteria provided but no matches found, return empty
+        elif any([customer_name, customer_id, mobile_no, tax_id]):
+            return {"invoices": [], "has_more": False}
+    
+    # Count total invoices matching the criteria (for has_more flag)
+    total_count_query = frappe.get_list(
+        "Sales Invoice",
+        filters=filters,
+        fields=["count(name) as total_count"],
+        as_list=False,
+    )
+    total_count = total_count_query[0].total_count if total_count_query else 0
+    
+    # Get invoices matching all criteria with pagination
     invoices_list = frappe.get_list(
         "Sales Invoice",
-        filters={
-            "name": ["like", f"%{invoice_name}%"],
-            "company": company,
-            "docstatus": 1,
-            "is_return": 0,
-        },
+        filters=filters,
         fields=["name"],
-        limit_page_length=0,
-        order_by="customer",
+        limit_start=start, 
+        limit_page_length=page_length,
+        order_by="posting_date desc, name desc",
     )
+    
+    # Process and return the results
     data = []
     
+    # Process invoices and check for returns
     for invoice in invoices_list:
-        invoice_doc = frappe.get_doc("Sales Invoice", invoice["name"])
+        invoice_doc = frappe.get_doc("Sales Invoice", invoice.name)
         
         # Check if any items have already been returned
         has_returns = frappe.get_all(
             "Sales Invoice",
             filters={
-                "return_against": invoice["name"],
+                "return_against": invoice.name,
                 "docstatus": 1
             },
             fields=["name"]
@@ -1341,13 +1481,19 @@ def search_invoices_for_return(invoice_name, company):
             
             if filtered_items:
                 # Create a copy of invoice with filtered items
-                filtered_invoice = frappe.get_doc("Sales Invoice", invoice["name"])
+                filtered_invoice = frappe.get_doc("Sales Invoice", invoice.name)
                 filtered_invoice.items = filtered_items
                 data.append(filtered_invoice)
         else:
             data.append(invoice_doc)
-            
-    return data
+    
+    # Check if there are more results
+    has_more = (start + page_length) < total_count
+    
+    return {
+        "invoices": data,
+        "has_more": has_more
+    }
 
 
 @frappe.whitelist()
@@ -1974,6 +2120,10 @@ def update_invoice_from_order(data):
 @frappe.whitelist()
 def validate_return_items(return_against, items):
      """Custom validation for return items"""
+     # If no return_against (return without invoice), skip validation
+     if not return_against:
+         return {"valid": True}
+         
      original_invoice = frappe.get_doc("Sales Invoice", return_against)
      
      # Create lookup for original items

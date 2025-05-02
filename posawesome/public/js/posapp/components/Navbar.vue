@@ -171,7 +171,7 @@ export default {
           if (r.exc) {
             return;
           }
-          frappe.set_route('/login');
+          frappe.set_route('/app/home');
           location.reload();
         },
       });
