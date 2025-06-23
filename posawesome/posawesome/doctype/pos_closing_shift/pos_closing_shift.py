@@ -60,6 +60,14 @@ class POSClosingShift(Document):
         self.delete_draft_invoices()
         opening_entry.save()
 
+    def on_cancel(self):
+        if frappe.db.exists("POS Opening Shift", self.pos_opening_shift):
+            opening_entry = frappe.get_doc("POS Opening Shift", self.pos_opening_shift)
+            if opening_entry.pos_closing_shift == self.name:
+                opening_entry.pos_closing_shift = ""
+                opening_entry.set_status()
+                opening_entry.save()
+
     def delete_draft_invoices(self):
         if frappe.get_value("POS Profile", self.pos_profile, "posa_allow_delete"):
             data = frappe.db.sql(
@@ -90,7 +98,13 @@ class POSClosingShift(Document):
 @frappe.whitelist()
 def get_cashiers(doctype, txt, searchfield, start, page_len, filters):
     cashiers_list = frappe.get_all("POS Profile User", filters=filters, fields=["user"])
-    return [c["user"] for c in cashiers_list]
+    result = []
+    for cashier in cashiers_list:
+        user_email = frappe.get_value("User", cashier.user, "email")
+        if user_email:
+            # Return list of tuples in format (value, label) where value is user ID and label shows both ID and email
+            result.append([cashier.user, f"{cashier.user} ({user_email})"])
+    return result
 
 
 @frappe.whitelist()

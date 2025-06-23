@@ -5,7 +5,8 @@
 from __future__ import unicode_literals
 import json
 import frappe
-from frappe.utils import nowdate, flt, cstr, getdate
+from frappe.utils import nowdate, flt, cstr, getdate, cint, money_in_words
+from erpnext.setup.utils import get_exchange_rate
 from frappe import _
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import get_bank_cash_account
 from erpnext.stock.get_item_details import get_item_details
@@ -30,19 +31,31 @@ from posawesome.posawesome.doctype.delivery_charges.delivery_charges import (
     get_applicable_delivery_charges as _get_applicable_delivery_charges,
 )
 from frappe.utils.caching import redis_cache
+from typing import List, Dict
+
+
+def ensure_child_doctype(doc, table_field, child_doctype):
+    """Ensure child rows have the correct doctype set."""
+    for row in doc.get(table_field, []):
+        if not row.get("doctype"):
+            row.doctype = child_doctype
 
 
 @frappe.whitelist()
 def get_opening_dialog_data():
     data = {}
     data["companies"] = frappe.get_list("Company", limit_page_length=0, order_by="name")
-    data["pos_profiles_data"] = frappe.get_list(
-        "POS Profile",
-        filters={"disabled": 0},
-        fields=["name", "company", "currency"],
-        limit_page_length=0,
-        order_by="name",
-    )
+    
+    # Get only POS Profiles where current user is defined in POS Profile User table
+    pos_profiles_data = frappe.db.sql("""
+        SELECT DISTINCT p.name, p.company, p.currency 
+        FROM `tabPOS Profile` p
+        INNER JOIN `tabPOS Profile User` u ON u.parent = p.name
+        WHERE p.disabled = 0 AND u.user = %s
+        ORDER BY p.name
+    """, frappe.session.user, as_dict=1)
+    
+    data["pos_profiles_data"] = pos_profiles_data
 
     pos_profiles_list = []
     for i in data["pos_profiles_data"]:
@@ -185,7 +198,23 @@ def get_items(
                 condition += " AND item_group like '%{item_group}%'".format(
                     item_group=item_group
                 )
-            limit = " LIMIT {search_limit}".format(search_limit=search_limit)
+
+            # Respect force reload setting when applying search limits
+            if pos_profile.get("posa_force_reload_items"):
+                # When force reload is enabled, apply limit only on the initial
+                # load (no explicit search value) to avoid heavy queries while
+                # still returning full results when the user searches.
+                if not search_value:
+                    limit = " LIMIT {search_limit}".format(search_limit=search_limit)
+                else:
+                    limit = ""
+            else:
+                # Default behaviour: limit results during a search to reduce
+                # payload when not forcing a reload of all items.
+                if search_value:
+                    limit = " LIMIT {search_limit}".format(search_limit=search_limit)
+                else:
+                    limit = ""
 
         if not posa_show_template_items:
             condition += " AND has_variants = 0"
@@ -297,6 +326,15 @@ def get_items(
                         },
                         fields=["name as serial_no"],
                     )
+                # Fetch UOM conversion details for the item
+                uoms = frappe.get_all(
+                    "UOM Conversion Detail",
+                    filters={"parent": item_code},
+                    fields=["uom", "conversion_factor"],
+                )
+                stock_uom = item.stock_uom
+                if stock_uom and not any(u.get("uom") == stock_uom for u in uoms):
+                    uoms.append({"uom": stock_uom, "conversion_factor": 1.0})
                 item_stock_qty = 0
                 if pos_profile.get("posa_display_items_in_stock") or use_limit_search:
                     item_stock_qty = get_stock_availability(
@@ -330,6 +368,7 @@ def get_items(
                             "batch_no_data": batch_no_data or [],
                             "attributes": attributes or "",
                             "item_attributes": item_attributes or "",
+                            "item_uoms": uoms or [],
                         }
                     )
                     result.append(row)
@@ -497,49 +536,130 @@ def add_taxes_from_tax_template(item, parent_doc):
                     tax_row.update({"category": "Total", "add_deduct_tax": "Add"})
                 tax_row.db_insert()
 
+def validate_return_items(original_invoice_name, return_items):
+    """
+    Ensure that return items do not exceed the quantity from the original invoice.
+    """
+    original_invoice = frappe.get_doc("Sales Invoice", original_invoice_name)
+    original_item_qty = {}
 
+    for item in original_invoice.items:
+        original_item_qty[item.item_code] = original_item_qty.get(item.item_code, 0) + item.qty
+
+    returned_items = frappe.get_all(
+        "Sales Invoice",
+        filters={
+            "return_against": original_invoice_name,
+            "docstatus": 1,
+            "is_return": 1
+        },
+        fields=["name"]
+    )
+
+    for returned_invoice in returned_items:
+        ret_doc = frappe.get_doc("Sales Invoice", returned_invoice.name)
+        for item in ret_doc.items:
+            if item.item_code in original_item_qty:
+                original_item_qty[item.item_code] -= abs(item.qty)
+
+    for item in return_items:
+        item_code = item.get("item_code")
+        return_qty = abs(item.get("qty", 0))
+        if item_code in original_item_qty and return_qty > original_item_qty[item_code]:
+            return {
+                "valid": False,
+                "message": _("You are trying to return more quantity for item {0} than was sold.").format(item_code),
+            }
+
+    return {"valid": True}
+    
 @frappe.whitelist()
 def update_invoice(data):
     data = json.loads(data)
-    
-    # If this is a return invoice with a reference invoice, validate items
-    if data.get('is_return') and data.get('return_against'):
-        validation_result = validate_return_items(data.get('return_against'), data.get('items', []))
-        if not validation_result.get('valid'):
-            frappe.throw(validation_result.get('message'))
-            
-    # Continue with existing logic
-    invoice_doc = frappe.get_doc("Sales Invoice", data.get("name")) if data.get("name") else None
-    
-    if not invoice_doc:
-        invoice_doc = frappe.new_doc("Sales Invoice")
+    if data.get("name"):
+        invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
         invoice_doc.update(data)
     else:
-        invoice_doc.update(data)
+        invoice_doc = frappe.get_doc(data)
+
+    # Set currency from data before set_missing_values
+    # Validate return items if this is a return invoice
+    if (data.get("is_return") or invoice_doc.is_return) and invoice_doc.get("return_against"):
+        validation = validate_return_items(invoice_doc.return_against, [d.as_dict() for d in invoice_doc.items])
+        if not validation.get("valid"):
+            frappe.throw(validation.get("message"))
+    selected_currency = data.get("currency")
     
-    # Set update_stock to 1 for all invoices except delivery date based ones
-    if not data.get("posa_delivery_date"):
-        invoice_doc.update_stock = 1
-    else:
-        invoice_doc.update_stock = 0
-        
-    # Ensure stock is updated for returns
-    if data.get('is_return'):
-        invoice_doc.update_stock = 1
-        
+    # Set missing values first
+    invoice_doc.set_missing_values()
+    
+    # Ensure selected currency is preserved after set_missing_values
+    if selected_currency:
+        invoice_doc.currency = selected_currency
+        # Get default conversion rate from ERPNext if currency is different from company currency
+        if invoice_doc.currency != frappe.get_cached_value("Company", invoice_doc.company, "default_currency"):
+            company_currency = frappe.get_cached_value("Company", invoice_doc.company, "default_currency")
+            # Get exchange rate from selected currency to base currency
+            exchange_rate = get_exchange_rate(
+                invoice_doc.currency,
+                company_currency,
+                invoice_doc.posting_date
+            )
+            invoice_doc.conversion_rate = exchange_rate
+            invoice_doc.plc_conversion_rate = exchange_rate
+            invoice_doc.price_list_currency = selected_currency
+
+            # Update rates and amounts for all items using multiplication
+            for item in invoice_doc.items:
+                if item.price_list_rate:
+                    # If exchange rate is 285 PKR = 1 USD
+                    # To convert USD to PKR: multiply by exchange rate
+                    # Example: 0.35 USD * 285 = 100 PKR
+                    item.base_price_list_rate = flt(item.price_list_rate * exchange_rate, item.precision("base_price_list_rate"))
+                if item.rate:
+                    item.base_rate = flt(item.rate * exchange_rate, item.precision("base_rate"))
+                if item.amount:
+                    item.base_amount = flt(item.amount * exchange_rate, item.precision("base_amount"))
+
+            # Update payment amounts
+            for payment in invoice_doc.payments:
+                payment.base_amount = flt(payment.amount * exchange_rate, payment.precision("base_amount"))
+
+            # Update invoice level amounts
+            invoice_doc.base_total = flt(invoice_doc.total * exchange_rate, invoice_doc.precision("base_total"))
+            invoice_doc.base_net_total = flt(invoice_doc.net_total * exchange_rate, invoice_doc.precision("base_net_total"))
+            invoice_doc.base_grand_total = flt(invoice_doc.grand_total * exchange_rate, invoice_doc.precision("base_grand_total"))
+            invoice_doc.base_rounded_total = flt(invoice_doc.rounded_total * exchange_rate, invoice_doc.precision("base_rounded_total"))
+            invoice_doc.base_in_words = money_in_words(invoice_doc.base_rounded_total, invoice_doc.company_currency)
+
+            # Update data to be sent back to frontend
+            data["conversion_rate"] = exchange_rate
+            data["plc_conversion_rate"] = exchange_rate
+
     invoice_doc.flags.ignore_permissions = True
-    invoice_doc.ignore_mandatory = True
+    frappe.flags.ignore_account_permission = True
+    invoice_doc.docstatus = 0
     invoice_doc.save()
-    
-    return invoice_doc
+
+    # Return both the invoice doc and the updated data
+    response = invoice_doc.as_dict()
+    response["conversion_rate"] = invoice_doc.conversion_rate
+    response["plc_conversion_rate"] = invoice_doc.conversion_rate
+    return response
 
 
 @frappe.whitelist()
 def submit_invoice(invoice, data):
     data = json.loads(data)
     invoice = json.loads(invoice)
-    invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
-    invoice_doc.update(invoice)
+    invoice_name = invoice.get("name")
+    if not invoice_name or not frappe.db.exists("Sales Invoice", invoice_name):
+        created = update_invoice(json.dumps(invoice))
+        invoice_name = created.get("name")
+        invoice_doc = frappe.get_doc("Sales Invoice", invoice_name)
+    else:
+        invoice_doc = frappe.get_doc("Sales Invoice", invoice_name)
+        invoice_doc.update(invoice)
     if invoice.get("posa_delivery_date"):
         invoice_doc.update_stock = 0
     mop_cash_list = [
@@ -609,7 +729,9 @@ def submit_invoice(invoice, data):
                     "allocated_amount": row["credit_to_redeem"],
                 }
 
-                invoice_doc.append("advances", advance_payment)
+                advance_row = invoice_doc.append("advances", {})
+                advance_row.update(advance_payment)
+                ensure_child_doctype(invoice_doc, "advances", "Sales Invoice Advance")
                 invoice_doc.is_pos = 0
                 is_payment_entry = 1
 
@@ -725,34 +847,43 @@ def redeeming_customer_credit(
                     }
                 )
 
-                jv_debit_entry = {
-                    "account": outstanding_invoice.debit_to,
-                    "party_type": "Customer",
-                    "party": invoice_doc.customer,
-                    "reference_type": "Sales Invoice",
-                    "reference_name": outstanding_invoice.name,
-                    "debit_in_account_currency": row["credit_to_redeem"],
-                    "cost_center": cost_center,
-                }
+                debit_row = jv_doc.append("accounts", {})
+                debit_row.update(
+                    {
+                        "account": outstanding_invoice.debit_to,
+                        "party_type": "Customer",
+                        "party": invoice_doc.customer,
+                        "reference_type": "Sales Invoice",
+                        "reference_name": outstanding_invoice.name,
+                        "debit_in_account_currency": row["credit_to_redeem"],
+                        "cost_center": cost_center,
+                    }
+                )
 
-                jv_credit_entry = {
-                    "account": invoice_doc.debit_to,
-                    "party_type": "Customer",
-                    "party": invoice_doc.customer,
-                    "reference_type": "Sales Invoice",
-                    "reference_name": invoice_doc.name,
-                    "credit_in_account_currency": row["credit_to_redeem"],
-                    "cost_center": cost_center,
-                }
+                credit_row = jv_doc.append("accounts", {})
+                credit_row.update(
+                    {
+                        "account": invoice_doc.debit_to,
+                        "party_type": "Customer",
+                        "party": invoice_doc.customer,
+                        "reference_type": "Sales Invoice",
+                        "reference_name": invoice_doc.name,
+                        "credit_in_account_currency": row["credit_to_redeem"],
+                        "cost_center": cost_center,
+                    }
+                )
 
-                jv_doc.append("accounts", jv_debit_entry)
-                jv_doc.append("accounts", jv_credit_entry)
+                ensure_child_doctype(jv_doc, "accounts", "Journal Entry Account")
 
                 jv_doc.flags.ignore_permissions = True
                 frappe.flags.ignore_account_permission = True
                 jv_doc.set_missing_values()
-                jv_doc.save()
-                jv_doc.submit()
+                try:
+                    jv_doc.save()
+                    jv_doc.submit()
+                except Exception as e:
+                    frappe.log_error(frappe.get_traceback(), "POSAwesome JV Error")
+                    frappe.throw(_("Unable to create Journal Entry for customer credit."))
 
     if is_payment_entry and total_cash > 0:
         for payment in payments:
@@ -783,7 +914,11 @@ def redeeming_customer_credit(
                 "reference_name": invoice_doc.name,
             }
 
-            payment_entry_doc.append("references", payment_reference)
+            ref_row = payment_entry_doc.append("references", {})
+            ref_row.update(payment_reference)
+            ensure_child_doctype(
+                payment_entry_doc, "references", "Payment Entry Reference"
+            )
             payment_entry_doc.flags.ignore_permissions = True
             frappe.flags.ignore_account_permission = True
             payment_entry_doc.save()
@@ -918,14 +1053,18 @@ def get_items_details(pos_profile, items_data):
         warehouse = pos_profile.get("warehouse")
         result = []
 
+        # Clear quantity cache once per request instead of each item
+        try:
+            if hasattr(frappe.local.cache, "delete_key"):
+                frappe.local.cache.delete_key('bin_qty_cache')
+            elif frappe.cache().get_value('bin_qty_cache'):
+                frappe.cache().delete_value('bin_qty_cache')
+        except Exception as e:
+            frappe.log_error(f"Error clearing bin_qty_cache: {str(e)}", "POS Awesome")
+
         if len(items_data) > 0:
             for item in items_data:
                 item_code = item.get("item_code")
-                # Force refresh stock quantity on each request using proper cache clearing
-                if hasattr(frappe.local.cache, "delete_key"):
-                    frappe.local.cache.delete_key('bin_qty_cache')
-                elif frappe.cache().get_value('bin_qty_cache'):
-                    frappe.cache().delete_value('bin_qty_cache')
                 
                 item_stock_qty = get_stock_availability(item_code, warehouse)
                 (has_batch_no, has_serial_no) = frappe.db.get_value(
@@ -998,8 +1137,10 @@ def get_items_details(pos_profile, items_data):
 
         return result
 
-    # Skip cache to ensure fresh stock quantities on every request
-    return _get_items_details(pos_profile, items_data)
+    if _pos_profile.get("posa_use_server_cache"):
+        return __get_items_details(pos_profile, items_data)
+    else:
+        return _get_items_details(pos_profile, items_data)
 
 
 @frappe.whitelist()
@@ -1181,10 +1322,20 @@ def create_customer(
         customer_doc.gender = gender
         customer_doc.save()
 
+        # ensure contact details are synced correctly
+        if mobile_no:
+            set_customer_info(customer_doc.name, "mobile_no", mobile_no)
+        if email_id:
+            set_customer_info(customer_doc.name, "email_id", email_id)
+
         existing_address_name = frappe.db.get_value(
             "Dynamic Link",
-            {"link_doctype": "Customer", "link_name": customer_id},
-            "parent"
+            {
+                "link_doctype": "Customer",
+                "link_name": customer_id,
+                "parenttype": "Address",
+            },
+            "parent",
         )
 
         if existing_address_name:
@@ -1466,19 +1617,31 @@ def search_invoices_for_return(invoice_name, company, customer_name=None, custom
         )
         
         if has_returns:
-            # Get all returned items
-            returned_items = []
+            # Calculate returned quantity per item_code
+            returned_qty = {}
             for ret_inv in has_returns:
                 ret_doc = frappe.get_doc("Sales Invoice", ret_inv.name)
                 for item in ret_doc.items:
-                    returned_items.append(item.item_code)
-            
-            # Filter out returned items from original invoice
+                    returned_qty[item.item_code] = (
+                        returned_qty.get(item.item_code, 0) + abs(item.qty)
+                    )
+
+            # Filter items with remaining qty
             filtered_items = []
             for item in invoice_doc.items:
-                if item.item_code not in returned_items:
-                    filtered_items.append(item)
-            
+                remaining_qty = item.qty - returned_qty.get(item.item_code, 0)
+                if remaining_qty > 0:
+                    new_item = item.as_dict().copy()
+                    new_item["qty"] = remaining_qty
+                    new_item["amount"] = remaining_qty * item.rate
+                    if item.get("stock_qty"):
+                        new_item["stock_qty"] = (
+                            item.stock_qty / item.qty * remaining_qty
+                            if item.qty
+                            else remaining_qty
+                        )
+                    filtered_items.append(frappe._dict(new_item))
+
             if filtered_items:
                 # Create a copy of invoice with filtered items
                 filtered_invoice = frappe.get_doc("Sales Invoice", invoice.name)
@@ -2157,4 +2320,47 @@ def validate_return_items(return_against, items):
          original_items[item_code]['qty'] -= return_qty
  
      return {"valid": True}
+
+@frappe.whitelist()
+def get_available_currencies():
+    """Get list of available currencies from ERPNext"""
+    return frappe.get_all("Currency", fields=["name", "currency_name"],
+                         filters={"enabled": 1}, order_by="currency_name")
+
+
+@frappe.whitelist()
+def get_selling_price_lists():
+    """Return all selling price lists"""
+    return frappe.get_all(
+        "Price List",
+        filters={"selling": 1},
+        fields=["name"],
+        order_by="name",
+    )
+
+
+
+
+@frappe.whitelist()
+def get_app_info() -> Dict[str, List[Dict[str, str]]]:
+    """
+    Return a list of installed apps and their versions.
+    """
+    # Get installed apps using Frappe's built-in function
+    installed_apps = frappe.get_installed_apps()
     
+    # Get app versions
+    apps_info = []
+    for app_name in installed_apps:
+        try:
+            # Get app version from hooks or __init__.py
+            app_version = frappe.get_attr(f"{app_name}.__version__") or "Unknown"
+        except (AttributeError, ImportError):
+            app_version = "Unknown"
+        
+        apps_info.append({
+            "app_name": app_name,
+            "installed_version": app_version
+        })
+    
+    return {"apps": apps_info}

@@ -128,8 +128,7 @@ export default {
       }
     },
     formatCurrency(value) {
-      value = parseFloat(value);
-      return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+      return this.$options.mixins[0].methods.formatCurrency.call(this, value, 2);
     },
   },
   created: function () {

@@ -164,6 +164,7 @@ fixtures = [
                     "Item Barcode-posa_uom",
                     "POS Profile-posa_pos_awesome_settings",
                     "POS Profile-posa_allow_delete",
+                    "POS Profile-posa_allow_delete_offline_invoice",
                     "POS Profile-posa_allow_user_to_edit_rate",
                     "POS Profile-posa_allow_user_to_edit_additional_discount",
                     "POS Profile-posa_allow_user_to_edit_item_discount",
@@ -240,6 +241,8 @@ fixtures = [
                     "POS Profile-posa_auto_set_delivery_charges",
                     "POS Profile-posa_use_delivery_charges",
                     "POS Profile-hide_expected_amount",
+                    "POS Profile-posa_display_discount_percentage",
+                    "POS Profile-posa_display_discount_amount",
                     "POS Profile-posa_allow_change_posting_date",
                     "POS Profile-posa_default_card_view",
                     "POS Profile-posa_default_sales_order",
@@ -257,6 +260,8 @@ fixtures = [
                     "POS Profile-posa_allow_reconcile_payments",
                     "POS Profile-column_break_uolvm",
                     "POS Profile-posa_allow_mpesa_reconcile_payments",
+                    "POS Profile-posa_enable_camera_scanning",
+                    "POS Profile-posa_camera_scan_type",
                 ),
             ]
         ],
@@ -265,4 +270,17 @@ fixtures = [
         "doctype": "Property Setter",
         "filters": [["name", "in", ("Sales Invoice-posa_pos_opening_shift-no_copy")]],
     },
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "POS Profile-posa_allow_multi_currency",
+                    "POS Profile-posa_decimal_precision"
+                ]
+            ]
+        ]
+    }
 ]

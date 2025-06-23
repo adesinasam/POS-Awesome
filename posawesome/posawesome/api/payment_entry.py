@@ -28,11 +28,18 @@ def create_payment_entry(
     cost_center=None,
     submit=0,
 ):
-    # TODO : need to have a better way to handle currency
     date = nowdate() if not posting_date else posting_date
     party_type = "Customer"
+    
+    # Cache commonly used values
+    company_doc = frappe.get_cached_doc("Company", company)
+    company_currency = company_doc.default_currency
+    letter_head = company_doc.default_letter_head
+    
+    # Get party account and currency in one call
     party_account = get_party_account(party_type, customer, company)
     party_account_currency = get_account_currency(party_account)
+    
     if party_account_currency != currency:
         frappe.throw(
             _(
@@ -41,13 +48,18 @@ def create_payment_entry(
         )
     payment_type = "Receive"
 
+    # Get bank details in one call
     bank = get_bank_cash_account(company, mode_of_payment)
-    company_currency = frappe.get_value("Company", company, "default_currency")
+    
+    # Get exchange rate
     conversion_rate = get_exchange_rate(currency, company_currency, date, "for_selling")
+    
+    # Calculate amounts
     paid_amount, received_amount = set_paid_amount_and_received_amount(
         party_account_currency, bank, amount, payment_type, None, conversion_rate
     )
 
+    # Create payment entry with minimal db calls
     pe = frappe.new_doc("Payment Entry")
     pe.payment_type = payment_type
     pe.company = company
@@ -56,33 +68,35 @@ def create_payment_entry(
     pe.mode_of_payment = mode_of_payment
     pe.party_type = party_type
     pe.party = customer
-
     pe.paid_from = party_account if payment_type == "Receive" else bank.account
     pe.paid_to = party_account if payment_type == "Pay" else bank.account
-    pe.paid_from_account_currency = (
-        party_account_currency if payment_type == "Receive" else bank.account_currency
-    )
-    pe.paid_to_account_currency = (
-        party_account_currency if payment_type == "Pay" else bank.account_currency
-    )
+    pe.paid_from_account_currency = party_account_currency if payment_type == "Receive" else bank.account_currency
+    pe.paid_to_account_currency = party_account_currency if payment_type == "Pay" else bank.account_currency
     pe.paid_amount = paid_amount
     pe.received_amount = received_amount
-    pe.letter_head = frappe.get_value("Company", company, "default_letter_head")
+    pe.letter_head = letter_head
     pe.reference_date = reference_date
     pe.reference_no = reference_no
+
+    # Set bank account if available
     if pe.party_type in ["Customer", "Supplier"]:
         bank_account = get_party_bank_account(pe.party_type, pe.party)
-        pe.set("bank_account", bank_account)
-        pe.set_bank_account_data()
+        if bank_account:
+            pe.bank_account = bank_account
+            pe.set_bank_account_data()
 
+    # Set required fields
     pe.setup_party_account_field()
     pe.set_missing_values()
 
     if party_account and bank:
         pe.set_amounts()
-    if submit:
-        pe.docstatus = 1
+        
+    # Insert and submit in one go if needed
     pe.insert(ignore_permissions=True)
+    if submit:
+        pe.submit()
+        
     return pe
 
 

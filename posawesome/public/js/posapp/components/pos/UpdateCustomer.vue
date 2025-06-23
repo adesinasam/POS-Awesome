@@ -15,23 +15,24 @@
             <v-row>
               <v-col cols="12">
                 <v-text-field density="compact" color="primary" :label="frappe._('Customer Name') + ' *'"
-                  bg-color="white" hide-details v-model="customer_name"></v-text-field>
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details class="dark-field" v-model="customer_name"></v-text-field>
               </v-col>
               <v-col cols="6">
-                <v-text-field density="compact" color="primary" :label="frappe._('Tax ID')" bg-color="white"
-                  hide-details v-model="tax_id"></v-text-field>
+                <v-text-field density="compact" color="primary" :label="frappe._('Tax ID')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="tax_id"></v-text-field>
               </v-col>
               <v-col cols="6">
-                <v-text-field density="compact" color="primary" :label="frappe._('Mobile No')" bg-color="white"
-                  hide-details v-model="mobile_no"></v-text-field>
+                <v-text-field density="compact" color="primary" :label="frappe._('Mobile No')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="mobile_no"></v-text-field>
               </v-col>
 			  <v-col cols="12">
   <v-text-field
     density="compact"
     color="primary"
     :label="__('Address Line 1')"
-    bg-color="white"
+    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
     hide-details
+    class="dark-field"
     v-model="address_line1"
   ></v-text-field>
 </v-col>
@@ -39,9 +40,11 @@
 <v-col cols="12" sm="6">
   <v-text-field
     v-model="city"
-    outlined
-    dense
+    variant="outlined"
+    density="compact"
     :label="__('City')"
+    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+    class="dark-field"
   ></v-text-field>
 </v-col>
 
@@ -49,22 +52,25 @@
   <v-select
     v-model="country"
     :items="countries"
-    outlined
-    dense
+    variant="outlined"
+    density="compact"
     :label="__('Country')"
+    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+    class="dark-field"
   ></v-select>
 </v-col>
 
 <v-col cols="6">
-  <v-text-field density="compact" color="primary" :label="frappe._('Email Id')" bg-color="white"
-    hide-details v-model="email_id"></v-text-field>
+  <v-text-field density="compact" color="primary" :label="frappe._('Email Id')"
+    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="email_id"></v-text-field>
 </v-col>
               <v-col cols="6">
-                <v-select density="compact" label="Gender" :items="genders" v-model="gender"></v-select>
+                <v-select density="compact" label="Gender" :items="genders" v-model="gender"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-select>
               </v-col>
               <v-col cols="6">
-                <v-text-field density="compact" color="primary" :label="frappe._('Referral Code')" bg-color="white"
-                  hide-details v-model="referral_code"></v-text-field>
+                <v-text-field density="compact" color="primary" :label="frappe._('Referral Code')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="referral_code"></v-text-field>
               </v-col>
               <v-col cols="6">
                 <v-text-field
@@ -75,28 +81,31 @@
                   hide-details
                   color="primary"
                   placeholder="DD-MM-YYYY"
-                  @input="formatBirthdayOnInput"
+                  @update:model-value="formatBirthdayOnInput"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"
                 ></v-text-field>
               </v-col>
               <v-col cols="6">
                 <v-autocomplete clearable density="compact" auto-select-first color="primary"
-                  :label="frappe._('Customer Group') + ' *'" v-model="group" :items="groups" bg-color="white"
+                  :label="frappe._('Customer Group') + ' *'" v-model="group" :items="groups"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"
                   :no-data-text="__('Group not found')" hide-details required>
                 </v-autocomplete>
               </v-col>
               <v-col cols="6">
                 <v-autocomplete clearable density="compact" auto-select-first color="primary"
-                  :label="frappe._('Territory') + ' *'" v-model="territory" :items="territorys" bg-color="white"
+                  :label="frappe._('Territory') + ' *'" v-model="territory" :items="territorys"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"
                   :no-data-text="__('Territory not found')" hide-details required>
                 </v-autocomplete>
               </v-col>
               <v-col cols="6" v-if="loyalty_program">
                 <v-text-field v-model="loyalty_program" :label="frappe._('Loyalty Program')" density="compact" readonly
-                  hide-details></v-text-field>
+                  hide-details :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-text-field>
               </v-col>
               <v-col cols="6" v-if="loyalty_points">
                 <v-text-field v-model="loyalty_points" :label="frappe._('Loyalty Points')" density="compact" readonly
-                  hide-details></v-text-field>
+                  hide-details :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -137,6 +146,7 @@
 </template>
 
 <script>
+import { isOffline, saveOfflineCustomer } from '../../../offline.js';
 
 export default {
   data: () => ({
@@ -253,6 +263,11 @@ export default {
           console.error("Error updating calendar on menu open:", error);
         }
       }
+    }
+  },
+  computed: {
+    isDarkTheme() {
+      return this.$theme.current === 'dark';
     }
   },
   methods: {
@@ -465,28 +480,26 @@ export default {
         customer_type: this.customer_type,
         gender: this.gender
       };
-      
+      const apiArgs = {
+        ...args,
+        company: vm.pos_profile.company,
+        pos_profile_doc: JSON.stringify(vm.pos_profile),
+        method: this.customer_id ? 'update' : 'create',
+      };
+
+      if (isOffline()) {
+        saveOfflineCustomer({ args: apiArgs });
+        vm.eventBus.emit('show_message', { title: __('Customer saved offline'), color: 'warning' });
+        args.name = this.customer_name;
+        vm.eventBus.emit('add_customer_to_list', args);
+        vm.eventBus.emit('set_customer', args.name);
+        vm.close_dialog();
+        return;
+      }
+
       frappe.call({
         method: 'posawesome.posawesome.api.posapp.create_customer',
-        args: {
-          customer_id: this.customer_id,
-          customer_name: this.customer_name,
-          tax_id: this.tax_id,
-          mobile_no: this.mobile_no,
-          address_line1: this.address_line1,
-          city: this.city,
-          country: this.country,
-          email_id: this.email_id,
-          referral_code: this.referral_code,
-          birthday: formatted_birthday || this.birthday,
-          customer_group: this.group,
-          territory: this.territory,
-          customer_type: this.customer_type,
-          gender: this.gender,
-          company: vm.pos_profile.company,
-          pos_profile_doc: JSON.stringify(vm.pos_profile),
-          method: this.customer_id ? 'update' : 'create',
-        },
+        args: apiArgs,
         callback: (r) => {
           if (!r.exc && r.message.name) {
             let text = __('Customer created successfully.');
@@ -580,3 +593,35 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* Dark mode input styling */
+:deep(.dark-theme) .dark-field,
+:deep(.v-theme--dark) .dark-field,
+::v-deep(.dark-theme) .dark-field,
+::v-deep(.v-theme--dark) .dark-field {
+  background-color: #1E1E1E !important;
+}
+
+:deep(.dark-theme) .dark-field :deep(.v-field__input),
+:deep(.v-theme--dark) .dark-field :deep(.v-field__input),
+:deep(.dark-theme) .dark-field :deep(input),
+:deep(.v-theme--dark) .dark-field :deep(input),
+:deep(.dark-theme) .dark-field :deep(.v-label),
+:deep(.v-theme--dark) .dark-field :deep(.v-label),
+::v-deep(.dark-theme) .dark-field .v-field__input,
+::v-deep(.v-theme--dark) .dark-field .v-field__input,
+::v-deep(.dark-theme) .dark-field input,
+::v-deep(.v-theme--dark) .dark-field input,
+::v-deep(.dark-theme) .dark-field .v-label,
+::v-deep(.v-theme--dark) .dark-field .v-label {
+  color: #fff !important;
+}
+
+:deep(.dark-theme) .dark-field :deep(.v-field__overlay),
+:deep(.v-theme--dark) .dark-field :deep(.v-field__overlay),
+::v-deep(.dark-theme) .dark-field .v-field__overlay,
+::v-deep(.v-theme--dark) .dark-field .v-field__overlay {
+  background-color: #1E1E1E !important;
+}
+</style>

@@ -24,68 +24,31 @@
           </v-row>
           <v-row class="mb-3">
             <v-col cols="12" sm="6">
-              <v-text-field color="primary" :label="frappe._('Invoice ID')" bg-color="white" hide-details
+              <v-text-field color="primary" :label="frappe._('Invoice ID')"
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
                 v-model="invoice_name" density="compact" clearable></v-text-field>
             </v-col>
             <v-col cols="12" sm="3">
-              <v-menu
-                v-model="fromDateMenu"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ props }">
-                  <v-text-field
-                    v-model="from_date_formatted"
-                    :label="frappe._('From Date')"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="props"
-                    clearable
-                    @click:clear="clearFromDate"
-                    hide-details
-                    dense
-                    color="primary"
-                    outlined
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="from_date"
-                  no-title
-                  @update:model-value="fromDateMenu = false; formatFromDate();"
-                ></v-date-picker>
-              </v-menu>
+          <VueDatePicker
+            v-model="from_date"
+            model-type="format"
+            format="dd-MM-yyyy"
+            :enable-time-picker="false"
+            auto-apply
+            :dark="isDarkTheme"
+            @update:model-value="formatFromDate()"
+          />
             </v-col>
             <v-col cols="12" sm="3">
-              <v-menu
-                v-model="toDateMenu"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ props }">
-                  <v-text-field
-                    v-model="to_date_formatted"
-                    :label="frappe._('To Date')"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="props"
-                    clearable
-                    @click:clear="clearToDate"
-                    hide-details
-                    dense
-                    color="primary"
-                    outlined
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="to_date"
-                  no-title
-                  @update:model-value="toDateMenu = false; formatToDate();"
-                ></v-date-picker>
-              </v-menu>
+          <VueDatePicker
+            v-model="to_date"
+            model-type="format"
+            format="dd-MM-yyyy"
+            :enable-time-picker="false"
+            auto-apply
+            :dark="isDarkTheme"
+            @update:model-value="formatToDate()"
+          />
             </v-col>
           </v-row>
 
@@ -95,7 +58,8 @@
               <v-text-field 
                 color="primary" 
                 :label="frappe._('Customer Name')" 
-                bg-color="white" 
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field"
                 hide-details
                 v-model="customer_name" 
                 density="compact" 
@@ -106,7 +70,8 @@
               <v-text-field 
                 color="primary" 
                 :label="frappe._('Customer ID')" 
-                bg-color="white" 
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field"
                 hide-details
                 v-model="customer_id" 
                 density="compact" 
@@ -119,7 +84,8 @@
               <v-text-field 
                 color="primary" 
                 :label="frappe._('Mobile Number')" 
-                bg-color="white" 
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field"
                 hide-details
                 v-model="mobile_no" 
                 density="compact" 
@@ -130,7 +96,8 @@
               <v-text-field 
                 color="primary" 
                 :label="frappe._('Tax ID')" 
-                bg-color="white" 
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field"
                 hide-details
                 v-model="tax_id" 
                 density="compact" 
@@ -145,7 +112,8 @@
               <v-text-field 
                 color="primary" 
                 :label="frappe._('Minimum Amount')" 
-                bg-color="white" 
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field"
                 hide-details
                 v-model="min_amount" 
                 density="compact" 
@@ -159,7 +127,8 @@
               <v-text-field 
                 color="primary" 
                 :label="frappe._('Maximum Amount')" 
-                bg-color="white" 
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field"
                 hide-details
                 v-model="max_amount" 
                 density="compact" 
@@ -272,8 +241,6 @@ export default {
     to_date_formatted: null,
     min_amount: '',
     max_amount: '',
-    fromDateMenu: false,
-    toDateMenu: false,
     pos_profile: '',
     page: 1,
     has_more_invoices: false,
@@ -307,6 +274,11 @@ export default {
       },
     ],
   }),
+  computed: {
+    isDarkTheme() {
+      return this.$theme?.current === 'dark';
+    }
+  },
   watch: {
     from_date() {
       this.formatFromDate();
@@ -319,10 +291,10 @@ export default {
     formatDateDisplay(dateStr) {
       if (!dateStr) return '';
       try {
-        // Convert YYYY-MM-DD to DD/MM/YYYY
+        // Convert YYYY-MM-DD to DD-MM-YYYY
         const parts = dateStr.split('-');
         if (parts.length === 3) {
-          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+          return `${parts[2]}-${parts[1]}-${parts[0]}`;
         }
       } catch (error) {
         console.error("Error formatting date:", error);
@@ -339,13 +311,13 @@ export default {
             const day = String(this.from_date.getDate()).padStart(2, '0');
             const month = String(this.from_date.getMonth() + 1).padStart(2, '0');
             const year = this.from_date.getFullYear();
-            dateString = `${day}/${month}/${year}`;
+            dateString = `${day}-${month}-${year}`;
           }
           // Handle string in YYYY-MM-DD format
           else if (typeof this.from_date === 'string' && this.from_date.includes('-')) {
             const parts = this.from_date.split('-');
             if (parts.length === 3) {
-              dateString = `${parts[2]}/${parts[1]}/${parts[0]}`;
+              dateString = `${parts[2]}-${parts[1]}-${parts[0]}`;
             } else {
               dateString = this.from_date;
             }
@@ -374,13 +346,13 @@ export default {
             const day = String(this.to_date.getDate()).padStart(2, '0');
             const month = String(this.to_date.getMonth() + 1).padStart(2, '0');
             const year = this.to_date.getFullYear();
-            dateString = `${day}/${month}/${year}`;
+            dateString = `${day}-${month}-${year}`;
           }
           // Handle string in YYYY-MM-DD format
           else if (typeof this.to_date === 'string' && this.to_date.includes('-')) {
             const parts = this.to_date.split('-');
             if (parts.length === 3) {
-              dateString = `${parts[2]}/${parts[1]}/${parts[0]}`;
+              dateString = `${parts[2]}-${parts[1]}-${parts[0]}`;
             } else {
               dateString = this.to_date;
             }
@@ -461,8 +433,14 @@ export default {
               formattedFromDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
           } else if (vm.from_date.includes('-')) {
-            // Already in YYYY-MM-DD format
-            formattedFromDate = vm.from_date;
+            const parts = vm.from_date.split('-');
+            if (parts.length === 3) {
+              if (parts[0].length === 4) {
+                formattedFromDate = vm.from_date; // Already YYYY-MM-DD
+              } else {
+                formattedFromDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+              }
+            }
           } else {
             // Invalid format, skip date filter
             formattedFromDate = null;
@@ -486,8 +464,14 @@ export default {
               formattedToDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
           } else if (vm.to_date.includes('-')) {
-            // Already in YYYY-MM-DD format
-            formattedToDate = vm.to_date;
+            const parts = vm.to_date.split('-');
+            if (parts.length === 3) {
+              if (parts[0].length === 4) {
+                formattedToDate = vm.to_date; // Already YYYY-MM-DD
+              } else {
+                formattedToDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+              }
+            }
           } else {
             // Invalid format, skip date filter
             formattedToDate = null;
@@ -555,30 +539,57 @@ export default {
       this.perform_search();
     },
     return_without_invoice() {
+      console.log('Starting return without invoice flow');
       const invoice_doc = {};
       invoice_doc.items = [];
       invoice_doc.is_return = 1;
       const data = { invoice_doc };
+      console.log('Emitting load_return_invoice event with data:', data);
       this.eventBus.emit('load_return_invoice', data);
       this.invoicesDialog = false;
     },
     submit_dialog() {
       if (this.selected.length > 0) {
+        console.log('Starting return with invoice flow');
         const return_doc = this.selected[0];
         const invoice_doc = {};
         const items = [];
+        
+        console.log('Original return doc:', return_doc);
+        
         return_doc.items.forEach((item) => {
           const new_item = { ...item };
-          new_item.qty = item.qty * -1;
-          new_item.stock_qty = item.stock_qty * -1;
-          new_item.amount = item.amount * -1;
+          // reference original invoice row for backend validation
+          new_item.sales_invoice_item = item.name;
+          delete new_item.name;
+
+          // Make sure quantities are negative for returns
+          new_item.qty = item.qty > 0 ? item.qty * -1 : item.qty;
+          new_item.stock_qty = item.stock_qty > 0 ? item.stock_qty * -1 : item.stock_qty;
+          new_item.amount = item.amount > 0 ? item.amount * -1 : item.amount;
           items.push(new_item);
         });
+        
         invoice_doc.items = items;
         invoice_doc.is_return = 1;
         invoice_doc.return_against = return_doc.name;
         invoice_doc.customer = return_doc.customer;
+        
+        // Make sure grand_total is negative for returns
+        if (return_doc.grand_total > 0) {
+          invoice_doc.grand_total = return_doc.grand_total * -1;
+        } else {
+          invoice_doc.grand_total = return_doc.grand_total;
+        }
+        
+        // These fields ensure proper return handling
+        invoice_doc.update_stock = 1;
+        invoice_doc.pos_profile = this.pos_profile.name;
+        invoice_doc.company = this.company;
+        
         const data = { invoice_doc, return_doc };
+        console.log('Emitting load_return_invoice event with data:', data);
+        
         this.eventBus.emit('load_return_invoice', data);
         this.invoicesDialog = false;
       }

@@ -16,69 +16,64 @@ export default {
             return flt(value, precision, number_format, rounding_method);
         },
         formatCurrency(value, precision) {
-            const format = get_number_format(this.pos_profile?.currency);
-            value = format_number(
-                value,
-                format,
-                precision || this.currency_precision || 2
-            );
-            return value;
+            if (value === null || value === undefined) {
+                value = 0;
+            }
+            let number = Number(String(value).replace(/,/g, ""));
+            if (isNaN(number)) number = 0;
+            const prec = precision != null ? precision : this.currency_precision || 2;
+            return number.toLocaleString('en-US', {
+                minimumFractionDigits: prec,
+                maximumFractionDigits: prec
+            });
         },
         formatFloat(value, precision) {
-            const format = get_number_format(this.pos_profile.currency);
-            value = format_number(value, format, precision || this.float_precision || 2);
-            return value;
+            if (value === null || value === undefined) {
+                value = 0;
+            }
+            let number = Number(String(value).replace(/,/g, ""));
+            if (isNaN(number)) number = 0;
+            const prec = precision != null ? precision : this.float_precision || 2;
+            return number.toLocaleString('en-US', {
+                minimumFractionDigits: prec,
+                maximumFractionDigits: prec
+            });
         },
         setFormatedCurrency(el, field_name, precision, no_negative = false, $event) {
-            let value = 0;
-            try {
-                // make sure it is a number and positive
-                let _value = parseFloat($event);
-                if (!isNaN(_value)) {
-                    value = _value;
-                }
-                if (no_negative && value < 0) {
-                    value = value * -1;
-                }
-                value = this.formatCurrency($event, precision);
-            } catch (e) {
-                console.error(e);
-                value = 0;
+            let input_val = $event && $event.target ? $event.target.value : $event;
+            if (typeof input_val === 'string') {
+                input_val = input_val.replace(/,/g, '');
             }
-            // check if el is an object
+            let value = parseFloat(input_val);
+            if (isNaN(value)) {
+                value = 0;
+            } else if (no_negative && value < 0) {
+                value = Math.abs(value);
+            }
             if (typeof el === "object") {
                 el[field_name] = value;
-            }
-            else {
+            } else {
                 this[field_name] = value;
             }
-
-
-            return value;
+            return this.formatCurrency(value, precision);
         },
         setFormatedFloat(el, field_name, precision, no_negative = false, $event) {
-            let value = 0;
-            try {
-                // make sure it is a number and positive
-                value = parseFloat($event);
-                if (isNaN(value)) {
-                    value = 0;
-                } else if (no_negative && value < 0) {
-                    value = value * -1;
-                }
-                value = this.formatFloat($event, precision);
-            } catch (e) {
-                console.error(e);
-                value = 0;
+            let input_val = $event && $event.target ? $event.target.value : $event;
+            if (typeof input_val === 'string') {
+                input_val = input_val.replace(/,/g, '');
             }
-            // check if el is an object
+            let value = parseFloat(input_val);
+            if (isNaN(value)) {
+                value = 0;
+            } else if (no_negative && value < 0) {
+                value = Math.abs(value);
+            }
             if (typeof el === "object") {
                 el[field_name] = value;
-            }
-            else {
+            } else {
                 this[field_name] = value;
             }
-            return value;
+            return this.formatFloat(value, precision);
         },
         currencySymbol(currency) {
             return get_currency_symbol(currency);
@@ -94,5 +89,19 @@ export default {
             frappe.defaults.get_default('float_precision') || 2;
         this.currency_precision =
             frappe.defaults.get_default('currency_precision') || 2;
+
+        const updatePrecision = (data) => {
+            const profile = data.pos_profile || data;
+            const prec = parseInt(profile.posa_decimal_precision);
+            if (!isNaN(prec)) {
+                this.float_precision = prec;
+                this.currency_precision = prec;
+            }
+        };
+
+        if (this.eventBus && this.eventBus.on) {
+            this.eventBus.on('register_pos_profile', updatePrecision);
+            this.eventBus.on('payments_register_pos_profile', updatePrecision);
+        }
     }
 };
