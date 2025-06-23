@@ -3,83 +3,72 @@
     <h2>POS AWESOME</h2>
 </div>
 
-#### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify)
+#### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify) (VERSION 15 Support)
 
 ---
+### Update Instructions
+
+After switching branches or pulling latest changes:
+
+1. cd apps/posawesome
+2. git pull
+3. yarn install
+4. cd ../..
+5. bench build --app posawesome
+6. bench --site your.site migrate
 
 ### Main Features
 
-1. Supports Erpnext Version 14
-2. User friendly and provides a good user experience and speed of use
-3. The cashier has the option of either using list view or card view during sales transactions. Card view shows the images of the items
-4. Supports enqueue invoice submission after printing the receipt for faster processing
-5. Supports batch & serial numbering
-6. Supports batch based pricing
-7. Supports UOM specific barcode and pricing
-8. Supports sales of scale (weighted) products
-9. Ability to make returns from POS
-10. Supports Making returns for either cash or customer credit
-11. Supports using customer credit note for payment
-12. Supports credit sales
-13. Allows user to choose a due date for credit sales
-14. Supports customer loyalty points
-15. Shortcuts keys
-16. Supports Customer Discount
-17. Supports POS Offers
-18. Auto apply batches for bundle items
-19. Search and add items by Serial Number
-20. Create Sales Order from POS directly
-21. Supports template items with variants
-22. Supports multiple languages
-23. Supports Mpesa mobile payment
-24. POS Coupons
-25. Supports Referral Code
-26. Supports Customer and Customer Group price list
-27. Supports Sales Person
-28. Supports Delivery Charges
-29. Search and add items by Batch Number
-30. Accept new payments from customers against existing invoices
-31. Payments Reconciliation
-
----
+1. Supports Erpnext Version 15
+2. Supports Multi-Currency Transactions.
+    Customers can be invoiced in different currencies
+    Exchange Rate is fetched automatically based on selected currency
+    Invoices made with posawesome display Grand Total in both base and selected currency in erpnext.
+    
+3. Supports offline mode for creating invoices and customers, saves data locally with stock validation, and syncs automatically when reconnected. If **Allow Negative Stock** is enabled in Stock Settings, offline invoices can still be saved even when quantities are below zero.
+4. User-friendly and provides a good user experience and speed of use
+5. The cashier can either use list view or card view during sales transactions. Card view shows the images of the items
+6. Supports enqueue invoice submission after printing the receipt for faster processing
+7. Supports batch & serial numbering
+8. Supports batch-based pricing
+9. Supports UOM-specific barcode and pricing
+10. Supports sales of scale (weighted) products
+11. Ability to make returns from POS
+12. Supports Making returns for either cash or customer credit
+13. Supports using customer credit notes for payment
+14. Supports credit sales
+15. Allows the user to choose a due date for credit sales
+16. Supports customer loyalty points
+17. Shortcut keys
+18. Supports Customer Discount
+19. Supports POS Offers
+20. Auto-apply batches for bundle items
+21. Search and add items by Serial Number
+22. Create Sales Orders from POS directly
+23. Supports template items with variants
+24. Supports multiple languages
+25. Supports Mpesa mobile payment
+26. POS Coupons
+27. Supports Referral Code
+28. Supports Customer and Customer Group price list
+29. Supports Sales Person
+30. Supports Delivery Charges
+31. Search and add items by Batch Number
+32. Accept new payments from customers against existing invoices
+33. Payments Reconciliation
+34. A lot more bug fixes from the version 14
+35. Offline invoices that fail to submit are saved as draft documents
 
 ### How to Install
 
-#### Frappe Cloud:
-
-One-click installing available if you are hosting on FC from [here](https://frappecloud.com/marketplace/apps/posawesome)
-
 #### Self Hosting:
 
-1. `bench get-app branch version-14 https://github.com/yrestom/POS-Awesome.git`
+1. `bench get-app --branch Version-15 https://github.com/defendicon/POS-Awesome-V15`
 2. `bench setup requirements`
 3. `bench build --app posawesome`
 4. `bench restart`
 5. `bench --site [your.site.name] install-app posawesome`
 6. `bench --site [your.site.name] migrate`
-
----
-
-### Support
-
-#### Frappe Cloud:
-
-If you are hosting on FC premium support is available [here](https://frappecloud.com/marketplace/apps/posawesome)
-
-#### Self Hosting:
-
-If you need premium support please email me [here](mailto:info@totrox.com)
-
-#### Community Support:
-
-Available in GitHub [discussions](https://github.com/yrestom/POS-Awesome/discussions)
-
----
-
-### New Features and Bug report:
-
-- Please Create Github Issue from [here](https://github.com/yrestom/POS-Awesome/issues/new/choose) after checking the existing issues
-- For paid features, you can email me [here](mailto:info@totrox.com)
 
 ---
 
@@ -93,8 +82,8 @@ Available in GitHub [discussions](https://github.com/yrestom/POS-Awesome/discuss
 
 - `CTRL or CMD + S` open payments
 - `CTRL or CMD + X` submit payments
-- `CTRL or CMD + D` remove first item from the top
-- `CTRL or CMD + A` expand first item from the top
+- `CTRL or CMD + D` remove the first item from the top
+- `CTRL or CMD + A` expand the first item from the top
 - `CTRL or CMD + E` focus on discount field
 
 ---
@@ -109,8 +98,6 @@ Available in GitHub [discussions](https://github.com/yrestom/POS-Awesome/discuss
 ---
 
 ### Contributing
-
-Will using for this the same guidelines from Erpnext
 
 1. [Issue Guidelines](https://github.com/frappe/erpnext/wiki/Issue-Guidelines)
 2. [Pull Request Requirements](https://github.com/frappe/erpnext/wiki/Contribution-Guidelines)

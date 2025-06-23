@@ -3,73 +3,46 @@
     <v-dialog v-model="addressDialog" max-width="600px">
       <v-card>
         <v-card-title>
-          <span class="headline primary--text">{{
+          <span class="text-h5 text-primary">{{
             __('Add New Address')
-          }}</span>
+            }}</span>
         </v-card-title>
         <v-card-text class="pa-0">
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field
-                  dense
-                  color="primary"
-                  :label="frappe._('Address Name')"
-                  background-color="white"
-                  hide-details
-                  v-model="address.name"
-                ></v-text-field>
+                <v-text-field density="compact" color="primary" :label="frappe._('Address Name')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="address.name"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  dense
-                  color="primary"
-                  :label="frappe._('Address Line 1')"
-                  background-color="white"
-                  hide-details
-                  v-model="address.address_line1"
-                ></v-text-field>
+                <v-text-field density="compact" color="primary" :label="frappe._('Address Line 1')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="address.address_line1"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  dense
-                  color="primary"
-                  :label="frappe._('Address Line 2')"
-                  background-color="white"
-                  hide-details
-                  v-model="address.address_line2"
-                ></v-text-field>
+                <v-text-field density="compact" color="primary" :label="frappe._('Address Line 2')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="address.address_line2"></v-text-field>
               </v-col>
               <v-col cols="6">
-                <v-text-field
-                  label="City"
-                  dense
-                  color="primary"
-                  background-color="white"
-                  hide-details
-                  v-model="address.city"
-                ></v-text-field>
+                <v-text-field label="City" density="compact" color="primary"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                  v-model="address.city"></v-text-field>
               </v-col>
               <v-col cols="6">
-                <v-text-field
-                  label="State"
-                  dense
-                  background-color="white"
-                  hide-details
-                  v-model="address.state"
-                ></v-text-field>
+                <v-text-field label="State" density="compact"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                  v-model="address.state"></v-text-field>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">{{
+          <v-btn color="error" theme="dark" @click="close_dialog">{{
             __('Close')
-          }}</v-btn>
-          <v-btn color="success" dark @click="submit_dialog">{{
+            }}</v-btn>
+          <v-btn color="success" theme="dark" @click="submit_dialog">{{
             __('Submit')
-          }}</v-btn>
+            }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -77,13 +50,18 @@
 </template>
 
 <script>
-import { evntBus } from '../../bus';
+
 export default {
   data: () => ({
     addressDialog: false,
     address: {},
     customer: '',
   }),
+  computed: {
+    isDarkTheme() {
+      return this.$theme.current === 'dark';
+    }
+  },
 
   methods: {
     close_dialog() {
@@ -91,7 +69,7 @@ export default {
     },
 
     submit_dialog() {
-      const vm = this;
+      var vm = this;
       this.address.customer = this.customer;
       this.address.doctype = 'Customer';
       frappe.call({
@@ -101,8 +79,8 @@ export default {
         },
         callback: (r) => {
           if (!r.exc) {
-            evntBus.$emit('add_the_new_address', r.message);
-            evntBus.$emit('show_mesage', {
+            vm.eventBus.emit('add_the_new_address', r.message);
+            vm.eventBus.emit('show_message', {
               text: 'Customer Address created successfully.',
               color: 'success',
             });
@@ -115,10 +93,42 @@ export default {
     },
   },
   created: function () {
-    evntBus.$on('open_new_address', (data) => {
+    this.eventBus.on('open_new_address', (data) => {
       this.addressDialog = true;
       this.customer = data;
     });
   },
 };
 </script>
+
+<style scoped>
+/* Dark mode input styling */
+:deep(.dark-theme) .dark-field,
+:deep(.v-theme--dark) .dark-field,
+::v-deep(.dark-theme) .dark-field,
+::v-deep(.v-theme--dark) .dark-field {
+  background-color: #1E1E1E !important;
+}
+
+:deep(.dark-theme) .dark-field :deep(.v-field__input),
+:deep(.v-theme--dark) .dark-field :deep(.v-field__input),
+:deep(.dark-theme) .dark-field :deep(input),
+:deep(.v-theme--dark) .dark-field :deep(input),
+:deep(.dark-theme) .dark-field :deep(.v-label),
+:deep(.v-theme--dark) .dark-field :deep(.v-label),
+::v-deep(.dark-theme) .dark-field .v-field__input,
+::v-deep(.v-theme--dark) .dark-field .v-field__input,
+::v-deep(.dark-theme) .dark-field input,
+::v-deep(.v-theme--dark) .dark-field input,
+::v-deep(.dark-theme) .dark-field .v-label,
+::v-deep(.v-theme--dark) .dark-field .v-label {
+  color: #fff !important;
+}
+
+:deep(.dark-theme) .dark-field :deep(.v-field__overlay),
+:deep(.v-theme--dark) .dark-field :deep(.v-field__overlay),
+::v-deep(.dark-theme) .dark-field .v-field__overlay,
+::v-deep(.v-theme--dark) .dark-field .v-field__overlay {
+  background-color: #1E1E1E !important;
+}
+</style>

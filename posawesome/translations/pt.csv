@@ -23,6 +23,7 @@ DocType: POS Offer,Apply Rule On Item Group,Aplicar Regra no Grupo do Item
 DocType: POS Offer,Apply Type,Aplicar Tipo
 DocType: POS Offer,Auto Apply,Auto Aplicar
 Custom Field - label: POS Profile-posa_allow_delete,Auto Delete Draft Invoice,Auto Apagar Factura Rascunho
+Custom Field - label: POS Profile-posa_allow_delete_offline_invoice,Allow Delete Offline Invoice,Permitir Apagar Faturas Offline
 Custom Field - label: POS Profile-posa_auto_set_batch,Auto Set Batch,Auto Definir Lote
 DocType: POS Offer,Brand,Marca
 DocType: POS Opening Shift,Cancelled,Cancelado
