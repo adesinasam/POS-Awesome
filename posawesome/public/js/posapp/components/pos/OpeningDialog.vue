@@ -21,33 +21,15 @@
             <v-row>
               <!-- Company and POS Profile in same row for space efficiency -->
               <v-col cols="12" md="6" class="form-field">
-                <v-autocomplete
-                  :items="companies"
-                  :label="frappe._('Company')"
-                  v-model="company"
-                  required
-                  variant="outlined"
-                  color="primary"
-                  density="compact"
-                  prepend-inner-icon="mdi-domain"
-                  class="enhanced-field"
-                  :class="{ 'field-focused': company }"
-                />
+                <v-autocomplete :items="companies" :label="frappe._('Company')" v-model="company" required
+                  variant="outlined" color="primary" density="compact" prepend-inner-icon="mdi-domain"
+                  class="enhanced-field" :class="{ 'field-focused': company }" />
               </v-col>
 
               <v-col cols="12" md="6" class="form-field">
-                <v-autocomplete
-                  :items="pos_profiles"
-                  :label="frappe._('POS Profile')"
-                  v-model="pos_profile"
-                  required
-                  variant="outlined"
-                  color="primary"
-                  density="compact"
-                  prepend-inner-icon="mdi-point-of-sale"
-                  class="enhanced-field"
-                  :class="{ 'field-focused': pos_profile }"
-                />
+                <v-autocomplete :items="pos_profiles" :label="frappe._('POS Profile')" v-model="pos_profile" required
+                  variant="outlined" color="primary" density="compact" prepend-inner-icon="mdi-point-of-sale"
+                  class="enhanced-field" :class="{ 'field-focused': pos_profile }" />
               </v-col>
 
               <!-- Payment Methods Section - Compact -->
@@ -59,29 +41,13 @@
                   </h6>
                 </div>
 
-                <v-data-table
-                  :headers="payments_methods_headers"
-                  :items="payments_methods"
-                  item-key="mode_of_payment"
-                  class="enhanced-table-compact"
-                  :items-per-page="itemsPerPage"
-                  hide-default-footer
-                  density="compact"
-                  :height="'300px'"
-                  fixed-header
-                >
+                <v-data-table :headers="payments_methods_headers" :items="payments_methods" item-key="mode_of_payment"
+                  class="enhanced-table-compact" :items-per-page="itemsPerPage" hide-default-footer density="compact"
+                  :height="'300px'" fixed-header>
                   <template v-slot:item.amount="{ item }">
-                    <v-text-field
-                      v-model="item.amount"
-                      :rules="[max25chars]"
-                      type="number"
-                      density="compact"
-                      variant="outlined"
-                      color="primary"
-                      hide-details
-                      :prefix="currencySymbol(item.currency)"
-                      class="amount-input"
-                    />
+                    <v-text-field v-model="item.amount" :rules="[max25chars]" type="number" density="compact"
+                      variant="outlined" color="primary" hide-details :prefix="currencySymbol(item.currency)"
+                      class="amount-input" />
                   </template>
                 </v-data-table>
               </v-col>
@@ -91,26 +57,13 @@
 
         <!-- Actions Section -->
         <v-card-actions class="dialog-actions-container">
-          <v-btn
-            theme="dark"
-            @click="go_desk"
-            class="pos-action-btn cancel-action-btn"
-            size="large"
-            elevation="2"
-          >
+          <v-btn theme="dark" @click="go_desk" class="pos-action-btn cancel-action-btn" size="large" elevation="2">
             <v-icon start>mdi-close-circle-outline</v-icon>
             <span>{{ __('Cancel') }}</span>
           </v-btn>
           <v-spacer />
-          <v-btn
-            theme="dark"
-            :disabled="is_loading"
-            :loading="is_loading"
-            @click="submit_dialog"
-            class="pos-action-btn submit-action-btn"
-            size="large"
-            elevation="2"
-          >
+          <v-btn theme="dark" :disabled="is_loading" :loading="is_loading" @click="submit_dialog"
+            class="pos-action-btn submit-action-btn" size="large" elevation="2">
             <v-icon start>mdi-check-circle-outline</v-icon>
             <span>{{ __('Submit') }}</span>
           </v-btn>
@@ -122,7 +75,7 @@
 
 <script>
 import format from '../../format';
-import { getOpeningDialogStorage, setOpeningDialogStorage, setOpeningStorage, initPromise } from '../../../offline.js';
+import { getOpeningDialogStorage, setOpeningDialogStorage, setOpeningStorage, initPromise } from '../../../offline/index.js';
 
 export default {
   mixins: [format],
@@ -215,7 +168,7 @@ export default {
       }
 
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_opening_dialog_data',
+        method: 'posawesome.posawesome.api.shifts.get_opening_dialog_data',
         args: {},
         callback: function (r) {
           if (r.message) {
@@ -242,7 +195,7 @@ export default {
       const vm = this;
 
       return frappe
-        .call('posawesome.posawesome.api.posapp.create_opening_voucher', {
+        .call('posawesome.posawesome.api.shifts.create_opening_voucher', {
           pos_profile: this.pos_profile,
           company: this.company,
           balance_details: this.payments_methods,
@@ -422,7 +375,8 @@ export default {
 .amount-display-compact {
   display: flex;
   align-items: center;
-  justify-content: center; /* Add this to center the content horizontally */
+  justify-content: center;
+  /* Add this to center the content horizontally */
   gap: 4px;
   padding: 4px 8px;
   background: rgba(25, 118, 210, 0.05);
@@ -529,23 +483,23 @@ export default {
   .opening-dialog-header {
     padding: 12px 16px;
   }
-  
+
   .header-content {
     gap: 8px;
   }
-  
+
   .header-title {
     font-size: 1.2rem;
   }
-  
+
   .opening-dialog-content {
     padding: 16px;
   }
-  
+
   .opening-dialog-actions-compact {
     padding: 12px 16px;
   }
-  
+
   .action-btn-compact {
     padding: 6px 12px;
     min-width: 70px;
@@ -558,11 +512,11 @@ export default {
     text-align: center;
     gap: 8px;
   }
-  
+
   .opening-dialog-content {
     padding: 12px;
   }
-  
+
   .action-btn-compact {
     margin-left: 4px;
     padding: 6px 10px;
@@ -576,6 +530,7 @@ export default {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

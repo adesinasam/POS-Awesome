@@ -8,7 +8,7 @@
         <v-card-title>
           <span class="text-h5 text-primary">{{
             __("Select Sales Orders")
-          }}</span>
+            }}</span>
         </v-card-title>
         <v-card-text class="pa-0">
           <v-container>
@@ -16,7 +16,7 @@
               <v-text-field color="primary" :label="frappe._('Order ID')" bg-color="white" hide-details
                 v-model="order_name" density="compact" clearable class="mx-4"></v-text-field>
               <v-btn variant="text" class="ml-2" color="primary" theme="dark" @click="search_orders">{{ __("Search")
-                }}</v-btn>
+              }}</v-btn>
             </v-row>
             <v-row no-gutters>
               <v-col cols="12" class="pa-1">
@@ -101,21 +101,20 @@ export default {
     },
 
     search_orders() {
-      const vm = this;
-      frappe.call({
-        method: "posawesome.posawesome.api.posapp.search_orders",
-        args: {
-          order_name: vm.order_name,
-          company: this.pos_profile.company,
-          currency: this.pos_profile.currency,
-        },
-        async: false,
-        callback: function (r) {
-          if (r.message) {
-            vm.dialog_data = r.message;
-          }
-        },
-      });
+        frappe.call({
+            method: "posawesome.posawesome.api.sales_orders.search_orders",
+            args: {
+              order_name: vm.order_name,
+              company: this.pos_profile.company,
+              currency: this.pos_profile.currency,
+            },
+            async: false,
+            callback: function (r) {
+              if (r.message) {
+                vm.dialog_data = r.message;
+              }
+            },
+          });
     },
 
     async submit_dialog() {
@@ -123,7 +122,7 @@ export default {
         var invoice_doc_for_load = {};
         await frappe.call({
           method:
-            "posawesome.posawesome.api.posapp.create_sales_invoice_from_order",
+            "posawesome.posawesome.api.invoices.create_sales_invoice_from_order",
           args: {
             sales_order: this.selected[0].name,
           },
@@ -164,7 +163,7 @@ export default {
         this.eventBus.emit("load_order", this.selected[0]);
         this.draftsDialog = false;
         frappe.call({
-          method: "posawesome.posawesome.api.posapp.delete_sales_invoice",
+          method: "posawesome.posawesome.api.invoices.delete_sales_invoice",
           args: {
             sales_invoice: invoice_doc_for_load.name,
           },

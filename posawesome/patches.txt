@@ -1,0 +1,1 @@
+posawesome.patches.add_item_price_index

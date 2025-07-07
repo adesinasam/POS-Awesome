@@ -1,3 +1,5 @@
+import { silentPrint } from "../../plugins/print.js";
+
 export default {
     checkOfferIsAppley(item, offer) {
       let applied = false;
@@ -546,17 +548,34 @@ export default {
       if (offer.discount_type === "Rate") {
         // offer.rate is always in base currency (PKR)
         new_item.base_rate = offer.rate;
-        if (this.selected_currency !== this.pos_profile.currency) {
+        const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+        if (this.selected_currency !== baseCurrency) {
           // If exchange rate is 300 PKR = 1 USD
-          // Convert PKR to USD by dividing
-          new_item.rate = this.flt(offer.rate / this.exchange_rate, this.currency_precision);
+          // Convert PKR to USD by multiplying
+          new_item.rate = this.flt(offer.rate * this.exchange_rate, this.currency_precision);
         } else {
           new_item.rate = offer.rate;
         }
+      } else if (offer.discount_type === "Discount Percentage") {
+        // Apply percentage discount on item's base rate
+        const base_price = item.base_rate || (item.rate / this.exchange_rate);
+        const base_discount = this.flt((base_price * offer.discount_percentage) / 100, this.currency_precision);
+        new_item.base_discount_amount = base_discount;
+        new_item.base_rate = this.flt(base_price - base_discount, this.currency_precision);
+
+        const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+        if (this.selected_currency !== baseCurrency) {
+          new_item.discount_amount = this.flt(base_discount * this.exchange_rate, this.currency_precision);
+          new_item.rate = this.flt(new_item.base_rate * this.exchange_rate, this.currency_precision);
+        } else {
+          new_item.discount_amount = base_discount;
+          new_item.rate = new_item.base_rate;
+        }
       } else {
         // Use item's original rate
-        if (this.selected_currency !== this.pos_profile.currency) {
-          new_item.base_rate = item.base_rate || (item.rate * this.exchange_rate);
+        const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+        if (this.selected_currency !== baseCurrency) {
+          new_item.base_rate = item.base_rate || (item.rate / this.exchange_rate);
           new_item.rate = item.rate;
         } else {
           new_item.base_rate = item.rate;
@@ -568,13 +587,14 @@ export default {
       if (offer.discount_type === "Discount Amount") {
         // offer.discount_amount is always in base currency (PKR)
         new_item.base_discount_amount = offer.discount_amount;
-        if (this.selected_currency !== this.pos_profile.currency) {
-          // Convert PKR to USD by dividing
-          new_item.discount_amount = this.flt(offer.discount_amount / this.exchange_rate, this.currency_precision);
+        const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+        if (this.selected_currency !== baseCurrency) {
+          // Convert PKR to USD by multiplying
+          new_item.discount_amount = this.flt(offer.discount_amount * this.exchange_rate, this.currency_precision);
         } else {
           new_item.discount_amount = offer.discount_amount;
         }
-      } else {
+      } else if (offer.discount_type !== "Discount Percentage") {
         new_item.base_discount_amount = 0;
         new_item.discount_amount = 0;
       }
@@ -585,7 +605,12 @@ export default {
       new_item.actual_batch_qty = "";
       new_item.conversion_factor = 1;
       new_item.posa_offers = JSON.stringify([]);
-      new_item.posa_offer_applied = 0;
+      new_item.posa_offer_applied =
+        offer.discount_type === "Rate" ||
+        offer.discount_type === "Discount Amount" ||
+        offer.discount_type === "Discount Percentage"
+          ? 1
+          : 0;
       new_item.posa_is_offer = 1;
       new_item.posa_is_replace = null;
       new_item.posa_notes = "";
@@ -597,18 +622,19 @@ export default {
 
       new_item.is_free_item = is_free ? 1 : 0;
 
-      // Set price list rate based on currency
+      // Set price list rate based on currency similar to invoice logic
       if (is_free) {
         new_item.base_price_list_rate = 0;
         new_item.price_list_rate = 0;
       } else {
-        // item.rate is in base currency (PKR)
-        new_item.base_price_list_rate = item.rate;
-        if (this.selected_currency !== this.pos_profile.currency) {
-          // Convert PKR to USD by dividing
-          new_item.price_list_rate = this.flt(item.rate / this.exchange_rate, this.currency_precision);
+        // item.rate is already in the currently selected currency
+        new_item.price_list_rate = item.rate;
+        // Determine base price list rate just like invoice items
+        const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+        if (this.selected_currency !== baseCurrency) {
+          new_item.base_price_list_rate = this.flt(item.rate / this.exchange_rate, this.currency_precision);
         } else {
-          new_item.price_list_rate = item.rate;
+          new_item.base_price_list_rate = item.rate;
         }
       }
 
@@ -664,10 +690,11 @@ export default {
               item.base_price_list_rate = base_offer_rate;
 
               // Convert to selected currency if needed
-              if (this.selected_currency !== this.pos_profile.currency) {
+              const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+              if (this.selected_currency !== baseCurrency) {
                 // If exchange rate is 285 PKR = 1 USD
-                // To convert PKR to USD: divide by exchange rate
-                item.rate = this.flt(base_offer_rate / this.exchange_rate, this.currency_precision);
+                // To convert PKR to USD multiply by exchange rate
+                item.rate = this.flt(base_offer_rate * this.exchange_rate, this.currency_precision);
                 item.price_list_rate = item.rate;
               } else {
                 item.rate = base_offer_rate;
@@ -694,10 +721,11 @@ export default {
               item.base_price_list_rate = base_price;
 
               // Convert to selected currency if needed
-              if (this.selected_currency !== this.pos_profile.currency) {
-                item.price_list_rate = this.flt(base_price / this.exchange_rate, this.currency_precision);
-                item.discount_amount = this.flt(base_discount / this.exchange_rate, this.currency_precision);
-                item.rate = this.flt(item.base_rate / this.exchange_rate, this.currency_precision);
+              const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+              if (this.selected_currency !== baseCurrency) {
+                item.price_list_rate = this.flt(base_price * this.exchange_rate, this.currency_precision);
+                item.discount_amount = this.flt(base_discount * this.exchange_rate, this.currency_precision);
+                item.rate = this.flt(item.base_rate * this.exchange_rate, this.currency_precision);
               } else {
                 item.price_list_rate = base_price;
                 item.discount_amount = base_discount;
@@ -762,9 +790,10 @@ export default {
             item.base_price_list_rate = this.flt(item.original_base_price_list_rate * cf, this.currency_precision);
 
             // Convert to selected currency
-            if (this.selected_currency !== this.pos_profile.currency) {
-              item.rate = this.flt(item.base_rate / this.exchange_rate, this.currency_precision);
-              item.price_list_rate = this.flt(item.base_price_list_rate / this.exchange_rate, this.currency_precision);
+            const baseCurrency = this.price_list_currency || this.pos_profile.currency;
+            if (this.selected_currency !== baseCurrency) {
+              item.rate = this.flt(item.base_rate * this.exchange_rate, this.currency_precision);
+              item.price_list_rate = this.flt(item.base_price_list_rate * this.exchange_rate, this.currency_precision);
             } else {
               item.rate = item.base_rate;
               item.price_list_rate = item.base_price_list_rate;
@@ -821,6 +850,13 @@ export default {
         offer = this.posOffers.find((el) => el.name == offer.offer_name);
       }
       if (
+        this.discount_percentage_offer_name === offer.name &&
+        this.discount_amount !== 0
+      ) {
+        // Discount already applied, do not recalculate when items change
+        return;
+      }
+      if (
         (!this.discount_percentage_offer_name ||
           this.discount_percentage_offer_name == offer.name) &&
         offer.discount_percentage > 0 &&
@@ -831,6 +867,16 @@ export default {
           this.currency_precision
         );
         this.discount_percentage_offer_name = offer.name;
+
+        // Update invoice level discount fields so the value
+        // is reflected in the UI and saved correctly
+        this.additional_discount = this.discount_amount;
+        if (this.Total && this.Total !== 0) {
+          this.additional_discount_percentage =
+            (this.discount_amount / this.Total) * 100;
+        } else {
+          this.additional_discount_percentage = 0;
+        }
       }
     },
 
@@ -841,6 +887,10 @@ export default {
       ) {
         this.discount_amount = 0;
         this.discount_percentage_offer_name = null;
+
+        // Reset invoice discount fields when offer is removed
+        this.additional_discount = 0;
+        this.additional_discount_percentage = 0;
       }
     },
 
@@ -942,16 +992,19 @@ export default {
         print_format +
         "&no_letterhead=" +
         letter_head;
-      const printWindow = window.open(url, "Print");
-      printWindow.addEventListener(
-        "load",
-        function () {
-          printWindow.print();
-          // printWindow.close();
-          // NOTE : uncomoent this to auto closing printing window
-        },
-        true
-      );
+
+      if (this.pos_profile.posa_silent_print) {
+        silentPrint(url);
+      } else {
+        const printWindow = window.open(url, "Print");
+        printWindow.addEventListener(
+          "load",
+          function () {
+            printWindow.print();
+          },
+          { once: true }
+        );
+      }
     },
 
     formatDateForBackend(date) {

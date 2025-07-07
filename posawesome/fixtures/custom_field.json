@@ -5416,7 +5416,7 @@
     "dt": "POS Profile",
     "fieldname": "posa_allow_delete_offline_invoice",
     "fieldtype": "Check",
-    "insert_after": "posa_force_reload_items",
+    "insert_after": "posa_display_discount_percentage",
     "label": "Allow Delete Offline Invoice",
     "default": "0",
     "name": "POS Profile-posa_allow_delete_offline_invoice"
@@ -5489,9 +5489,19 @@
   ,{
     "doctype": "Custom Field",
     "dt": "POS Profile",
+    "fieldname": "posa_smart_reload_mode",
+    "fieldtype": "Check",
+    "insert_after": "posa_force_reload_items",
+    "label": "Smart Reload Mode",
+    "default": "1",
+    "name": "POS Profile-posa_smart_reload_mode"
+  }
+  ,{
+    "doctype": "Custom Field",
+    "dt": "POS Profile",
     "fieldname": "posa_display_discount_percentage",
     "fieldtype": "Check",
-    "insert_after": "hide_expected_amount",
+    "insert_after": "posa_display_discount_amount",
     "label": "Display Discount %",
     "default": "1",
     "name": "POS Profile-posa_display_discount_percentage"
@@ -5501,9 +5511,42 @@
     "dt": "POS Profile",
     "fieldname": "posa_display_discount_amount",
     "fieldtype": "Check",
-    "insert_after": "posa_display_discount_percentage",
+    "insert_after": "posa_silent_print",
     "label": "Display Discount Amount",
     "default": "1",
     "name": "POS Profile-posa_display_discount_amount"
+  }
+ ,{
+    "doctype": "Custom Field",
+    "dt": "POS Profile",
+    "fieldname": "posa_silent_print",
+    "fieldtype": "Check",
+    "insert_after": "posa_allow_duplicate_customer_names",
+    "label": "Enable Silent Print",
+    "default": "0",
+    "name": "POS Profile-posa_silent_print"
+  },
+  {
+    "doctype": "Custom Field",
+    "dt": "POS Profile",
+    "fieldname": "posa_language",
+    "fieldtype": "Select",
+    "insert_after": "posa_default_country",
+    "label": "POS Language",
+    "options": null,
+    "description": "Language for POS Awesome interface",
+    "default": null,
+    "name": "POS Profile-posa_language"
+  },
+  {
+    "doctype": "Custom Field",
+    "dt": "POS Profile",
+    "fieldname": "posa_default_country",
+    "fieldtype": "Link",
+    "insert_after": "hide_expected_amount",
+    "label": "Default Country",
+    "options": "Country",
+    "default": "Pakistan",
+    "name": "POS Profile-posa_default_country"
   }
 ]

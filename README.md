@@ -6,6 +6,7 @@
 #### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify) (VERSION 15 Support)
 
 ---
+
 ### Update Instructions
 
 After switching branches or pulling latest changes:
@@ -16,15 +17,16 @@ After switching branches or pulling latest changes:
 4. cd ../..
 5. bench build --app posawesome
 6. bench --site your.site migrate
+   - If the build exits with code 143, verify that your system has enough RAM or swap space.
+   - You can also try building the app in smaller parts to reduce memory usage.
 
 ### Main Features
 
 1. Supports Erpnext Version 15
 2. Supports Multi-Currency Transactions.
-    Customers can be invoiced in different currencies
-    Exchange Rate is fetched automatically based on selected currency
-    Invoices made with posawesome display Grand Total in both base and selected currency in erpnext.
-    
+   Customers can be invoiced in different currencies.
+   Exchange Rate is fetched automatically based on selected currency. When a price list has its own exchange rate set, POS Awesome uses that rate and falls back to the standard ERPNext rate otherwise.
+   Invoices made with posawesome display Grand Total in both base and selected currency in erpnext.
 3. Supports offline mode for creating invoices and customers, saves data locally with stock validation, and syncs automatically when reconnected. If **Allow Negative Stock** is enabled in Stock Settings, offline invoices can still be saved even when quantities are below zero.
 4. User-friendly and provides a good user experience and speed of use
 5. The cashier can either use list view or card view during sales transactions. Card view shows the images of the items
@@ -46,7 +48,7 @@ After switching branches or pulling latest changes:
 21. Search and add items by Serial Number
 22. Create Sales Orders from POS directly
 23. Supports template items with variants
-24. Supports multiple languages
+24. Supports multiple languages with language selection per POS Profile (English, Arabic, Portuguese and Spanish provided)
 25. Supports Mpesa mobile payment
 26. POS Coupons
 27. Supports Referral Code

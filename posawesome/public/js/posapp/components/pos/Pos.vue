@@ -44,9 +44,9 @@ import NewAddress from './NewAddress.vue';
 import Variants from './Variants.vue';
 import Returns from './Returns.vue';
 import MpesaPayments from './Mpesa-Payments.vue';
-import { getCachedOffers, saveOffers, getOpeningStorage, setOpeningStorage, clearOpeningStorage, initPromise } from '../../../offline.js';
+import { getCachedOffers, saveOffers, getOpeningStorage, setOpeningStorage, clearOpeningStorage, initPromise } from '../../../offline/index.js';
 // Import the cache cleanup function
-import { clearExpiredCustomerBalances } from "../../../offline.js";
+import { clearExpiredCustomerBalances } from "../../../offline/index.js";
 import { responsiveMixin } from '../../mixins/responsive.js';
 
 export default {
@@ -83,7 +83,7 @@ export default {
     async check_opening_entry() {
       await initPromise;
       return frappe
-        .call('posawesome.posawesome.api.posapp.check_opening_shift', {
+        .call('posawesome.posawesome.api.shifts.check_opening_shift', {
           user: frappe.session.user,
         })
         .then((r) => {
@@ -198,7 +198,7 @@ export default {
       }
 
       return frappe
-        .call('posawesome.posawesome.api.posapp.get_offers', {
+        .call('posawesome.posawesome.api.offers.get_offers', {
           profile: pos_profile,
         })
         .then((r) => {

@@ -9,7 +9,7 @@
         <v-row dense>
           <!-- Total Qty -->
           <v-col cols="6">
-            <v-text-field :model-value="formatFloat(total_qty)" :label="frappe._('Total Qty')"
+            <v-text-field :model-value="formatFloat(total_qty, hide_qty_decimals ? 0 : undefined)" :label="frappe._('Total Qty')"
               prepend-inner-icon="mdi-format-list-numbered" variant="solo" density="compact" readonly
               color="accent" />
           </v-col>
@@ -18,7 +18,7 @@
             <v-text-field :model-value="additional_discount" @update:model-value="$emit('update:additional_discount', $event)"
               :label="frappe._('Additional Discount')" prepend-inner-icon="mdi-cash-minus" variant="solo"
               density="compact" color="warning" :prefix="currencySymbol(pos_profile.currency)"
-              :disabled="!pos_profile.posa_allow_user_to_edit_additional_discount" />
+              :disabled="!pos_profile.posa_allow_user_to_edit_additional_discount || !!discount_percentage_offer_name" />
           </v-col>
 
           <v-col cols="6" v-else>
@@ -163,6 +163,18 @@ export default {
   computed: {
     isDarkTheme() {
       return this.$theme?.current === 'dark';
+    },
+    hide_qty_decimals() {
+      try {
+        const saved = localStorage.getItem('posawesome_item_selector_settings');
+        if (saved) {
+          const opts = JSON.parse(saved);
+          return !!opts.hide_qty_decimals;
+        }
+      } catch (e) {
+        console.error('Failed to load item selector settings:', e);
+      }
+      return false;
     }
   }
 }

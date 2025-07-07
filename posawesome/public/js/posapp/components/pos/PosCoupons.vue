@@ -1,41 +1,26 @@
 <template>
   <div>
-    <v-card
-      :class="['selection mx-auto mt-3', isDarkTheme ? '' : 'bg-grey-lighten-5']"
-      :style="isDarkTheme ? 'background-color:#1E1E1E' : ''"
-      style="max-height: 80vh; height: 80vh"
-    >
+    <v-card :class="['selection mx-auto mt-3', isDarkTheme ? '' : 'bg-grey-lighten-5']"
+      :style="isDarkTheme ? 'background-color:#1E1E1E' : ''" style="max-height: 80vh; height: 80vh">
       <v-card-title>
         <span class="text-h6 text-primary">{{ __('Coupons') }}</span>
       </v-card-title>
-      
+
       <!-- Input and Button Row - Same Level -->
       <v-row class="px-4 pb-2" no-gutters>
         <v-col cols="8" class="pr-2">
-          <v-text-field 
-            density="compact" 
-            variant="outlined" 
-            color="primary" 
-            :label="frappe._('Coupon')"
-            bg-color="white" 
-            hide-details 
-            v-model="new_coupon" 
-            class="coupon-input"
+          <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Coupon')"
+            bg-color="white" hide-details v-model="new_coupon" class="coupon-input"
             @keydown.enter="add_coupon(new_coupon)">
           </v-text-field>
         </v-col>
         <v-col cols="4">
-          <v-btn 
-            class="add-coupon-btn" 
-            color="success" 
-            theme="dark"
-            block
-            @click="add_coupon(new_coupon)">
+          <v-btn class="add-coupon-btn" color="success" theme="dark" block @click="add_coupon(new_coupon)">
             {{ __('add') }}
           </v-btn>
         </v-col>
       </v-row>
-      
+
       <div class="my-0 py-0 overflow-y-auto" style="max-height: 75vh" @mouseover="style = 'cursor: pointer'">
         <v-data-table :headers="items_headers" :items="posa_coupons" :single-expand="singleExpand"
           v-model:expanded="expanded" item-key="coupon" class="elevation-1" :items-per-page="itemsPerPage"
@@ -113,7 +98,7 @@ export default {
       }
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_pos_coupon',
+        method: 'posawesome.posawesome.api.offers.get_pos_coupon',
         args: {
           coupon: new_coupon,
           customer: vm.customer,
@@ -147,7 +132,7 @@ export default {
       if (!this.customer) return;
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_active_gift_coupons',
+        method: 'posawesome.posawesome.api.offers.get_active_gift_coupons',
         args: {
           customer: vm.customer,
           company: vm.pos_profile.company,

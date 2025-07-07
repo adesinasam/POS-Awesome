@@ -15,81 +15,59 @@
             <v-row>
               <v-col cols="12">
                 <v-text-field density="compact" color="primary" :label="frappe._('Customer Name') + ' *'"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details class="dark-field" v-model="customer_name"></v-text-field>
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details class="dark-field"
+                  v-model="customer_name"></v-text-field>
               </v-col>
               <v-col cols="6">
                 <v-text-field density="compact" color="primary" :label="frappe._('Tax ID')"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="tax_id"></v-text-field>
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                  v-model="tax_id"></v-text-field>
               </v-col>
               <v-col cols="6">
                 <v-text-field density="compact" color="primary" :label="frappe._('Mobile No')"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="mobile_no"></v-text-field>
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                  v-model="mobile_no"></v-text-field>
               </v-col>
-			  <v-col cols="12">
-  <v-text-field
-    density="compact"
-    color="primary"
-    :label="__('Address Line 1')"
-    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-    hide-details
-    class="dark-field"
-    v-model="address_line1"
-  ></v-text-field>
-</v-col>
+              <v-col cols="12">
+                <v-text-field density="compact" color="primary" :label="__('Address Line 1')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details class="dark-field"
+                  v-model="address_line1"></v-text-field>
+              </v-col>
 
-<v-col cols="12" sm="6">
-  <v-text-field
-    v-model="city"
-    variant="outlined"
-    density="compact"
-    :label="__('City')"
-    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-    class="dark-field"
-  ></v-text-field>
-</v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="city" variant="outlined" density="compact" :label="__('City')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-text-field>
+              </v-col>
 
-<v-col cols="12" sm="6">
-  <v-select
-    v-model="country"
-    :items="countries"
-    variant="outlined"
-    density="compact"
-    :label="__('Country')"
-    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-    class="dark-field"
-  ></v-select>
-</v-col>
+              <v-col cols="12" sm="6">
+                <v-select v-model="country" :items="countries" variant="outlined" density="compact"
+                  :label="__('Country')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-select>
+              </v-col>
 
-<v-col cols="6">
-  <v-text-field density="compact" color="primary" :label="frappe._('Email Id')"
-    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="email_id"></v-text-field>
-</v-col>
+              <v-col cols="6">
+                <v-text-field density="compact" color="primary" :label="frappe._('Email Id')"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                  v-model="email_id"></v-text-field>
+              </v-col>
               <v-col cols="6">
                 <v-select density="compact" label="Gender" :items="genders" v-model="gender"
                   :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-select>
               </v-col>
               <v-col cols="6">
                 <v-text-field density="compact" color="primary" :label="frappe._('Referral Code')"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="referral_code"></v-text-field>
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                  v-model="referral_code"></v-text-field>
               </v-col>
               <v-col cols="6">
-                <v-text-field
-                  v-model="birthday"
-                  :label="frappe._('Birthday (DD-MM-YYYY)')"
-                  density="compact"
-                  clearable
-                  hide-details
-                  color="primary"
-                  placeholder="DD-MM-YYYY"
-                  @update:model-value="formatBirthdayOnInput"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"
-                ></v-text-field>
+                <v-text-field v-model="birthday" :label="frappe._('Birthday (DD-MM-YYYY)')" density="compact" clearable
+                  hide-details color="primary" placeholder="DD-MM-YYYY" @update:model-value="formatBirthdayOnInput"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"></v-text-field>
               </v-col>
               <v-col cols="6">
                 <v-autocomplete clearable density="compact" auto-select-first color="primary"
                   :label="frappe._('Customer Group') + ' *'" v-model="group" :items="groups"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field"
-                  :no-data-text="__('Group not found')" hide-details required>
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" :no-data-text="__('Group not found')"
+                  hide-details required>
                 </v-autocomplete>
               </v-col>
               <v-col cols="6">
@@ -146,7 +124,7 @@
 </template>
 
 <script>
-import { isOffline, saveOfflineCustomer } from '../../../offline.js';
+import { isOffline, saveOfflineCustomer } from '../../../offline/index.js';
 
 export default {
   data: () => ({
@@ -204,6 +182,7 @@ export default {
       'Sri Lanka',
       'Sweden',
       'Switzerland',
+      'Syria',
       'Thailand',
       'United Arab Emirates',
       'United Kingdom',
@@ -220,10 +199,10 @@ export default {
           const day = newVal.substring(0, 2);
           const month = newVal.substring(2, 4);
           const year = newVal.substring(4);
-          
+
           // Format it as a hyphenated date for display
           this.birthday = `${day}-${month}-${year}`;
-          
+
           // Update calendar (implemented below)
           this.updateCalendarDate(day, month, year);
         } catch (error) {
@@ -237,7 +216,7 @@ export default {
           const day = parts[0];
           const month = parts[1];
           const year = parts[2];
-          
+
           // Update calendar to show the correct month
           this.updateCalendarDate(day, month, year);
         } catch (error) {
@@ -245,7 +224,7 @@ export default {
         }
       }
     },
-    
+
     // Add a watcher for the calendar menu to ensure it shows the right date when opened
     birthday_menu(isOpen) {
       if (isOpen && this.birthday && /^\d{2}-\d{2}-\d{4}$/.test(this.birthday)) {
@@ -254,7 +233,7 @@ export default {
           const day = parts[0];
           const month = parts[1];
           const year = parts[2];
-          
+
           // Update calendar date when menu opens
           this.$nextTick(() => {
             this.updateCalendarDate(day, month, year);
@@ -276,12 +255,12 @@ export default {
       // First close the date picker if it's open
       const wasOpen = this.birthday_menu;
       this.birthday_menu = false;
-      
+
       // Use nextTick to ensure DOM updates
       this.$nextTick(() => {
         // Format date in YYYY-MM-DD format for Vuetify
         const tempDate = `${year}-${month}-${day}`;
-        
+
         // Try to directly set the calendar's date
         setTimeout(() => {
           if (this.$refs.birthday_menu) {
@@ -296,8 +275,8 @@ export default {
     },
     confirm_close() {
       // Check if any data has been entered
-      if (this.customer_name || this.tax_id || this.mobile_no || this.address_line1 || 
-          this.email_id || this.referral_code || this.birthday) {
+      if (this.customer_name || this.tax_id || this.mobile_no || this.address_line1 ||
+        this.email_id || this.referral_code || this.birthday) {
         this.confirmDialog = true;
       } else {
         // If no data entered, just close
@@ -318,7 +297,8 @@ export default {
       this.mobile_no = '';
       this.address_line1 = '';
       this.city = '';
-      this.country = 'Pakistan';
+      this.country =
+        (this.pos_profile && this.pos_profile.posa_default_country) || 'Pakistan';
       this.email_id = '';
       this.referral_code = '';
       this.birthday = '';
@@ -400,17 +380,17 @@ export default {
         frappe.throw(__('Customer Name is required'));
         return;
       }
-      
+
       if (!this.group) {
         frappe.throw(__('Customer group is required'));
         return;
       }
-      
+
       if (!this.territory) {
         frappe.throw(__('Customer territory is required'));
         return;
       }
-      
+
       // Format birthday to YYYY-MM-DD if it exists and is in another format
       let formatted_birthday = null;
       if (this.birthday) {
@@ -462,7 +442,7 @@ export default {
           formatted_birthday = null;
         }
       }
-      
+
       // Create args object to use in callback
       const args = {
         customer_id: this.customer_id,
@@ -498,7 +478,7 @@ export default {
       }
 
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.create_customer',
+        method: 'posawesome.posawesome.api.customers.create_customer',
         args: apiArgs,
         callback: (r) => {
           if (!r.exc && r.message.name) {
@@ -529,7 +509,7 @@ export default {
     onDateSelect() {
       // Close the menu
       this.birthday_menu = false;
-      
+
       // Format date if it's a JavaScript Date object or full date string (from date picker)
       if (this.birthday) {
         try {
@@ -543,11 +523,11 @@ export default {
             // Already formatted or something else, leave it
             return;
           }
-          
+
           const year = dateObj.getFullYear();
           const month = String(dateObj.getMonth() + 1).padStart(2, '0');
           const day = String(dateObj.getDate()).padStart(2, '0');
-          
+
           // Format as DD-MM-YYYY
           this.birthday = `${day}-${month}-${year}`;
         } catch (error) {
@@ -559,13 +539,16 @@ export default {
   created: function () {
     this.eventBus.on('open_update_customer', (data) => {
       this.customerDialog = true;
-      
+
       if (data) {
         this.customer_name = data.customer_name;
         this.customer_id = data.name;
-		this.address_line1 = data.address_line1 || "";
-		this.city = data.city || "";
-		this.country = data.country || "Pakistan";
+        this.address_line1 = data.address_line1 || "";
+        this.city = data.city || "";
+        this.country =
+          data.country ||
+          (this.pos_profile && this.pos_profile.posa_default_country) ||
+          'Pakistan';
         this.tax_id = data.tax_id;
         this.mobile_no = data.mobile_no;
         this.email_id = data.email_id;
@@ -576,13 +559,20 @@ export default {
         this.loyalty_points = data.loyalty_points;
         this.loyalty_program = data.loyalty_program;
         this.gender = data.gender;
+      } else {
+        this.country =
+          (this.pos_profile && this.pos_profile.posa_default_country) || 'Pakistan';
       }
     });
     this.eventBus.on('register_pos_profile', (data) => {
       this.pos_profile = data.pos_profile;
+      this.country =
+        (this.pos_profile && this.pos_profile.posa_default_country) || 'Pakistan';
     });
     this.eventBus.on('payments_register_pos_profile', (data) => {
       this.pos_profile = data.pos_profile;
+      this.country =
+        (this.pos_profile && this.pos_profile.posa_default_country) || 'Pakistan';
     });
     this.getCustomerGroups();
     this.getCustomerTerritorys();

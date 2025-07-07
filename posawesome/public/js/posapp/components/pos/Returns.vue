@@ -5,19 +5,13 @@
         <v-card-title>
           <span class="text-h5 text-primary">{{
             __('Select Return Invoice')
-          }}</span>
+            }}</span>
         </v-card-title>
         <v-container>
           <!-- Invoice ID and Date Range search -->
           <v-row class="mb-2">
             <v-col cols="12">
-              <v-alert
-                dense
-                type="info"
-                text
-                outlined
-                v-if="!from_date && !to_date"
-              >
+              <v-alert dense type="info" text outlined v-if="!from_date && !to_date">
                 <small>{{ __('Use date range to search for older invoices') }}</small>
               </v-alert>
             </v-col>
@@ -25,121 +19,58 @@
           <v-row class="mb-3">
             <v-col cols="12" sm="6">
               <v-text-field color="primary" :label="frappe._('Invoice ID')"
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
-                v-model="invoice_name" density="compact" clearable></v-text-field>
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="invoice_name"
+                density="compact" clearable></v-text-field>
             </v-col>
             <v-col cols="12" sm="3">
-          <VueDatePicker
-            v-model="from_date"
-            model-type="format"
-            format="dd-MM-yyyy"
-            :enable-time-picker="false"
-            auto-apply
-            :dark="isDarkTheme"
-            @update:model-value="formatFromDate()"
-          />
+              <VueDatePicker v-model="from_date" model-type="format" format="dd-MM-yyyy" :enable-time-picker="false"
+                auto-apply :dark="isDarkTheme" @update:model-value="formatFromDate()" />
             </v-col>
             <v-col cols="12" sm="3">
-          <VueDatePicker
-            v-model="to_date"
-            model-type="format"
-            format="dd-MM-yyyy"
-            :enable-time-picker="false"
-            auto-apply
-            :dark="isDarkTheme"
-            @update:model-value="formatToDate()"
-          />
+              <VueDatePicker v-model="to_date" model-type="format" format="dd-MM-yyyy" :enable-time-picker="false"
+                auto-apply :dark="isDarkTheme" @update:model-value="formatToDate()" />
             </v-col>
           </v-row>
 
           <!-- Customer search fields -->
           <v-row class="mb-2">
             <v-col cols="12" sm="6">
-              <v-text-field 
-                color="primary" 
-                :label="frappe._('Customer Name')" 
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-                class="dark-field"
-                hide-details
-                v-model="customer_name" 
-                density="compact" 
-                clearable
-              ></v-text-field>
+              <v-text-field color="primary" :label="frappe._('Customer Name')"
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="customer_name"
+                density="compact" clearable></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field 
-                color="primary" 
-                :label="frappe._('Customer ID')" 
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-                class="dark-field"
-                hide-details
-                v-model="customer_id" 
-                density="compact" 
-                clearable
-              ></v-text-field>
+              <v-text-field color="primary" :label="frappe._('Customer ID')"
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="customer_id"
+                density="compact" clearable></v-text-field>
             </v-col>
           </v-row>
           <v-row class="mb-3">
             <v-col cols="12" sm="6">
-              <v-text-field 
-                color="primary" 
-                :label="frappe._('Mobile Number')" 
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-                class="dark-field"
-                hide-details
-                v-model="mobile_no" 
-                density="compact" 
-                clearable
-              ></v-text-field>
+              <v-text-field color="primary" :label="frappe._('Mobile Number')"
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="mobile_no"
+                density="compact" clearable></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field 
-                color="primary" 
-                :label="frappe._('Tax ID')" 
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-                class="dark-field"
-                hide-details
-                v-model="tax_id" 
-                density="compact" 
-                clearable
-              ></v-text-field>
+              <v-text-field color="primary" :label="frappe._('Tax ID')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                class="dark-field" hide-details v-model="tax_id" density="compact" clearable></v-text-field>
             </v-col>
           </v-row>
 
           <!-- Amount Filter -->
           <v-row class="mb-3">
             <v-col cols="12" sm="6">
-              <v-text-field 
-                color="primary" 
-                :label="frappe._('Minimum Amount')" 
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-                class="dark-field"
-                hide-details
-                v-model="min_amount" 
-                density="compact" 
-                clearable
-                type="number"
-                min="0"
-                placeholder="0"
-              ></v-text-field>
+              <v-text-field color="primary" :label="frappe._('Minimum Amount')"
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="min_amount"
+                density="compact" clearable type="number" min="0" placeholder="0"></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field 
-                color="primary" 
-                :label="frappe._('Maximum Amount')" 
-                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
-                class="dark-field"
-                hide-details
-                v-model="max_amount" 
-                density="compact" 
-                clearable
-                type="number"
-                min="0"
-                placeholder="No limit"
-              ></v-text-field>
+              <v-text-field color="primary" :label="frappe._('Maximum Amount')"
+                :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="max_amount"
+                density="compact" clearable type="number" min="0" placeholder="No limit"></v-text-field>
             </v-col>
           </v-row>
-          
+
           <v-row>
             <v-col cols="12" class="pt-0 pb-0">
               <v-divider></v-divider>
@@ -157,7 +88,8 @@
               <v-icon left>mdi-refresh</v-icon>
               {{ __('Clear') }}
             </v-btn>
-            <v-btn v-if="pos_profile.posa_allow_return_without_invoice == 1" variant="text" class="ml-2" color="secondary" theme="dark" @click="return_without_invoice">
+            <v-btn v-if="pos_profile.posa_allow_return_without_invoice == 1" variant="text" class="ml-2"
+              color="secondary" theme="dark" @click="return_without_invoice">
               {{ __('Return without Invoice') }}
             </v-btn>
           </v-row>
@@ -165,21 +97,11 @@
           <!-- Results -->
           <v-row>
             <v-col cols="12" class="pa-0 mt-1" v-if="dialog_data && dialog_data.length > 0">
-              <v-data-table 
-                :headers="headers" 
-                :items="dialog_data" 
-                item-key="name" 
-                class="elevation-1" 
-                show-select
-                v-model="selected" 
-                select-strategy="single" 
-                return-object
-                :footer-props="{
+              <v-data-table :headers="headers" :items="dialog_data" item-key="name" class="elevation-1" show-select
+                v-model="selected" select-strategy="single" return-object :footer-props="{
                   'items-per-page-options': [10, 25, 50, 100],
                   'items-per-page-text': 'Invoices per page'
-                }"
-                :items-per-page="25"
-              >
+                }" :items-per-page="25">
                 <template v-slot:item.posting_date="{ item }">
                   {{ formatDateDisplay(item.posting_date) }}
                 </template>
@@ -191,18 +113,13 @@
 
               <!-- Load More button at the bottom of results -->
               <div class="text-center mt-3" v-if="has_more_invoices">
-                <v-btn 
-                  color="primary" 
-                  text 
-                  outlined 
-                  :loading="loading_more" 
-                  @click="load_more_invoices"
-                >
+                <v-btn color="primary" text outlined :loading="loading_more" @click="load_more_invoices">
                   {{ __('Load More Invoices') }}
                 </v-btn>
               </div>
             </v-col>
-            <v-col cols="12" class="text-center" v-else-if="searched_once && (!dialog_data || dialog_data.length === 0)">
+            <v-col cols="12" class="text-center"
+              v-else-if="searched_once && (!dialog_data || dialog_data.length === 0)">
               <v-alert type="warning" text>
                 {{ __('No invoices found. Try different search criteria.') }}
               </v-alert>
@@ -305,7 +222,7 @@ export default {
       if (this.from_date) {
         try {
           let dateString = '';
-          
+
           // Handle Date object
           if (typeof this.from_date === 'object' && this.from_date instanceof Date) {
             const day = String(this.from_date.getDate()).padStart(2, '0');
@@ -321,12 +238,12 @@ export default {
             } else {
               dateString = this.from_date;
             }
-          } 
+          }
           // Handle any other format - just display as is
           else {
             dateString = String(this.from_date);
           }
-          
+
           this.from_date_formatted = dateString;
         } catch (error) {
           console.error("Error formatting from_date:", error);
@@ -340,7 +257,7 @@ export default {
       if (this.to_date) {
         try {
           let dateString = '';
-          
+
           // Handle Date object
           if (typeof this.to_date === 'object' && this.to_date instanceof Date) {
             const day = String(this.to_date.getDate()).padStart(2, '0');
@@ -361,7 +278,7 @@ export default {
           else {
             dateString = String(this.to_date);
           }
-          
+
           this.to_date_formatted = dateString;
         } catch (error) {
           console.error("Error formatting to_date:", error);
@@ -412,11 +329,11 @@ export default {
     perform_search() {
       const vm = this;
       vm.loading_more = true;
-      
+
       // Format dates for API call in YYYY-MM-DD format
       let formattedFromDate = null;
       let formattedToDate = null;
-      
+
       if (vm.from_date) {
         if (typeof vm.from_date === 'object' && vm.from_date instanceof Date) {
           // Format Date object to YYYY-MM-DD
@@ -447,7 +364,7 @@ export default {
           }
         }
       }
-      
+
       if (vm.to_date) {
         if (typeof vm.to_date === 'object' && vm.to_date instanceof Date) {
           // Format Date object to YYYY-MM-DD
@@ -478,11 +395,11 @@ export default {
           }
         }
       }
-      
+
       // Process amount filters
       let minAmount = vm.min_amount ? parseFloat(vm.min_amount) : null;
       let maxAmount = vm.max_amount ? parseFloat(vm.max_amount) : null;
-      
+
       // Save current search parameters for "load more" functionality
       this.current_search_params = {
         invoice_name: vm.invoice_name,
@@ -497,14 +414,14 @@ export default {
         company: vm.company,
         page: vm.page
       };
-      
+
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.search_invoices_for_return',
+        method: 'posawesome.posawesome.api.invoices.search_invoices_for_return',
         args: this.current_search_params,
         callback: function (r) {
           vm.loading_more = false;
           vm.searched_once = true;
-          
+
           if (r.message) {
             // If this is page 1, replace data, otherwise append
             if (vm.page === 1) {
@@ -512,7 +429,7 @@ export default {
             } else {
               vm.dialog_data = [...vm.dialog_data, ...r.message.invoices];
             }
-            
+
             // Set flag if there are more invoices to load
             vm.has_more_invoices = r.message.has_more;
           } else {
@@ -524,7 +441,7 @@ export default {
             });
           }
         },
-        error: function(err) {
+        error: function (err) {
           vm.loading_more = false;
           console.error("Error searching invoices:", err);
           vm.eventBus.emit('show_message', {
@@ -554,9 +471,9 @@ export default {
         const return_doc = this.selected[0];
         const invoice_doc = {};
         const items = [];
-        
+
         console.log('Original return doc:', return_doc);
-        
+
         return_doc.items.forEach((item) => {
           const new_item = { ...item };
           // reference original invoice row for backend validation
@@ -569,27 +486,27 @@ export default {
           new_item.amount = item.amount > 0 ? item.amount * -1 : item.amount;
           items.push(new_item);
         });
-        
+
         invoice_doc.items = items;
         invoice_doc.is_return = 1;
         invoice_doc.return_against = return_doc.name;
         invoice_doc.customer = return_doc.customer;
-        
+
         // Make sure grand_total is negative for returns
         if (return_doc.grand_total > 0) {
           invoice_doc.grand_total = return_doc.grand_total * -1;
         } else {
           invoice_doc.grand_total = return_doc.grand_total;
         }
-        
+
         // These fields ensure proper return handling
         invoice_doc.update_stock = 1;
         invoice_doc.pos_profile = this.pos_profile.name;
         invoice_doc.company = this.company;
-        
+
         const data = { invoice_doc, return_doc };
         console.log('Emitting load_return_invoice event with data:', data);
-        
+
         this.eventBus.emit('load_return_invoice', data);
         this.invoicesDialog = false;
       }

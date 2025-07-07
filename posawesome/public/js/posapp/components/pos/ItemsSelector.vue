@@ -1,19 +1,21 @@
 <template>
   <div :style="responsiveStyles">
-    <v-card
-      :class="['selection mx-auto my-0 py-0 mt-3 dynamic-card', isDarkTheme ? '' : 'bg-grey-lighten-5']"
+    <v-card :class="['selection mx-auto my-0 py-0 mt-3 dynamic-card', isDarkTheme ? '' : 'bg-grey-lighten-5']"
       :style="{ height: responsiveStyles['--container-height'], maxHeight: responsiveStyles['--container-height'], backgroundColor: isDarkTheme ? '#121212' : '' }">
       <v-progress-linear :active="loading" :indeterminate="loading" absolute location="top"
         color="info"></v-progress-linear>
+      <v-overlay :model-value="loading" class="align-center justify-center" absolute>
+        <v-progress-circular indeterminate color="primary" size="48"></v-progress-circular>
+      </v-overlay>
       <!-- Add dynamic-padding wrapper like Invoice component -->
       <div class="dynamic-padding">
         <v-row class="items">
           <v-col class="pb-0">
             <v-text-field density="compact" clearable autofocus variant="solo" color="primary"
               :label="frappe._('Search Items')" hint="Search by item code, serial number, batch no or barcode"
-              hide-details v-model="debounce_search" @keydown.esc="esc_event"
-              @keydown.enter="search_onchange" @click:clear="clearSearch" prepend-inner-icon="mdi-magnify"
-              @focus="handleItemSearchFocus" ref="debounce_search">
+              hide-details v-model="debounce_search" @keydown.esc="esc_event" @keydown.enter="search_onchange"
+              @click:clear="clearSearch" prepend-inner-icon="mdi-magnify" @focus="handleItemSearchFocus"
+              ref="debounce_search">
               <!-- Add camera scan button if enabled -->
               <template v-slot:append-inner v-if="pos_profile.posa_enable_camera_scanning">
                 <v-btn icon="mdi-camera" size="small" color="primary" variant="text" @click="startCameraScanning"
@@ -24,64 +26,99 @@
 
           </v-col>
           <v-col cols="3" class="pb-0" v-if="pos_profile.posa_input_qty">
-            <v-text-field density="compact" variant="solo" color="primary" :label="frappe._('QTY')"
-              hide-details v-model="debounce_qty" type="text"
-              @keydown.enter="enter_event" @keydown.esc="esc_event"
+            <v-text-field density="compact" variant="solo" color="primary" :label="frappe._('QTY')" hide-details
+              v-model="debounce_qty" type="text" @keydown.enter="enter_event" @keydown.esc="esc_event"
               @focus="clearQty"></v-text-field>
           </v-col>
           <v-col cols="2" class="pb-0" v-if="pos_profile.posa_new_line">
             <v-checkbox v-model="new_line" color="accent" value="true" label="NLine" density="default"
               hide-details></v-checkbox>
           </v-col>
+          <v-col cols="12" class="dynamic-margin-xs">
+            <div class="settings-container">
+              <v-btn density="compact" variant="text" color="primary" prepend-icon="mdi-cog-outline"
+                @click="toggleItemSettings" class="settings-btn">
+                {{ __('Settings') }}
+              </v-btn>
+
+              <v-dialog v-model="show_item_settings" max-width="400px">
+                <v-card>
+                  <v-card-title class="text-h6 pa-4 d-flex align-center">
+                    <span>{{ __('Item Selector Settings') }}</span>
+                    <v-spacer></v-spacer>
+                    <v-btn icon="mdi-close" variant="text" density="compact" @click="show_item_settings = false"></v-btn>
+                  </v-card-title>
+                  <v-divider></v-divider>
+                  <v-card-text class="pa-4">
+                    <v-switch v-model="temp_hide_qty_decimals" :label="__('Hide quantity decimals')" hide-details
+                      density="compact" color="primary" class="mb-2"></v-switch>
+                    <v-switch v-model="temp_hide_zero_rate_items" :label="__('Hide zero rated items')" hide-details
+                      density="compact" color="primary"></v-switch>
+                  </v-card-text>
+                  <v-card-actions class="pa-4 pt-0">
+                    <v-btn color="error" variant="text" @click="cancelItemSettings">{{ __('Cancel') }}</v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" variant="tonal" @click="applyItemSettings">{{ __('Apply') }}</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </div>
+          </v-col>
           <v-col cols="12" class="pt-0 mt-0">
-            <div fluid class="items" v-if="items_view == 'card'">
-              <v-row density="default" class="overflow-y-auto dynamic-scroll"
-                :style="{ maxHeight: 'calc(' + responsiveStyles['--container-height'] + ' - 80px)' }">
-                <v-col v-for="(item, idx) in filtered_items" :key="idx" xl="2" lg="3" md="6" sm="6" cols="6"
-                  min-height="50">
-                  <v-card hover="hover" @click="add_item(item)" class="dynamic-item-card">
-                    <v-img :src="item.image ||
-                      '/assets/posawesome/js/posapp/components/pos/placeholder-image.png'
-                      " class="text-white align-end" gradient="to bottom, rgba(0,0,0,0), rgba(0,0,0,0.4)" height="100px">
-                      <v-card-text v-text="item.item_name" class="text-caption px-1 pb-0"></v-card-text>
-                    </v-img>
-                    <v-card-text class="text--primary pa-1">
-                      <div class="text-caption text-primary">
-                        {{ currencySymbol(pos_profile.currency) || "" }}
-                        {{ format_currency(item.rate, pos_profile.currency, ratePrecision(item.rate)) }}
-                      </div>
-                      <div v-if="pos_profile.posa_allow_multi_currency && selected_currency !== pos_profile.currency"
-                        class="text-caption text-success">
-                        {{ currencySymbol(selected_currency) || "" }}
-                        {{ format_currency(getConvertedRate(item), selected_currency, ratePrecision(getConvertedRate(item))) }}
-                      </div>
-                      <div class="text-caption golden--text">
-                        {{ format_number(item.actual_qty, 4) || 0 }}
-                        {{ item.stock_uom || "" }}
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
+            <div fluid class="items-grid dynamic-scroll" ref="itemsContainer" v-if="items_view == 'card'"
+              :style="{ maxHeight: 'calc(' + responsiveStyles['--container-height'] + ' - 80px)' }">
+              <v-card v-for="item in filtered_items" :key="item.item_code" hover class="dynamic-item-card"
+                :draggable="true"
+                @dragstart="onDragStart($event, item)"
+                @dragend="onDragEnd"
+                @click="add_item(item)">
+                <v-img :src="item.image ||
+                        '/assets/posawesome/js/posapp/components/pos/placeholder-image.png'
+                        " class="text-white align-end" gradient="to bottom, rgba(0,0,0,0), rgba(0,0,0,0.4)"
+                        height="100px">
+                  <v-card-text class="text-caption px-1 pb-0 truncate">{{ item.item_name }}</v-card-text>
+                </v-img>
+                <v-card-text class="text--primary pa-1">
+                  <div class="text-caption text-primary truncate">
+                    {{ currencySymbol(item.original_currency || pos_profile.currency) || "" }}
+                    {{ format_currency(item.base_price_list_rate || item.rate,
+                      item.original_currency || pos_profile.currency,
+                      ratePrecision(item.base_price_list_rate || item.rate)) }}
+                  </div>
+                  <div v-if="pos_profile.posa_allow_multi_currency && selected_currency !== pos_profile.currency"
+                    class="text-caption text-success truncate">
+                    {{ currencySymbol(selected_currency) || "" }}
+                    {{ format_currency(item.rate, selected_currency,
+                      ratePrecision(item.rate)) }}
+                  </div>
+                  <div class="text-caption golden--text truncate">
+                    {{ format_number(item.actual_qty, hide_qty_decimals ? 0 : 4) || 0 }}
+                    {{ item.stock_uom || "" }}
+                  </div>
+                </v-card-text>
+              </v-card>
             </div>
             <div v-else>
               <v-data-table-virtual :headers="headers" :items="filtered_items" class="sleek-data-table overflow-y-auto"
-                :style="{ maxHeight: 'calc(' + responsiveStyles['--container-height'] + ' - 80px)' }" item-key="item_code"
-                @click:row="click_item_row">
+                :style="{ maxHeight: 'calc(' + responsiveStyles['--container-height'] + ' - 80px)' }"
+                item-key="item_code" @click:row="click_item_row">
 
                 <template v-slot:item.rate="{ item }">
                   <div>
-                    <div class="text-primary">{{ currencySymbol(pos_profile.currency) }}
-                      {{ format_currency(item.rate, pos_profile.currency, ratePrecision(item.rate)) }}</div>
+                    <div class="text-primary">{{ currencySymbol(item.original_currency || pos_profile.currency) }}
+                      {{ format_currency(item.base_price_list_rate || item.rate,
+                        item.original_currency || pos_profile.currency,
+                        ratePrecision(item.base_price_list_rate || item.rate)) }}</div>
                     <div v-if="pos_profile.posa_allow_multi_currency && selected_currency !== pos_profile.currency"
                       class="text-success">
                       {{ currencySymbol(selected_currency) }}
-                      {{ format_currency(getConvertedRate(item), selected_currency, ratePrecision(getConvertedRate(item))) }}
+                      {{ format_currency(item.rate, selected_currency,
+                        ratePrecision(item.rate)) }}
                     </div>
                   </div>
                 </template>
                 <template v-slot:item.actual_qty="{ item }">
-                  <span class="golden--text">{{ format_number(item.actual_qty, 4) }}</span>
+                  <span class="golden--text">{{ format_number(item.actual_qty, hide_qty_decimals ? 0 : 4) }}</span>
                 </template>
               </v-data-table-virtual>
             </div>
@@ -96,8 +133,7 @@
             v-model="item_group"></v-select>
         </v-col>
         <v-col cols="12" class="mb-2" v-if="pos_profile.posa_enable_price_list_dropdown">
-          <v-text-field density="compact" variant="solo" color="primary"
-            :label="frappe._('Price List')" hide-details
+          <v-text-field density="compact" variant="solo" color="primary" :label="frappe._('Price List')" hide-details
             :model-value="active_price_list" readonly></v-text-field>
         </v-col>
         <v-col cols="3" class="dynamic-margin-xs">
@@ -106,6 +142,18 @@
             <v-btn size="small" value="card">{{ __("Card") }}</v-btn>
           </v-btn-toggle>
         </v-col>
+        <v-col cols="5" class="dynamic-margin-xs">
+          <v-btn
+            size="small"
+            block
+            color="warning"
+            variant="text"
+            @click="show_offers"
+            class="action-btn-consistent"
+          >
+            {{ offersCount }} {{ __("Offers") }}
+          </v-btn>
+        </v-col>
         <v-col cols="4" class="dynamic-margin-xs">
           <v-btn size="small" block color="primary" variant="text" @click="show_coupons"
             class="action-btn-consistent">{{
@@ -113,13 +161,7 @@
               __("Coupons")
             }}</v-btn>
         </v-col>
-        <v-col cols="5" class="dynamic-margin-xs">
-          <v-btn size="small" block color="primary" variant="text" @click="show_offers" class="action-btn-consistent">{{
-            offersCount }} {{
-              __("Offers") }}
-            : {{ appliedOffersCount }}
-            {{ __("Applied") }}</v-btn>
-        </v-col>
+        
       </v-row>
     </v-card>
 
@@ -129,18 +171,18 @@
   </div>
 </template>
 
-<script>
+<script type="module">
 
 import format from "../../format";
 import _ from "lodash";
 import CameraScanner from './CameraScanner.vue';
-import { saveItemUOMs, getItemUOMs, getLocalStock, isOffline, initializeStockCache, getItemsStorage, setItemsStorage, getLocalStockCache, setLocalStockCache, initPromise, getCachedPriceListItems, savePriceListItems, updateLocalStockCache, isStockCacheReady } from '../../../offline.js';
+import { saveItemUOMs, getItemUOMs, getLocalStock, isOffline, initializeStockCache, getItemsStorage, setItemsStorage, getLocalStockCache, setLocalStockCache, initPromise, getCachedPriceListItems, savePriceListItems, updateLocalStockCache, isStockCacheReady, getCachedItemDetails, saveItemDetailsCache } from '../../../offline/index.js';
 import { responsiveMixin } from '../../mixins/responsive.js';
 
 export default {
   mixins: [format, responsiveMixin],
   components: {
-    CameraScanner
+    CameraScanner,
   },
   data: () => ({
     pos_profile: "",
@@ -153,7 +195,8 @@ export default {
     search: "",
     first_search: "",
     search_backup: "",
-    itemsPerPage: 1000,
+    // Limit the displayed items to avoid overly large lists
+    itemsPerPage: 50,
     offersCount: 0,
     appliedOffersCount: 0,
     couponsCount: 0,
@@ -171,29 +214,63 @@ export default {
     selected_currency: "",
     exchange_rate: 1,
     prePopulateInProgress: false,
+    itemWorker: null,
+    items_request_token: 0,
+    show_item_settings: false,
+    hide_qty_decimals: false,
+    temp_hide_qty_decimals: false,
+    hide_zero_rate_items: false,
+    temp_hide_zero_rate_items: false,
+    isDragging: false,
+    // Track if the current search was triggered by a scanner
+    search_from_scanner: false,
   }),
 
   watch: {
     customer: _.debounce(function () {
       if (this.pos_profile.posa_force_reload_items) {
-        // Always fetch new items from server when option enabled
-        this.items_loaded = false;
-        this.get_items(true);
+        if (this.pos_profile.posa_smart_reload_mode) {
+          // When limit search is enabled there may be no items yet.
+          // Fallback to full reload if nothing is loaded
+          if (!this.items_loaded || !this.filtered_items.length) {
+            this.items_loaded = false;
+            this.get_items(true);
+          } else {
+            // Only refresh prices for visible items when smart reload is enabled
+            this.$nextTick(() => this.refreshPricesForVisibleItems());
+          }
+        } else {
+          // Fall back to full reload
+          this.items_loaded = false;
+          this.get_items(true);
+        }
         return;
       }
       // When the customer changes, avoid reloading all items.
       // Simply refresh prices for visible items only
       if (this.items_loaded && this.filtered_items && this.filtered_items.length > 0) {
-        this.refreshPricesForVisibleItems();
+        this.$nextTick(() => this.refreshPricesForVisibleItems());
       } else {
         this.get_items();
       }
     }, 300),
     customer_price_list: _.debounce(function () {
       if (this.pos_profile.posa_force_reload_items) {
-        // Always fetch new items when price list changes
-        this.items_loaded = false;
-        this.get_items(true);
+        if (this.pos_profile.posa_smart_reload_mode) {
+          // When limit search is enabled there may be no items yet.
+          // Fallback to full reload if nothing is loaded
+          if (!this.items_loaded || !this.items.length) {
+            this.items_loaded = false;
+            this.get_items(true);
+          } else {
+            // Only refresh prices for visible items when smart reload is enabled
+            this.$nextTick(() => this.refreshPricesForVisibleItems());
+          }
+        } else {
+          // Fall back to full reload
+          this.items_loaded = false;
+          this.get_items(true);
+        }
         return;
       }
       // Apply cached rates if available for immediate update
@@ -214,7 +291,9 @@ export default {
           return;
         }
       }
-      // No cache found; keep existing items without reloading from server
+      // No cache found - force a reload so prices are updated
+      this.items_loaded = false;
+      this.get_items(true);
     }, 300),
     new_line() {
       this.eventBus.emit("set_new_line", this.new_line);
@@ -228,79 +307,113 @@ export default {
         this.update_items_details(new_value);
       }
     },
-    // Auto-trigger search when limit search is enabled and the query changes
+    // Automatically search and add item whenever the query changes
     first_search: _.debounce(function (val) {
-      if (this.pos_profile && this.pos_profile.pose_use_limit_search) {
-        this.search_onchange(val);
-      }
+      // Call without arguments so search_onchange treats it like an Enter key
+      this.search_onchange();
     }, 300),
+
+    // Refresh item prices whenever the user changes currency
+    selected_currency() {
+      this.applyCurrencyConversionToItems();
+    },
+
+    // Also react when exchange rate is adjusted manually
+    exchange_rate() {
+      this.applyCurrencyConversionToItems();
+    },
   },
 
   methods: {
     refreshPricesForVisibleItems() {
       const vm = this;
       if (!vm.filtered_items || vm.filtered_items.length === 0) return;
-      
+
       vm.loading = true;
-      
+
       // Cancel previous request if any
       if (vm.currentRequest) {
         vm.abortController.abort();
         vm.currentRequest = null;
       }
-      
+
+      const itemCodes = vm.filtered_items.map(it => it.item_code);
+      const cacheResult = getCachedItemDetails(vm.pos_profile.name, vm.active_price_list, itemCodes);
+      const updates = [];
+
+      cacheResult.cached.forEach(det => {
+        const item = vm.filtered_items.find(it => it.item_code === det.item_code);
+        if (item) {
+          const upd = {
+            actual_qty: det.actual_qty,
+            serial_no_data: det.serial_no_data,
+            batch_no_data: det.batch_no_data,
+          };
+          if (det.item_uoms && det.item_uoms.length > 0) {
+            upd.item_uoms = det.item_uoms;
+            saveItemUOMs(item.item_code, det.item_uoms);
+          }
+          if (det.rate !== undefined) {
+            if (det.rate !== 0 || !item.rate) {
+              upd.rate = det.rate;
+              upd.price_list_rate = det.price_list_rate || det.rate;
+            }
+          }
+          updates.push({ item, upd });
+        }
+      });
+
+      if (cacheResult.missing.length === 0) {
+        vm.$nextTick(() => {
+          updates.forEach(({ item, upd }) => Object.assign(item, upd));
+          updateLocalStockCache(cacheResult.cached);
+          vm.loading = false;
+        });
+        return;
+      }
+
       vm.abortController = new AbortController();
-      
+      const itemsToFetch = vm.filtered_items.filter(it => cacheResult.missing.includes(it.item_code));
+
       frappe.call({
-        method: "posawesome.posawesome.api.posapp.get_items_details",
+        method: "posawesome.posawesome.api.items.get_items_details",
         args: {
-          pos_profile: vm.pos_profile,
-          items_data: vm.filtered_items,
+          pos_profile: JSON.stringify(vm.pos_profile),
+          items_data: JSON.stringify(itemsToFetch),
+          price_list: vm.active_price_list,
         },
         freeze: false,
         signal: vm.abortController.signal,
         callback: function (r) {
           if (r.message) {
-            // Update prices and stock information for visible items
-            vm.filtered_items.forEach((item) => {
-              const updated_item = r.message.find(
-                (element) => element.item_code === item.item_code
-              );
-              if (updated_item) {
-                // Update stock information
-                item.actual_qty = updated_item.actual_qty;
-                item.serial_no_data = updated_item.serial_no_data;
-                item.batch_no_data = updated_item.batch_no_data;
-                
-                // Update UOMs data
-                if (updated_item.item_uoms && updated_item.item_uoms.length > 0) {
-                  item.item_uoms = updated_item.item_uoms;
-                  saveItemUOMs(item.item_code, updated_item.item_uoms);
+            r.message.forEach(updItem => {
+              const item = vm.filtered_items.find(it => it.item_code === updItem.item_code);
+              if (item) {
+                const upd = {
+                  actual_qty: updItem.actual_qty,
+                  serial_no_data: updItem.serial_no_data,
+                  batch_no_data: updItem.batch_no_data,
+                };
+                if (updItem.item_uoms && updItem.item_uoms.length > 0) {
+                  upd.item_uoms = updItem.item_uoms;
+                  saveItemUOMs(item.item_code, updItem.item_uoms);
                 }
-                
-                // Update price if customer price list has changed
-                if (vm.customer_price_list) {
-                  frappe.call({
-                    method: "posawesome.posawesome.api.posapp.get_item_detail",
-                    args: {
-                      item: JSON.stringify(item),
-                      price_list: vm.customer_price_list,
-                      warehouse: vm.pos_profile.warehouse
-                    },
-                    callback: function(price_r) {
-                      if (price_r.message && price_r.message.price_list_rate) {
-                        item.rate = price_r.message.price_list_rate;
-                        item.price_list_rate = price_r.message.price_list_rate;
-                      }
-                    }
-                  });
+                if (updItem.rate !== undefined) {
+                  if (updItem.rate !== 0 || !item.rate) {
+                    upd.rate = updItem.rate;
+                    upd.price_list_rate = updItem.price_list_rate || updItem.rate;
+                  }
                 }
+                updates.push({ item, upd });
               }
             });
-            
-            // Update local stock cache with latest quantities
-            updateLocalStockCache(r.message);
-            vm.loading = false;
+
+            vm.$nextTick(() => {
+              updates.forEach(({ item, upd }) => Object.assign(item, upd));
+              updateLocalStockCache(r.message);
+              saveItemDetailsCache(vm.pos_profile.name, vm.active_price_list, r.message);
+              vm.loading = false;
+            });
           }
         },
         error: function (err) {
@@ -311,7 +424,7 @@ export default {
         }
       });
     },
-    
+
     show_offers() {
       this.eventBus.emit("show_offers", "true");
     },
@@ -320,6 +433,7 @@ export default {
     },
     async get_items(force_server = false) {
       await initPromise;
+      const request_token = ++this.items_request_token;
       if (!this.pos_profile) {
         console.error("No POS Profile");
         return;
@@ -332,6 +446,7 @@ export default {
       const vm = this;
       this.loading = true;
 
+      // Removed noisy debug log
       let search = this.get_search(this.first_search);
       let gr = vm.item_group !== "ALL" ? vm.item_group.toLowerCase() : "";
       let sr = search || "";
@@ -350,6 +465,7 @@ export default {
         this.loading = false;
         return;
       }
+      // Removed noisy debug log
 
       // Attempt to load cached items for the current price list
       if (
@@ -373,12 +489,10 @@ export default {
           vm.loading = false;
           vm.items_loaded = true;
 
-      setTimeout(() => {
-        if (vm.items && vm.items.length > 0) {
-          vm.prePopulateStockCache(vm.items);
-          vm.update_items_details(vm.items);
-        }
-      }, 300);
+          if (vm.items && vm.items.length > 0) {
+            vm.prePopulateStockCache(vm.items);
+            vm.update_items_details(vm.items);
+          }
           return;
         }
       }
@@ -406,82 +520,185 @@ export default {
         vm.loading = false;
         vm.items_loaded = true;
 
-        setTimeout(async () => {
-          if (vm.items && vm.items.length > 0) {
-            await vm.prePopulateStockCache(vm.items);
-            vm.update_items_details(vm.items);
-          }
-        }, 300);
+        if (vm.items && vm.items.length > 0) {
+          await vm.prePopulateStockCache(vm.items);
+          vm.update_items_details(vm.items);
+        }
         return;
       }
-      frappe.call({
-        method: "posawesome.posawesome.api.posapp.get_items",
-        args: {
-          pos_profile: vm.pos_profile,
-          price_list: vm.customer_price_list,
-          item_group: gr,
-          search_value: sr,
-          customer: vm.customer,
-        },
-        callback: async function (r) {
-          if (r.message) {
-            vm.items = r.message;
-            // Ensure UOMs are available for each item
-            vm.items.forEach((it) => {
-              if (it.item_uoms && it.item_uoms.length > 0) {
-                saveItemUOMs(it.item_code, it.item_uoms);
-              } else {
-                const cached = getItemUOMs(it.item_code);
-                if (cached.length > 0) {
-                  it.item_uoms = cached;
-                } else if (it.stock_uom) {
-                  it.item_uoms = [{ uom: it.stock_uom, conversion_factor: 1.0 }];
+      // Removed noisy debug log
+
+      if (this.itemWorker) {
+
+        try {
+          const res = await fetch(
+            "/api/method/posawesome.posawesome.api.items.get_items",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Frappe-CSRF-Token": frappe.csrf_token,
+              },
+              credentials: "same-origin",
+              body: JSON.stringify({
+                pos_profile: JSON.stringify(vm.pos_profile),
+                price_list: vm.customer_price_list,
+                item_group: gr,
+                search_value: sr,
+                customer: vm.customer,
+              }),
+            }
+          );
+
+
+
+          const text = await res.text();
+          // console.log(text)
+          this.itemWorker.onmessage = async (ev) => {
+            if (this.items_request_token !== request_token) return;
+            if (ev.data.type === "parsed") {
+              const parsed = ev.data.items;
+              vm.items = parsed.message || parsed;
+              savePriceListItems(vm.customer_price_list, vm.items);
+              // Ensure UOMs are available for each item
+              vm.items.forEach((it) => {
+                if (it.item_uoms && it.item_uoms.length > 0) {
+                  saveItemUOMs(it.item_code, it.item_uoms);
+                } else {
+                  const cached = getItemUOMs(it.item_code);
+                  if (cached.length > 0) {
+                    it.item_uoms = cached;
+                  } else if (it.stock_uom) {
+                    it.item_uoms = [{ uom: it.stock_uom, conversion_factor: 1.0 }];
+                  }
                 }
-              }
-            });
-            vm.eventBus.emit("set_all_items", vm.items);
-            vm.loading = false;
-            vm.items_loaded = true;
-            savePriceListItems(vm.customer_price_list, vm.items);
-            console.info("Items Loaded");
+              });
+              vm.eventBus.emit("set_all_items", vm.items);
+              vm.loading = false;
+              vm.items_loaded = true;
+              console.info("Items Loaded");
 
-            // Pre-populate stock cache when items are freshly loaded
-            vm.prePopulateStockCache(vm.items);
+              // Pre-populate stock cache when items are freshly loaded
+              vm.prePopulateStockCache(vm.items);
 
-            vm.$nextTick(() => {
-              if (vm.search && !vm.pos_profile.pose_use_limit_search) {
-                vm.search_onchange();
-              }
-            });
+              vm.$nextTick(() => {
+                if (vm.search && !vm.pos_profile.pose_use_limit_search) {
+                  vm.search_onchange();
+                }
+              });
 
-            // Always refresh quantities after items are loaded
-            setTimeout(() => {
+              // Always refresh quantities after items are loaded
               if (vm.items && vm.items.length > 0) {
                 vm.update_items_details(vm.items);
               }
-            }, 300);
 
-            if (
-              vm.pos_profile.posa_local_storage &&
-              !vm.pos_profile.pose_use_limit_search
-            ) {
-              try {
-                setItemsStorage(r.message);
-                r.message.forEach((it) => {
-                  if (it.item_uoms && it.item_uoms.length > 0) {
-                    saveItemUOMs(it.item_code, it.item_uoms);
+              if (
+                vm.pos_profile.posa_local_storage &&
+                !vm.pos_profile.pose_use_limit_search
+              ) {
+                try {
+                  setItemsStorage(vm.items);
+                  vm.items.forEach((it) => {
+                    if (it.item_uoms && it.item_uoms.length > 0) {
+                      saveItemUOMs(it.item_code, it.item_uoms);
+                    }
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+
+              if (vm.pos_profile.pose_use_limit_search) {
+                vm.enter_event();
+              }
+
+              // Terminate the worker after items are parsed to
+              // release memory held by the worker thread.
+              if (vm.itemWorker) {
+                vm.itemWorker.terminate();
+                vm.itemWorker = null;
+              }
+            } else if (ev.data.type === "error") {
+              console.error('Item worker parse error:', ev.data.error);
+              vm.loading = false;
+            }
+          };
+          this.itemWorker.postMessage({ type: 'parse_and_cache', json: text, priceList: vm.customer_price_list });
+
+
+        } catch (err) {
+          console.error('Failed to fetch items', err);
+          vm.loading = false;
+        }
+      } else {
+        frappe.call({
+          method: "posawesome.posawesome.api.items.get_items",
+          args: {
+            pos_profile: JSON.stringify(vm.pos_profile),
+            price_list: vm.customer_price_list,
+            item_group: gr,
+            search_value: sr,
+            customer: vm.customer,
+          },
+          callback: async function (r) {
+            if (vm.items_request_token !== request_token) return;
+            if (r.message) {
+              vm.items = r.message;
+              // Ensure UOMs are available for each item
+              vm.items.forEach((it) => {
+                if (it.item_uoms && it.item_uoms.length > 0) {
+                  saveItemUOMs(it.item_code, it.item_uoms);
+                } else {
+                  const cached = getItemUOMs(it.item_code);
+                  if (cached.length > 0) {
+                    it.item_uoms = cached;
+                  } else if (it.stock_uom) {
+                    it.item_uoms = [{ uom: it.stock_uom, conversion_factor: 1.0 }];
                   }
-                });
-              } catch (e) {
-                console.error(e);
+                }
+              });
+              vm.eventBus.emit("set_all_items", vm.items);
+              vm.loading = false;
+              vm.items_loaded = true;
+              savePriceListItems(vm.customer_price_list, vm.items);
+              console.info("Items Loaded");
+
+              // Pre-populate stock cache when items are freshly loaded
+              vm.prePopulateStockCache(vm.items);
+
+              vm.$nextTick(() => {
+                if (vm.search && !vm.pos_profile.pose_use_limit_search) {
+                  vm.search_onchange();
+                }
+              });
+
+              // Always refresh quantities after items are loaded
+              if (vm.items && vm.items.length > 0) {
+                vm.update_items_details(vm.items);
+              }
+
+              if (
+                vm.pos_profile.posa_local_storage &&
+                !vm.pos_profile.pose_use_limit_search
+              ) {
+                try {
+                  setItemsStorage(r.message);
+                  r.message.forEach((it) => {
+                    if (it.item_uoms && it.item_uoms.length > 0) {
+                      saveItemUOMs(it.item_code, it.item_uoms);
+                    }
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+              if (vm.pos_profile.pose_use_limit_search) {
+                vm.enter_event();
               }
             }
-            if (vm.pos_profile.pose_use_limit_search) {
-              vm.enter_event();
-            }
           }
-        },
-      });
+        });
+      }
     },
     get_items_groups() {
       if (!this.pos_profile) {
@@ -497,7 +714,7 @@ export default {
       } else {
         const vm = this;
         frappe.call({
-          method: "posawesome.posawesome.api.posapp.get_items_groups",
+          method: "posawesome.posawesome.api.items.get_items_groups",
           args: {},
           callback: function (r) {
             if (r.message) {
@@ -561,24 +778,26 @@ export default {
           }
         }
 
-        // Convert rate if multi-currency is enabled
-        if (this.pos_profile.posa_allow_multi_currency &&
-          this.selected_currency !== this.pos_profile.currency) {
-          // Store original rate as base_rate
-          item.base_rate = item.rate;
-          item.base_price_list_rate = item.price_list_rate;
+        // Ensure correct rate based on selected currency
+        if (this.pos_profile.posa_allow_multi_currency) {
+          this.applyCurrencyConversionToItem(item);
 
-          // Set converted rates
-          item.rate = this.getConvertedRate(item);
-          item.price_list_rate = this.getConvertedRate(item);
-
-          // Set currency
-          item.currency = this.selected_currency;
+          // Compute base rates from original values
+          const base_rate =
+            item.original_currency === this.pos_profile.currency
+              ? item.original_rate
+              : item.original_rate * (item.plc_conversion_rate || this.exchange_rate);
+          item.base_rate = base_rate;
+          item.base_price_list_rate = base_rate;
         }
 
         if (!item.qty || item.qty === 1) {
-          const qtyVal = this.qty != null ? this.qty : 1;
-          item.qty = Math.abs(qtyVal);
+          let qtyVal = this.qty != null ? this.qty : 1;
+          qtyVal = Math.abs(qtyVal);
+          if (this.hide_qty_decimals) {
+            qtyVal = Math.trunc(qtyVal);
+          }
+          item.qty = qtyVal;
         }
         this.eventBus.emit("add_item", item);
         this.qty = 1;
@@ -636,15 +855,33 @@ export default {
         this.flags.serial_no = null;
         this.flags.batch_no = null;
         this.qty = 1;
+        // Clear search field after successfully adding an item
+        this.clearSearch();
         this.$refs.debounce_search.focus();
       }
     },
     search_onchange: _.debounce(function (newSearchTerm) {
       const vm = this;
-      if (newSearchTerm) vm.search = newSearchTerm;
+
+      // Determine the actual query string and trim whitespace
+      const query = typeof newSearchTerm === "string"
+        ? newSearchTerm
+        : vm.first_search;
+
+      vm.search = (query || "").trim();
+
+      if (!vm.search) {
+        vm.search_from_scanner = false;
+        return;
+      }
+
+      const fromScanner = vm.search_from_scanner;
 
       if (vm.pos_profile.pose_use_limit_search) {
-        vm.get_items();
+        // Only trigger search when query length meets minimum threshold
+        if (vm.search && vm.search.length >= 3) {
+          vm.get_items();
+        }
       } else {
         // Save the current filtered items before search to maintain quantity data
         const current_items = [...vm.filtered_items];
@@ -658,6 +895,13 @@ export default {
             vm.update_items_details(vm.filtered_items);
           }, 300);
         }
+      }
+
+      // Clear the input only when triggered via scanner
+      if (fromScanner) {
+        vm.clearSearch();
+        vm.$refs.debounce_search && vm.$refs.debounce_search.focus();
+        vm.search_from_scanner = false;
       }
     }, 300),
     get_item_qty(first_search) {
@@ -680,6 +924,9 @@ export default {
             pesokg1.substr(0, 2) + "." + pesokg1.substr(2, pesokg1.length);
         }
         scal_qty = pesokg;
+      }
+      if (this.hide_qty_decimals) {
+        scal_qty = Math.trunc(scal_qty);
       }
       return scal_qty;
     },
@@ -712,8 +959,39 @@ export default {
         vm.itemDetailsRetryTimeout = null;
       }
 
-      // Use cached quantities and UOMs whenever available
-      let allCached = true;
+      const itemCodes = items.map(it => it.item_code);
+      const cacheResult = getCachedItemDetails(vm.pos_profile.name, vm.active_price_list, itemCodes);
+      cacheResult.cached.forEach(det => {
+        const item = items.find(it => it.item_code === det.item_code);
+        if (item) {
+          Object.assign(item, {
+            actual_qty: det.actual_qty,
+            serial_no_data: det.serial_no_data,
+            batch_no_data: det.batch_no_data,
+            has_batch_no: det.has_batch_no,
+            has_serial_no: det.has_serial_no,
+          });
+          if (det.item_uoms && det.item_uoms.length > 0) {
+            item.item_uoms = det.item_uoms;
+            saveItemUOMs(item.item_code, det.item_uoms);
+          }
+          if (det.rate !== undefined) {
+            if (det.rate !== 0 || !item.rate) {
+              item.rate = det.rate;
+              item.price_list_rate = det.price_list_rate || det.rate;
+            }
+          }
+
+          if (!item.original_rate) {
+            item.original_rate = item.rate;
+            item.original_currency = item.currency || vm.pos_profile.currency;
+          }
+
+          vm.applyCurrencyConversionToItem(item);
+        }
+      });
+
+      let allCached = cacheResult.missing.length === 0;
       items.forEach((item) => {
         const localQty = getLocalStock(item.item_code);
         if (localQty !== null) {
@@ -748,11 +1026,14 @@ export default {
 
       vm.abortController = new AbortController();
 
+      const itemsToFetch = items.filter(it => cacheResult.missing.includes(it.item_code));
+
       vm.currentRequest = frappe.call({
-        method: "posawesome.posawesome.api.posapp.get_items_details",
+        method: "posawesome.posawesome.api.items.get_items_details",
         args: {
-          pos_profile: vm.pos_profile,
-          items_data: items,
+          pos_profile: JSON.stringify(vm.pos_profile),
+          items_data: JSON.stringify(itemsToFetch),
+          price_list: vm.active_price_list,
         },
         // Avoid freezing the UI while item details are fetched
         freeze: false,
@@ -782,7 +1063,7 @@ export default {
                       batch_no_data: updated_item.batch_no_data,
                       has_batch_no: updated_item.has_batch_no,
                       has_serial_no: updated_item.has_serial_no,
-                      item_uoms: updated_item.item_uoms && updated_item.item_uoms.length > 0 ? 
+                      item_uoms: updated_item.item_uoms && updated_item.item_uoms.length > 0 ?
                         updated_item.item_uoms : item.item_uoms
                     }
                   });
@@ -800,12 +1081,14 @@ export default {
               });
 
               // Apply all updates in one batch
-              updatedItems.forEach(({item, updates}) => {
+              updatedItems.forEach(({ item, updates }) => {
                 Object.assign(item, updates);
+                vm.applyCurrencyConversionToItem(item);
               });
 
               // Update local stock cache with latest quantities
               updateLocalStockCache(r.message);
+              saveItemDetailsCache(vm.pos_profile.name, vm.active_price_list, r.message);
 
               // Force update if any item's quantity changed significantly
               if (qtyChanged) {
@@ -876,6 +1159,41 @@ export default {
         this.prePopulateInProgress = false;
       }
     },
+
+    applyCurrencyConversionToItems() {
+      if (!this.items || !this.items.length) return;
+      this.items.forEach(it => this.applyCurrencyConversionToItem(it));
+    },
+
+    applyCurrencyConversionToItem(item) {
+      if (!item) return;
+      const base = this.pos_profile.currency;
+
+      if (!item.original_rate) {
+        item.original_rate = item.rate;
+        item.original_currency = item.currency || base;
+      }
+
+      // original_rate is in price list currency
+      const price_list_rate = item.original_rate;
+
+      // Determine base rate using available conversion info
+      const base_rate = price_list_rate * (item.plc_conversion_rate || 1);
+
+      item.base_rate = base_rate;
+      item.base_price_list_rate = price_list_rate;
+
+      // If the price list currency matches the selected currency,
+      // don't apply any conversion
+      const converted_rate =
+        item.original_currency === this.selected_currency
+          ? price_list_rate
+          : price_list_rate * (this.exchange_rate || 1);
+
+      item.rate = this.flt(converted_rate, this.currency_precision);
+      item.currency = this.selected_currency;
+      item.price_list_rate = item.rate;
+    },
     scan_barcoud() {
       const vm = this;
       try {
@@ -888,6 +1206,7 @@ export default {
           suffixKeyCodes: [],
           keyCodeMapper: function (oEvent) {
             oEvent.stopImmediatePropagation();
+            oEvent.preventDefault();
             return onScan.decodeKeyEvent(oEvent);
           },
           onScan: function (sCode) {
@@ -904,15 +1223,27 @@ export default {
       }
     },
     trigger_onscan(sCode) {
-      if (this.filtered_items.length == 0) {
-        this.eventBus.emit("show_message", {
-          title: `No Item has this barcode "${sCode}"`,
-          color: "error",
-        });
-        frappe.utils.play_sound("error");
-      } else {
-        this.enter_event();
-      }
+      // indicate this search came from a scanner
+      this.search_from_scanner = true;
+      // apply scanned code as search term
+      this.first_search = sCode;
+      this.search = sCode;
+
+      this.$nextTick(() => {
+        if (this.filtered_items.length == 0) {
+          this.eventBus.emit("show_message", {
+            title: `No Item has this barcode "${sCode}"`,
+            color: "error",
+          });
+          frappe.utils.play_sound("error");
+        } else {
+          this.enter_event();
+        }
+
+        // clear search field for next scan and refocus input
+        this.clearSearch();
+        this.$refs.debounce_search && this.$refs.debounce_search.focus();
+      });
     },
     generateWordCombinations(inputString) {
       const words = inputString.split(" ");
@@ -968,6 +1299,9 @@ export default {
     },
     onBarcodeScanned(scannedCode) {
       console.log('Barcode scanned:', scannedCode);
+
+      // mark this search as coming from a scanner
+      this.search_from_scanner = true;
 
       // Clear any previous search
       this.search = '';
@@ -1039,10 +1373,9 @@ export default {
         indicator: 'green'
       }, 3);
 
-      // Clear search after successful addition
-      setTimeout(() => {
-        this.clearSearch();
-      }, 1000);
+      // Clear search after successful addition and refocus input
+      this.clearSearch();
+      this.$refs.debounce_search && this.$refs.debounce_search.focus();
     },
     showMultipleItemsDialog(items, scannedCode) {
       // Create a dialog to let user choose from multiple matches
@@ -1108,16 +1441,6 @@ export default {
       this.trigger_onscan(scannedCode);
     },
 
-    getConvertedRate(item) {
-      if (!item.rate) return 0;
-      if (!this.exchange_rate) return item.rate;
-
-      // If exchange rate is 300 PKR = 1 USD
-      // To convert PKR to USD: divide by exchange rate
-      // Example: 3000 PKR / 300 = 10 USD
-      const convertedRate = item.rate / this.exchange_rate;
-      return this.flt(convertedRate, 4);
-    },
     currencySymbol(currency) {
       return get_currency_symbol(currency);
     },
@@ -1136,12 +1459,75 @@ export default {
       return this.formatFloat(value, prec);
     },
     hasDecimalPrecision(value) {
-      // Check if the value has any decimal precision when multiplied by exchange rate
+      // Check if the value has any decimal precision when converted by exchange rate
       if (this.exchange_rate && this.exchange_rate !== 1) {
         let convertedValue = value * this.exchange_rate;
         return !Number.isInteger(convertedValue);
       }
       return !Number.isInteger(value);
+    },
+
+    toggleItemSettings() {
+      this.temp_hide_qty_decimals = this.hide_qty_decimals;
+      this.temp_hide_zero_rate_items = this.hide_zero_rate_items;
+      this.show_item_settings = true;
+    },
+    cancelItemSettings() {
+      this.show_item_settings = false;
+    },
+    applyItemSettings() {
+      this.hide_qty_decimals = this.temp_hide_qty_decimals;
+      this.hide_zero_rate_items = this.temp_hide_zero_rate_items;
+      this.saveItemSettings();
+      this.show_item_settings = false;
+    },
+    onDragStart(event, item) {
+      this.isDragging = true;
+      
+      // Set drag data
+      event.dataTransfer.setData('application/json', JSON.stringify({
+        type: 'item-from-selector',
+        item: item
+      }));
+      
+      // Set drag effect
+      event.dataTransfer.effectAllowed = 'copy';
+      
+      // Emit event to show drop feedback in ItemsTable
+      this.eventBus.emit('item-drag-start', item);
+    },
+    onDragEnd(event) {
+      this.isDragging = false;
+      
+      // Emit event to hide drop feedback
+      this.eventBus.emit('item-drag-end');
+    },
+    saveItemSettings() {
+      try {
+        const settings = { 
+          hide_qty_decimals: this.hide_qty_decimals,
+          hide_zero_rate_items: this.hide_zero_rate_items,
+        };
+        localStorage.setItem('posawesome_item_selector_settings', JSON.stringify(settings));
+      } catch (e) {
+        console.error('Failed to save item selector settings:', e);
+      }
+    },
+    loadItemSettings() {
+      try {
+        const saved = localStorage.getItem('posawesome_item_selector_settings');
+        if (saved) {
+          const opts = JSON.parse(saved);
+          if (typeof opts.hide_qty_decimals === 'boolean') {
+            this.hide_qty_decimals = opts.hide_qty_decimals;
+          }
+          if (typeof opts.hide_zero_rate_items === 'boolean') {
+            this.hide_zero_rate_items = opts.hide_zero_rate_items;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load item selector settings:', e);
+      }
     },
   },
 
@@ -1150,7 +1536,7 @@ export default {
       return this.getItemsHeaders();
     },
     filtered_items() {
-      this.search = this.get_search(this.first_search);
+      this.search = this.get_search(this.first_search).trim();
       if (!this.pos_profile.pose_use_limit_search) {
         let filtred_list = [];
         let filtred_group_list = [];
@@ -1171,9 +1557,13 @@ export default {
           ) {
             filtered = filtred_group_list
               .filter((item) => !item.variant_of)
-              .slice(0, 50);
+              .slice(0, this.itemsPerPage);
           } else {
-            filtered = filtred_group_list.slice(0, 50);
+            filtered = filtred_group_list.slice(0, this.itemsPerPage);
+          }
+
+          if (this.hide_zero_rate_items) {
+            filtered = filtered.filter(item => parseFloat(item.rate) !== 0);
           }
 
           // Ensure quantities are defined
@@ -1185,73 +1575,61 @@ export default {
 
           return filtered;
         } else if (this.search) {
-          filtred_list = filtred_group_list.filter((item) => {
-            let found = false;
-            for (let element of item.item_barcode) {
-              if (element.barcode == this.search) {
-                found = true;
-                break;
-              }
-            }
-            return found;
-          });
-          if (filtred_list.length == 0) {
-            filtred_list = filtred_group_list.filter((item) =>
-              item.item_code.toLowerCase().includes(this.search.toLowerCase())
+          const term = this.search.toLowerCase();
+          // Match barcode directly
+          filtred_list = filtred_group_list.filter(item =>
+            item.item_barcode.some(b => b.barcode === this.search)
+          );
+
+          if (filtred_list.length === 0) {
+            // Match by code or name containing the term
+            filtred_list = filtred_group_list.filter(item =>
+              item.item_code.toLowerCase().includes(term) ||
+              item.item_name.toLowerCase().includes(term)
             );
-            if (filtred_list.length == 0) {
-              const search_combinations = this.generateWordCombinations(
-                this.search
-              );
-              filtred_list = filtred_group_list.filter((item) => {
-                let found = false;
-                for (let element of search_combinations) {
-                  element = element.toLowerCase().trim();
-                  let element_regex = new RegExp(
-                    `.*${element.split("").join(".*")}.*`
-                  );
-                  if (element_regex.test(item.item_name.toLowerCase())) {
-                    found = true;
-                    break;
-                  }
-                }
-                return found;
+          }
+
+          if (filtred_list.length === 0) {
+            // Fallback to partial fuzzy match on name
+            const search_combinations = this.generateWordCombinations(this.search);
+            filtred_list = filtred_group_list.filter(item => {
+              const nameLower = item.item_name.toLowerCase();
+              return search_combinations.some(element => {
+                element = element.toLowerCase().trim();
+                const element_regex = new RegExp(`.*${element.split('').join('.*')}.*`);
+                return element_regex.test(nameLower);
               });
-            }
-            if (
-              filtred_list.length == 0 &&
-              this.pos_profile.posa_search_serial_no
-            ) {
-              filtred_list = filtred_group_list.filter((item) => {
-                let found = false;
-                for (let element of item.serial_no_data) {
-                  if (element.serial_no == this.search) {
-                    found = true;
-                    this.flags.serial_no = null;
-                    this.flags.serial_no = this.search;
-                    break;
-                  }
+            });
+          }
+
+          if (
+            filtred_list.length === 0 &&
+            this.pos_profile.posa_search_serial_no
+          ) {
+            filtred_list = filtred_group_list.filter(item => {
+              for (let element of item.serial_no_data) {
+                if (element.serial_no === this.search) {
+                  this.flags.serial_no = this.search;
+                  return true;
                 }
-                return found;
-              });
-            }
-            if (
-              filtred_list.length == 0 &&
-              this.pos_profile.posa_search_batch_no
-            ) {
-              filtred_list = filtred_group_list.filter((item) => {
-                let found = false;
-                for (let element of item.batch_no_data) {
-                  if (element.batch_no == this.search) {
-                    found = true;
-                    this.flags.batch_no = null;
-                    this.flags.batch_no = this.search;
-                    break;
-                  }
+              }
+              return false;
+            });
+          }
+
+          if (
+            filtred_list.length === 0 &&
+            this.pos_profile.posa_search_batch_no
+          ) {
+            filtred_list = filtred_group_list.filter(item => {
+              for (let element of item.batch_no_data) {
+                if (element.batch_no === this.search) {
+                  this.flags.batch_no = this.search;
+                  return true;
                 }
-                return found;
-              });
-            }
+              }
+              return false;
+            });
           }
         }
 
@@ -1260,9 +1638,13 @@ export default {
           this.pos_profile.posa_show_template_items &&
           this.pos_profile.posa_hide_variants_items
         ) {
-          final_filtered_list = filtred_list.filter((item) => !item.variant_of).slice(0, 50);
+          final_filtered_list = filtred_list.filter((item) => !item.variant_of).slice(0, this.itemsPerPage);
         } else {
-          final_filtered_list = filtred_list.slice(0, 50);
+          final_filtered_list = filtred_list.slice(0, this.itemsPerPage);
+        }
+
+        if (this.hide_zero_rate_items) {
+          final_filtered_list = final_filtered_list.filter(item => parseFloat(item.rate) !== 0);
         }
 
         // Ensure quantities are defined for each item
@@ -1281,7 +1663,7 @@ export default {
 
         return final_filtered_list;
       } else {
-        const items_list = this.items.slice(0, 50);
+        const items_list = this.items.slice(0, this.itemsPerPage);
 
         // Ensure quantities are defined
         items_list.forEach(item => {
@@ -1289,6 +1671,10 @@ export default {
             item.actual_qty = 0;
           }
         });
+
+        if (this.hide_zero_rate_items) {
+          return items_list.filter(item => parseFloat(item.rate) !== 0);
+        }
 
         return items_list;
       }
@@ -1298,18 +1684,22 @@ export default {
         return this.first_search;
       },
       set: _.debounce(function (newValue) {
-        this.first_search = newValue;
+        this.first_search = (newValue || '').trim();
       }, 200),
     },
     debounce_qty: {
       get() {
         // Display the raw quantity while typing to avoid forced decimal format
-        return this.qty === null || this.qty === '' ? '' : this.qty;
+        if (this.qty === null || this.qty === '') return '';
+        return this.hide_qty_decimals ? Math.trunc(this.qty) : this.qty;
       },
       set: _.debounce(function (value) {
         let parsed = parseFloat(String(value).replace(/,/g, ''));
         if (isNaN(parsed)) {
           parsed = null;
+        }
+        if (this.hide_qty_decimals && parsed != null) {
+          parsed = Math.trunc(parsed);
         }
         this.qty = parsed;
       }, 200),
@@ -1319,15 +1709,36 @@ export default {
     },
     active_price_list() {
       return this.customer_price_list || (this.pos_profile && this.pos_profile.selling_price_list);
-    }
+    },
   },
 
   created: function () {
+    this.loadItemSettings();
+    if (typeof Worker !== 'undefined') {
+      try {
+        // Use the plain URL so the service worker can match the cached file
+        // even when offline. Using a query string causes cache lookups to fail
+        // which results in "Failed to fetch a worker script" errors.
+        const workerUrl = '/assets/posawesome/js/posapp/workers/itemWorker.js';
+        this.itemWorker = new Worker(workerUrl, { type: 'classic' });
+
+        this.itemWorker.onerror = function (event) {
+          console.error('Worker error:', event);
+          console.error('Message:', event.message);
+          console.error('Filename:', event.filename);
+          console.error('Line number:', event.lineno);
+        };
+        console.log("Created worker nowwwwww")
+      } catch (e) {
+        console.error('Failed to start item worker', e);
+        this.itemWorker = null;
+      }
+    }
     this.$nextTick(function () { });
     this.eventBus.on("register_pos_profile", async (data) => {
       await initPromise;
       this.pos_profile = data.pos_profile;
-      if (this.pos_profile.posa_force_reload_items) {
+      if (this.pos_profile.posa_force_reload_items && !this.pos_profile.posa_smart_reload_mode) {
         await this.get_items(true);
       } else {
         await this.get_items();
@@ -1375,11 +1786,16 @@ export default {
     this.eventBus.on("update_currency", (data) => {
       this.selected_currency = data.currency;
       this.exchange_rate = data.exchange_rate;
+
+      // Refresh visible item prices when currency changes
+      this.applyCurrencyConversionToItems();
+      this.update_cur_items_details();
     });
   },
 
   mounted() {
     this.scan_barcoud();
+    // grid layout adjusts automatically with CSS, no width tracking needed
   },
 
   beforeUnmount() {
@@ -1408,8 +1824,18 @@ export default {
       }
     }
 
+    if (this.itemWorker) {
+      this.itemWorker.terminate();
+    }
+
     this.eventBus.off("update_currency");
     this.eventBus.off("server-online");
+    this.eventBus.off("register_pos_profile");
+    this.eventBus.off("update_cur_items_details");
+    this.eventBus.off("update_offers_counters");
+    this.eventBus.off("update_coupons_counters");
+    this.eventBus.off("update_customer_price_list");
+    this.eventBus.off("update_customer");
   },
 };
 </script>
@@ -1425,12 +1851,31 @@ export default {
 
 .dynamic-scroll {
   transition: max-height var(--transition-normal);
+  padding-bottom: var(--dynamic-xs);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--dynamic-sm);
+  align-items: start;
+  align-content: start;
 }
 
 .dynamic-item-card {
   margin: var(--dynamic-xs);
   transition: var(--transition-normal);
   background-color: var(--surface-secondary);
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  box-sizing: border-box;
+}
+
+.dynamic-item-card .v-img {
+  object-fit: contain;
 }
 
 .dynamic-item-card:hover {
@@ -1448,6 +1893,17 @@ export default {
 
 .sleek-data-table:hover {
   box-shadow: var(--shadow-md) !important;
+}
+
+.settings-container {
+  display: flex;
+  align-items: center;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Light mode card backgrounds */

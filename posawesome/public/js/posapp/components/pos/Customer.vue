@@ -3,10 +3,11 @@
   <div class="customer-input-wrapper">
     <v-autocomplete ref="customerDropdown" class="customer-autocomplete sleek-field" density="compact" clearable
       variant="solo" color="primary" :label="frappe._('Customer')" v-model="internalCustomer" :items="filteredCustomers"
-      item-title="customer_name" item-value="name" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" :no-data-text="__('Customers not found')"
-      hide-details :customFilter="() => true" :disabled="readonly || loadingCustomers"
-      :menu-props="{ closeOnContentClick: false }" @update:menu="onCustomerMenuToggle"
-      @update:modelValue="onCustomerChange" @update:search="onCustomerSearch" @keydown.enter="handleEnter">
+      item-title="customer_name" item-value="name" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+      :no-data-text="__('Customers not found')" hide-details :customFilter="() => true"
+      :disabled="readonly || loadingCustomers" :menu-props="{ closeOnContentClick: false }"
+      @update:menu="onCustomerMenuToggle" @update:modelValue="onCustomerChange" @update:search="onCustomerSearch"
+      @keydown.enter="handleEnter" :virtual-scroll="true" :virtual-scroll-item-height="48">
       <!-- Edit icon (left) -->
       <template #prepend-inner>
         <v-tooltip text="Edit customer">
@@ -130,7 +131,7 @@
 
 <script>
 import UpdateCustomer from './UpdateCustomer.vue';
-import { getCustomerStorage, setCustomerStorage } from '../../../offline.js';
+import { getCustomerStorage, setCustomerStorage } from '../../../offline/index.js';
 
 export default {
   props: {
@@ -147,8 +148,7 @@ export default {
     readonly: false,
     customer_info: {},           // Used for edit modal
     loadingCustomers: false,     // ? New state to track loading status
-    customerSearch: '',          // Search text
-    customerLimit: 50            // Max customers to display
+    customerSearch: ''          // Search text
   }),
 
   components: {
@@ -174,7 +174,7 @@ export default {
           );
         });
       }
-      return results.slice(0, this.customerLimit);
+      return results;
     }
   },
 
@@ -259,7 +259,7 @@ export default {
 
       this.loadingCustomers = true; // ? Start loading
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_customer_names',
+        method: 'posawesome.posawesome.api.customers.get_customer_names',
         args: {
           pos_profile: this.pos_profile.pos_profile,
         },

@@ -12,23 +12,11 @@
               <h3 class="header-title">{{ __('Offline Invoices') }}</h3>
               <p class="header-subtitle">{{ __('Manage your offline transactions') }}</p>
               <div class="header-stats">
-                <v-chip 
-                  v-if="invoices.length > 0" 
-                  color="primary" 
-                  variant="flat" 
-                  size="small"
-                  class="status-chip mr-2"
-                >
+                <v-chip v-if="invoices.length > 0" color="primary" variant="flat" size="small" class="status-chip mr-2">
                   <v-icon start size="14">mdi-clock-outline</v-icon>
                   {{ invoices.length }} {{ __('Pending') }}
                 </v-chip>
-                <v-chip 
-                  v-else
-                  color="success" 
-                  variant="flat" 
-                  size="small"
-                  class="status-chip"
-                >
+                <v-chip v-else color="success" variant="flat" size="small" class="status-chip">
                   <v-icon start size="14">mdi-check-circle</v-icon>
                   {{ __('All Synced') }}
                 </v-chip>
@@ -56,35 +44,32 @@
             <div v-else class="table-container">
               <div class="table-header mb-4">
                 <h4 class="text-h6 text-grey-darken-2 mb-1">{{ __('Pending Invoices') }}</h4>
-                <p class="text-body-2 text-grey">{{ __('These invoices will be synced when connection is restored') }}</p>
+                <p class="text-body-2 text-grey">{{ __('These invoices will be synced when connection is restored') }}
+                </p>
               </div>
-              
-              <v-data-table
-                :headers="headers"
-                :items="invoices"
-                class="elevation-0 rounded-lg white-table"
-                :items-per-page="15"
-                :items-per-page-options="[15, 25, 50]"
-              >
+
+              <v-data-table :headers="headers" :items="invoices" class="elevation-0 rounded-lg white-table"
+                :items-per-page="15" :items-per-page-options="[15, 25, 50]">
                 <template #item.customer="{ item }">
                   <div class="customer-cell">
                     <v-avatar size="32" color="primary" class="mr-3">
                       <v-icon size="18" color="white">mdi-account</v-icon>
                     </v-avatar>
                     <div>
-                      <div class="font-weight-medium text-grey-darken-2">{{ item.invoice.customer_name || item.invoice.customer }}</div>
+                      <div class="font-weight-medium text-grey-darken-2">{{ item.invoice.customer_name ||
+                        item.invoice.customer }}</div>
                       <div class="text-caption text-grey">{{ __('Customer') }}</div>
                     </div>
                   </div>
                 </template>
-                
+
                 <template #item.posting_date="{ item }">
                   <v-chip size="small" color="info" variant="tonal" class="date-chip">
                     <v-icon start size="14">mdi-calendar</v-icon>
                     {{ item.invoice.posting_date }}
                   </v-chip>
                 </template>
-                
+
                 <template #item.grand_total="{ item }">
                   <div class="amount-cell text-right">
                     <div class="text-h6 font-weight-bold text-success">
@@ -94,17 +79,10 @@
                     <div class="text-caption text-grey">{{ __('Total Amount') }}</div>
                   </div>
                 </template>
-                
+
                 <template #item.actions="{ index }">
-                  <v-btn
-                    v-if="posProfile.posa_allow_delete_offline_invoice"
-                    icon
-                    color="error"
-                    size="small"
-                    variant="text"
-                    @click="removeInvoice(index)"
-                    class="delete-btn"
-                  >
+                  <v-btn v-if="posProfile.posa_allow_delete_offline_invoice" icon color="error" size="small"
+                    variant="text" @click="removeInvoice(index)" class="delete-btn">
                     <v-icon size="18">mdi-delete-outline</v-icon>
                     <v-tooltip activator="parent" location="top">
                       {{ __('Delete Invoice') }}
@@ -119,26 +97,13 @@
         <!-- Enhanced Footer -->
         <v-divider></v-divider>
         <v-card-actions class="dialog-actions-container">
-          <v-btn 
-            v-if="invoices.length > 0" 
-            theme="dark"
-            variant="elevated" 
-            prepend-icon="mdi-sync"
-            @click="$emit('sync-all')"
-            class="pos-action-btn sync-action-btn"
-            size="large"
-            elevation="2"
-          >
+          <v-btn v-if="invoices.length > 0" theme="dark" variant="elevated" prepend-icon="mdi-sync"
+            @click="$emit('sync-all')" class="pos-action-btn sync-action-btn" size="large" elevation="2">
             {{ __('Sync All') }}
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn 
-            theme="dark"
-            @click="dialog = false"
-            class="pos-action-btn cancel-action-btn"
-            size="large"
-            elevation="2"
-          >
+          <v-btn theme="dark" @click="dialog = false" class="pos-action-btn cancel-action-btn" size="large"
+            elevation="2">
             <v-icon start>mdi-close-circle-outline</v-icon>
             <span>{{ __('Close') }}</span>
           </v-btn>
@@ -150,7 +115,7 @@
 
 <script>
 import format from '../format';
-import { getOfflineInvoices, deleteOfflineInvoice, getPendingOfflineInvoiceCount } from '../../offline.js';
+import { getOfflineInvoices, deleteOfflineInvoice, getPendingOfflineInvoiceCount } from '../../offline/index.js';
 
 export default {
   name: 'OfflineInvoicesDialog',
@@ -168,27 +133,27 @@ export default {
       dialog: this.modelValue,
       invoices: [],
       headers: [
-        { 
-          title: this.__('Customer'), 
-          value: 'customer', 
+        {
+          title: this.__('Customer'),
+          value: 'customer',
           align: 'start',
           width: '35%'
         },
-        { 
-          title: this.__('Date'), 
-          value: 'posting_date', 
+        {
+          title: this.__('Date'),
+          value: 'posting_date',
           align: 'center',
           width: '20%'
         },
-        { 
-          title: this.__('Amount'), 
-          value: 'grand_total', 
+        {
+          title: this.__('Amount'),
+          value: 'grand_total',
           align: 'end',
           width: '25%'
         },
-        { 
-          title: this.__('Actions'), 
-          value: 'actions', 
+        {
+          title: this.__('Actions'),
+          value: 'actions',
           align: 'center',
           width: '20%',
           sortable: false
@@ -309,7 +274,6 @@ export default {
 .sync-btn {
   border-radius: var(--border-radius-md);
 }
-</style>
 
 /* Enhanced White Background Styling */
 .offline-invoices-card {
@@ -599,18 +563,18 @@ export default {
   .offline-header {
     padding: 16px !important;
   }
-  
+
   .header-content {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .table-container {
     overflow-x: auto;
   }
