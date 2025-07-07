@@ -309,6 +309,8 @@ export default {
 .sync-btn {
   border-radius: var(--border-radius-md);
 }
+</style>
+
 /* Enhanced White Background Styling */
 .offline-invoices-card {
   border-radius: 20px !important;

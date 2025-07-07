@@ -1,5 +1,3 @@
-import { silentPrint } from "../../plugins/print.js";
-
 export default {
     checkOfferIsAppley(item, offer) {
       let applied = false;
@@ -944,19 +942,16 @@ export default {
         print_format +
         "&no_letterhead=" +
         letter_head;
-
-      if (this.pos_profile.posa_silent_print) {
-        silentPrint(url);
-      } else {
-        const printWindow = window.open(url, "Print");
-        printWindow.addEventListener(
-          "load",
-          function () {
-            printWindow.print();
-          },
-          { once: true }
-        );
-      }
+      const printWindow = window.open(url, "Print");
+      printWindow.addEventListener(
+        "load",
+        function () {
+          printWindow.print();
+          // printWindow.close();
+          // NOTE : uncomoent this to auto closing printing window
+        },
+        true
+      );
     },
 
     formatDateForBackend(date) {
