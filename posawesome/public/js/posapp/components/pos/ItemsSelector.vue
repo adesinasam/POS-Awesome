@@ -134,7 +134,7 @@
 import format from "../../format";
 import _ from "lodash";
 import CameraScanner from './CameraScanner.vue';
-import { saveItemUOMs, getItemUOMs, getLocalStock, isOffline, initializeStockCache, getItemsStorage, setItemsStorage, getLocalStockCache, setLocalStockCache, initPromise, getCachedPriceListItems, savePriceListItems, updateLocalStockCache, isStockCacheReady } from '../../../offline.js';
+import { saveItemUOMs, getItemUOMs, getLocalStock, isOffline, initializeStockCache, getItemsStorage, setItemsStorage, getLocalStockCache, setLocalStockCache, initPromise, getCachedPriceListItems, savePriceListItems, updateLocalStockCache } from '../../../offline.js';
 import { responsiveMixin } from '../../mixins/responsive.js';
 
 export default {
@@ -182,9 +182,9 @@ export default {
         return;
       }
       // When the customer changes, avoid reloading all items.
-      // Simply refresh prices for visible items only
+      // Simply refresh quantities if items are already loaded.
       if (this.items_loaded && this.filtered_items && this.filtered_items.length > 0) {
-        this.refreshPricesForVisibleItems();
+        this.update_items_details(this.filtered_items);
       } else {
         this.get_items();
       }
@@ -237,81 +237,6 @@ export default {
   },
 
   methods: {
-    refreshPricesForVisibleItems() {
-      const vm = this;
-      if (!vm.filtered_items || vm.filtered_items.length === 0) return;
-      
-      vm.loading = true;
-      
-      // Cancel previous request if any
-      if (vm.currentRequest) {
-        vm.abortController.abort();
-        vm.currentRequest = null;
-      }
-      
-      vm.abortController = new AbortController();
-      
-      frappe.call({
-        method: "posawesome.posawesome.api.posapp.get_items_details",
-        args: {
-          pos_profile: vm.pos_profile,
-          items_data: vm.filtered_items,
-        },
-        freeze: false,
-        signal: vm.abortController.signal,
-        callback: function (r) {
-          if (r.message) {
-            // Update prices and stock information for visible items
-            vm.filtered_items.forEach((item) => {
-              const updated_item = r.message.find(
-                (element) => element.item_code === item.item_code
-              );
-              if (updated_item) {
-                // Update stock information
-                item.actual_qty = updated_item.actual_qty;
-                item.serial_no_data = updated_item.serial_no_data;
-                item.batch_no_data = updated_item.batch_no_data;
-                
-                // Update UOMs data
-                if (updated_item.item_uoms && updated_item.item_uoms.length > 0) {
-                  item.item_uoms = updated_item.item_uoms;
-                  saveItemUOMs(item.item_code, updated_item.item_uoms);
-                }
-                
-                // Update price if customer price list has changed
-                if (vm.customer_price_list) {
-                  frappe.call({
-                    method: "posawesome.posawesome.api.posapp.get_item_detail",
-                    args: {
-                      item: JSON.stringify(item),
-                      price_list: vm.customer_price_list,
-                      warehouse: vm.pos_profile.warehouse
-                    },
-                    callback: function(price_r) {
-                      if (price_r.message && price_r.message.price_list_rate) {
-                        item.rate = price_r.message.price_list_rate;
-                        item.price_list_rate = price_r.message.price_list_rate;
-                      }
-                    }
-                  });
-                }
-              }
-            });
-            
-            // Update local stock cache with latest quantities
-            updateLocalStockCache(r.message);
-            vm.loading = false;
-          }
-        },
-        error: function (err) {
-          if (err.name !== 'AbortError') {
-            console.error("Error fetching item details:", err);
-            vm.loading = false;
-          }
-        }
-      });
-    },
-    
     show_offers() {
       this.eventBus.emit("show_offers", "true");
     },
@@ -761,57 +686,51 @@ export default {
           if (r.message) {
             vm.itemDetailsRetryCount = 0;
             let qtyChanged = false;
-            let updatedItems = [];
 
-            // Batch updates to minimize reactivity triggers
-            vm.$nextTick(() => {
-              items.forEach((item) => {
-                const updated_item = r.message.find(
-                  (element) => element.item_code == item.item_code
-                );
-                if (updated_item) {
-                  // Save previous quantity for comparison
-                  const prev_qty = item.actual_qty;
+            items.forEach((item) => {
+              const updated_item = r.message.find(
+                (element) => element.item_code == item.item_code
+              );
+              if (updated_item) {
+                // Save previous quantity for comparison
+                const prev_qty = item.actual_qty;
 
-                  // Prepare updates but don't apply them yet
-                  updatedItems.push({
-                    item: item,
-                    updates: {
-                      actual_qty: updated_item.actual_qty,
-                      serial_no_data: updated_item.serial_no_data,
-                      batch_no_data: updated_item.batch_no_data,
-                      has_batch_no: updated_item.has_batch_no,
-                      has_serial_no: updated_item.has_serial_no,
-                      item_uoms: updated_item.item_uoms && updated_item.item_uoms.length > 0 ? 
-                        updated_item.item_uoms : item.item_uoms
-                    }
-                  });
+                item.actual_qty = updated_item.actual_qty;
+                item.serial_no_data = updated_item.serial_no_data;
+                item.batch_no_data = updated_item.batch_no_data;
 
-                  // Track significant quantity changes
-                  if (prev_qty > 0 && updated_item.actual_qty === 0) {
-                    qtyChanged = true;
-                  }
-
-                  // Cache UOMs separately
-                  if (updated_item.item_uoms && updated_item.item_uoms.length > 0) {
-                    saveItemUOMs(item.item_code, updated_item.item_uoms);
+                // Properly handle UOMs data
+                if (updated_item.item_uoms && updated_item.item_uoms.length > 0) {
+                  item.item_uoms = updated_item.item_uoms;
+                  saveItemUOMs(item.item_code, updated_item.item_uoms);
+                } else if (!item.item_uoms || !item.item_uoms.length) {
+                  // If no UOMs found, try cached values or add the stock UOM
+                  const cachedUoms = getItemUOMs(item.item_code);
+                  if (cachedUoms.length > 0) {
+                    item.item_uoms = cachedUoms;
+                  } else {
+                    item.item_uoms = [{ uom: item.stock_uom, conversion_factor: 1.0 }];
                   }
                 }
-              });
 
-              // Apply all updates in one batch
-              updatedItems.forEach(({item, updates}) => {
-                Object.assign(item, updates);
-              });
+                item.has_batch_no = updated_item.has_batch_no;
+                item.has_serial_no = updated_item.has_serial_no;
 
-              // Update local stock cache with latest quantities
-              updateLocalStockCache(r.message);
-
-              // Force update if any item's quantity changed significantly
-              if (qtyChanged) {
-                vm.$forceUpdate();
+                // Log and track significant quantity changes
+                if (prev_qty > 0 && item.actual_qty === 0) {
+                  console.log(`Item ${item.item_code} quantity changed from ${prev_qty} to 0`);
+                  qtyChanged = true;
+                }
               }
             });
+
+            // Update local stock cache with latest quantities
+            updateLocalStockCache(r.message);
+
+            // Force update if any item's quantity changed significantly
+            if (qtyChanged) {
+              vm.$forceUpdate();
+            }
           }
         },
         error: function (err) {
@@ -862,9 +781,9 @@ export default {
       }
       this.prePopulateInProgress = true;
       try {
-        // Use the new isStockCacheReady function
-        if (isStockCacheReady()) {
-          console.debug('Stock cache already initialized');
+        const cache = getLocalStockCache();
+        if (cache && Object.keys(cache).length > 0) {
+          console.debug('Stock cache already populated with', Object.keys(cache).length, 'items');
           return;
         }
 
