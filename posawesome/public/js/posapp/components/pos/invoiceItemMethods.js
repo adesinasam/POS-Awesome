@@ -1293,8 +1293,8 @@ export default {
         const response = await frappe.call({
           method: "posawesome.posawesome.api.posapp.get_items_details",
           args: {
-            pos_profile: this.pos_profile,
-            items_data: items
+            pos_profile: JSON.stringify(this.pos_profile),
+            items_data: JSON.stringify(items)
           }
         });
 

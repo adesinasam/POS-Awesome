@@ -108,6 +108,20 @@
               </div>
             </v-list-item>
 
+            <v-list-item @click="toggleManualOffline" class="menu-item-compact warning-action">
+              <template v-slot:prepend>
+                <div class="menu-icon-wrapper-compact warning-icon">
+                  <v-icon color="white" size="16">mdi-wifi-off</v-icon>
+                </div>
+              </template>
+              <div class="menu-content-compact">
+                <v-list-item-title class="menu-item-title-compact">{{ manualOffline ? __('Go Online') : __('Go Offline') }}</v-list-item-title>
+                <v-list-item-subtitle class="menu-item-subtitle-compact">
+                  {{ manualOffline ? __('Disable offline mode') : __('Work without server connection') }}
+                </v-list-item-subtitle>
+              </div>
+            </v-list-item>
+
             <v-divider class="menu-section-divider-compact"></v-divider>
 
             <v-list-item @click="goAbout" class="menu-item-compact neutral-action">
@@ -181,7 +195,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-snackbar v-model="snack" :timeout="5000" :color="snackColor" location="top right">
+    <v-snackbar v-model="snack" :timeout="2000" :color="snackColor" location="top right">
       {{ snackText }}
     </v-snackbar>
 
@@ -276,8 +290,9 @@
 // Import the Socket.IO client library for real-time server status monitoring.
 // This import is crucial for the server connectivity indicator.
 import { io } from 'socket.io-client';
-import { getPendingOfflineInvoiceCount, syncOfflineInvoices, isOffline, getLastSyncTotals } from '../../offline.js';
+import { getPendingOfflineInvoiceCount, syncOfflineInvoices, isOffline, getLastSyncTotals, isManualOffline, setManualOffline } from '../../offline.js';
 import OfflineInvoicesDialog from './OfflineInvoices.vue';
+import { silentPrint } from '../plugins/print.js';
 
 export default {
   name: 'NavBar', // Component name
@@ -306,6 +321,7 @@ export default {
       serverOnline: false,             // Boolean: Reflects the real-time server health via WebSocket (true if connected, false if disconnected)
       serverConnecting: false,         // Boolean: Indicates if the client is currently attempting to establish a connection to the server via WebSocket
       socket: null,                    // Instance of the Socket.IO client, used for real-time communication with the server
+      manualOffline: isManualOffline(), // Allows user to force offline mode manually
       offlineMessageShown: false,      // Flag to avoid repeating offline warnings
       showOfflineInvoices: false,      // Controls the Offline Invoices dialog
       showAboutDialog: false,          // Controls the About dialog
@@ -690,6 +706,36 @@ export default {
         this.socket.disconnect();
       }
     },
+
+    toggleManualOffline() {
+      this.manualOffline = !this.manualOffline;
+      setManualOffline(this.manualOffline);
+
+      // Show message with shorter duration
+      this.showMessage({
+        color: this.manualOffline ? 'warning' : 'success',
+        title: this.manualOffline ? this.__('Switched to Offline Mode') : this.__('Switched to Online Mode')
+      });
+
+      if (this.manualOffline) {
+        this.serverOnline = false;
+        window.serverOnline = false;
+        if (this.socket) {
+          this.socket.disconnect();
+        }
+        this.eventBus.emit('network-offline');
+      } else {
+        window.serverOnline = this.serverOnline;
+        if (this.networkOnline) {
+          if (this.socket) {
+            this.socket.connect();
+          } else {
+            this.initSocketConnection();
+          }
+        }
+        this.eventBus.emit(this.networkOnline ? 'network-online' : 'network-offline');
+      }
+    },
     // --- NAVIGATION AND POS ACTIONS ---
     /**
      * Toggles the visibility and mini-variant state of the side navigation drawer.
@@ -745,9 +791,12 @@ export default {
       // Construct the full print URL for the Sales Invoice
       const url = `${frappe.urllib.get_base_url()}/printview?doctype=Sales%20Invoice&name=${this.lastInvoiceId}` +
         `&trigger_print=1&format=${pf}&no_letterhead=${noLetterHead}`;
-      const win = window.open(url, '_blank'); // Open the URL in a new browser tab/window
-      // Add a one-time event listener to the new window to trigger print once it's loaded
-      win.addEventListener('load', () => win.print(), { once: true });
+      if (this.posProfile.posa_silent_print) {
+        silentPrint(url);
+      } else {
+        const win = window.open(url, '_blank');
+        win.addEventListener('load', () => win.print(), { once: true });
+      }
     },
     goAbout() {
       this.showAboutDialog = true;
@@ -1379,6 +1428,20 @@ export default {
 
 .danger-action:hover::before {
   background: linear-gradient(135deg, rgba(211, 47, 47, 0.05) 0%, rgba(244, 67, 54, 0.08) 100%) !important;
+}
+
+.warning-icon {
+  background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.2);
+}
+
+.warning-action:hover .warning-icon {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 3px 8px rgba(255, 152, 0, 0.25);
+}
+
+.warning-action:hover::before {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.05) 0%, rgba(255, 193, 7, 0.08) 100%) !important;
 }
 
 /* Compact Responsive Design */

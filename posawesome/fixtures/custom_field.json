@@ -5489,6 +5489,16 @@
   ,{
     "doctype": "Custom Field",
     "dt": "POS Profile",
+    "fieldname": "posa_smart_reload_mode",
+    "fieldtype": "Check",
+    "insert_after": "posa_force_reload_items",
+    "label": "Smart Reload Mode",
+    "default": "1",
+    "name": "POS Profile-posa_smart_reload_mode"
+  }
+  ,{
+    "doctype": "Custom Field",
+    "dt": "POS Profile",
     "fieldname": "posa_display_discount_percentage",
     "fieldtype": "Check",
     "insert_after": "hide_expected_amount",
@@ -5505,5 +5515,15 @@
     "label": "Display Discount Amount",
     "default": "1",
     "name": "POS Profile-posa_display_discount_amount"
+  }
+ ,{
+    "doctype": "Custom Field",
+    "dt": "POS Profile",
+    "fieldname": "posa_silent_print",
+    "fieldtype": "Check",
+    "insert_after": "posa_display_discount_amount",
+    "label": "Enable Silent Print",
+    "default": "0",
+    "name": "POS Profile-posa_silent_print"
   }
 ]

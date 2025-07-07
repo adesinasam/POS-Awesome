@@ -6,7 +6,8 @@
       item-title="customer_name" item-value="name" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" :no-data-text="__('Customers not found')"
       hide-details :customFilter="() => true" :disabled="readonly || loadingCustomers"
       :menu-props="{ closeOnContentClick: false }" @update:menu="onCustomerMenuToggle"
-      @update:modelValue="onCustomerChange" @update:search="onCustomerSearch" @keydown.enter="handleEnter">
+      @update:modelValue="onCustomerChange" @update:search="onCustomerSearch" @keydown.enter="handleEnter"
+      :virtual-scroll="true" :virtual-scroll-item-height="48">
       <!-- Edit icon (left) -->
       <template #prepend-inner>
         <v-tooltip text="Edit customer">
@@ -147,8 +148,7 @@ export default {
     readonly: false,
     customer_info: {},           // Used for edit modal
     loadingCustomers: false,     // ? New state to track loading status
-    customerSearch: '',          // Search text
-    customerLimit: 50            // Max customers to display
+    customerSearch: ''          // Search text
   }),
 
   components: {
@@ -174,7 +174,7 @@ export default {
           );
         });
       }
-      return results.slice(0, this.customerLimit);
+      return results;
     }
   },
 
