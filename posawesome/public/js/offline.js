@@ -4,6 +4,7 @@ import Dexie from 'dexie';
 const db = new Dexie('posawesome_offline');
 db.version(1).stores({ keyval: '&key' });
 
+// Add stock_cache_ready flag to memory object
 const memory = {
   offline_invoices: [],
   offline_customers: [],
@@ -12,13 +13,63 @@ const memory = {
   offers_cache: [],
   customer_balance_cache: {},
   local_stock_cache: {},
+  stock_cache_ready: false,  // New flag to track if stock cache is initialized
   items_storage: [],
   customer_storage: [],
   pos_opening_storage: null,
   opening_dialog_storage: null,
-  sales_persons_storage: []
-  ,price_list_cache: {}
+  sales_persons_storage: [],
+  price_list_cache: {}
 };
+
+// Modify initializeStockCache function to set the flag
+export async function initializeStockCache(items, pos_profile) {
+  try {
+    // If stock cache is already initialized, skip
+    if (memory.stock_cache_ready && Object.keys(memory.local_stock_cache || {}).length > 0) {
+      console.debug('Stock cache already initialized, skipping');
+      return true;
+    }
+    
+    console.info('Initializing stock cache for', items.length, 'items');
+
+    const updatedItems = await fetchItemStockQuantities(items, pos_profile);
+
+    if (updatedItems && updatedItems.length > 0) {
+      const stockCache = {};
+
+      updatedItems.forEach(item => {
+        if (item.actual_qty !== undefined) {
+          stockCache[item.item_code] = {
+            actual_qty: item.actual_qty,
+            last_updated: new Date().toISOString()
+          };
+        }
+      });
+
+      memory.local_stock_cache = stockCache;
+      memory.stock_cache_ready = true; // Set flag to true
+      persist('local_stock_cache');
+      persist('stock_cache_ready'); // Persist the flag
+      console.info('Stock cache initialized with', Object.keys(stockCache).length, 'items');
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Failed to initialize stock cache:', error);
+    return false;
+  }
+}
+
+// Add getter and setter for stock_cache_ready flag
+export function isStockCacheReady() {
+  return memory.stock_cache_ready || false;
+}
+
+export function setStockCacheReady(ready) {
+  memory.stock_cache_ready = ready;
+  persist('stock_cache_ready');
+}
 
 export const initPromise = new Promise(resolve => {
   const init = async () => {
@@ -594,36 +645,6 @@ export async function fetchItemStockQuantities(items, pos_profile, chunkSize = 1
   }
 }
 
-// Add this function to initialize stock cache for all items
-export async function initializeStockCache(items, pos_profile) {
-  try {
-    console.info('Initializing stock cache for', items.length, 'items');
-
-    const updatedItems = await fetchItemStockQuantities(items, pos_profile);
-
-    if (updatedItems && updatedItems.length > 0) {
-      const stockCache = {};
-
-      updatedItems.forEach(item => {
-        if (item.actual_qty !== undefined) {
-          stockCache[item.item_code] = {
-            actual_qty: item.actual_qty,
-            last_updated: new Date().toISOString()
-          };
-        }
-      });
-
-      memory.local_stock_cache = stockCache;
-      persist('local_stock_cache');
-      console.info('Stock cache initialized with', Object.keys(stockCache).length, 'items');
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('Failed to initialize stock cache:', error);
-    return false;
-  }
-}
 
 // New function to update local stock with actual quantities
 export function updateLocalStockWithActualQuantities(invoiceItems, serverItems) {
