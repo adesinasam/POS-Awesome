@@ -29,7 +29,7 @@
             </v-row>
             <v-row align="center" no-gutters class="mb-1">
               <v-col md="4" cols="12">
-                <v-select density="compact" variant="outlined" hide-details clearable
+                <v-select density="compact" variant="outlined" hide-details clearable class="dark-field"
                   :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" v-model="pos_profile_search" :items="pos_profiles_list"
                   item-value="name" label="Select POS Profile"></v-select>
               </v-col>
@@ -123,12 +123,12 @@
             <v-row align="center" no-gutters class="mb-1">
               <v-col md="4" cols="12" class="mr-1">
                 <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Search by Name')"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details v-model="mpesa_search_name"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details class="dark-field" v-model="mpesa_search_name"
                   clearable></v-text-field>
               </v-col>
               <v-col md="4" cols="12" class="mr-1">
                 <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Search by Mobile')"
-                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details v-model="mpesa_search_mobile"
+                  :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" hide-details class="dark-field" v-model="mpesa_search_mobile"
                   clearable></v-text-field>
               </v-col>
               <v-col> </v-col>
@@ -246,7 +246,7 @@
 import format from "../../format";
 import Customer from "../pos/Customer.vue";
 import UpdateCustomer from "../pos/UpdateCustomer.vue";
-import { getOpeningStorage, setOpeningStorage, initPromise, saveOfflinePayment, syncOfflinePayments, getPendingOfflinePaymentCount, isOffline, getCustomerStorage } from "../../../offline/index.js";
+import { getOpeningStorage, setOpeningStorage, initPromise, checkDbHealth, saveOfflinePayment, syncOfflinePayments, getPendingOfflinePaymentCount, isOffline, getCustomerStorage, getOfflineCustomers } from "../../../offline/index.js";
 import { silentPrint } from "../../plugins/print.js";
 
 export default {
@@ -273,7 +273,7 @@ export default {
       pos_profiles_list: [],
       pos_profile_search: "",
       payment_methods_list: [],
-      mpesa_searchname: "",
+      mpesa_search_name: "",
       mpesa_search_mobile: "",
       invoices_headers: [
         {
@@ -410,6 +410,7 @@ export default {
     async check_opening_entry() {
       var vm = this;
       await initPromise;
+      await checkDbHealth();
       return frappe
         .call("posawesome.posawesome.api.shifts.check_opening_shift", {
           user: frappe.session.user,
@@ -513,18 +514,20 @@ export default {
       // When offline, attempt to load details from cached customers
       if (isOffline()) {
         try {
-          const r = await frappe.call({
-            method: "posawesome.posawesome.api.customers.get_customer_info",
-            args: {
-              customer: vm.customer_name,
-            },
-          });
-          const message = r.message;
-          if (!r.exc) {
-            vm.customer_info = {
-              ...message,
-            };
-
+          const cached = (getCustomerStorage() || []).find(
+            (c) => c.name === vm.customer_name || c.customer_name === vm.customer_name
+          );
+          if (cached) {
+            vm.customer_info = { ...cached };
+            vm.set_mpesa_search_params();
+            vm.eventBus.emit("set_customer_info_to_edit", vm.customer_info);
+            return;
+          }
+          const queued = (getOfflineCustomers() || [])
+            .map((e) => e.args)
+            .find((c) => c.customer_name === vm.customer_name);
+          if (queued) {
+            vm.customer_info = { ...queued, name: queued.customer_name };
             vm.set_mpesa_search_params();
             vm.eventBus.emit("set_customer_info_to_edit", vm.customer_info);
           }

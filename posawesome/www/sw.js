@@ -1,4 +1,15 @@
 const CACHE_NAME = 'posawesome-cache-v1';
+const MAX_CACHE_ITEMS = 1000;
+
+async function enforceCacheLimit(cache) {
+  const keys = await cache.keys();
+  if (keys.length > MAX_CACHE_ITEMS) {
+    const excess = keys.length - MAX_CACHE_ITEMS;
+    for (let i = 0; i < excess; i++) {
+      await cache.delete(keys[i]);
+    }
+  }
+}
 
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -27,6 +38,7 @@ self.addEventListener('install', event => {
           console.warn('SW install failed to fetch', url, err);
         }
       }));
+      await enforceCacheLimit(cache);
     })()
   );
 });
@@ -38,6 +50,8 @@ self.addEventListener('activate', event => {
       await Promise.all(
         keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       );
+      const cache = await caches.open(CACHE_NAME);
+      await enforceCacheLimit(cache);
       await self.clients.claim();
     })()
   );
@@ -66,22 +80,32 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(response => {
-
-      if (response) {
-        return response;
-      }
-      return fetch(event.request).then(resp => {
-
-        // Cache only full successful responses
+    (async () => {
+      try {
+        const cached = await caches.match(event.request);
+        if (cached) {
+          return cached;
+        }
+        const resp = await fetch(event.request);
         if (resp && resp.ok && resp.status === 200) {
-          const clone = resp.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          try {
+            const clone = resp.clone();
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(event.request, clone);
+            await enforceCacheLimit(cache);
+          } catch (e) {
+            console.warn('SW cache put failed', e);
+          }
         }
         return resp;
-      });
-
-    }).catch(() => caches.match(event.request).then(r => r || Response.error()))
-
+      } catch (err) {
+        try {
+          const fallback = await caches.match(event.request);
+          return fallback || Response.error();
+        } catch (e) {
+          return Response.error();
+        }
+      }
+    })()
   );
 });

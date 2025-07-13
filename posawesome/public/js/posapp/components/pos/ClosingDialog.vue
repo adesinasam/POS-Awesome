@@ -32,7 +32,8 @@
                   <template v-slot:item.closing_amount="props">
                     <v-text-field v-model="props.item.closing_amount" :rules="[max25chars]" :label="frappe._('Edit')"
                       single-line counter type="number" density="compact" variant="outlined" color="primary"
-                      bg-color="white" hide-details :prefix="currencySymbol(pos_profile.currency)"></v-text-field>
+                      :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                      :prefix="currencySymbol(pos_profile.currency)"></v-text-field>
                   </template>
                   <template v-slot:item.difference="{ item }">
                     {{ currencySymbol(pos_profile.currency) }}
@@ -113,6 +114,12 @@ export default {
     submit_dialog() {
       this.eventBus.emit('submit_closing_pos', this.dialog_data);
       this.closingDialog = false;
+    },
+  },
+
+  computed: {
+    isDarkTheme() {
+      return this.$theme.current === 'dark';
     },
   },
 
@@ -266,6 +273,45 @@ export default {
 .submit-action-btn:disabled {
   opacity: 0.6;
   transform: none;
+}
+
+/* Dark theme overrides */
+:deep(.dark-theme) .closing-dialog-card,
+:deep(.v-theme--dark) .closing-dialog-card,
+::v-deep(.dark-theme) .closing-dialog-card,
+::v-deep(.v-theme--dark) .closing-dialog-card {
+  background: #1E1E1E !important;
+}
+
+:deep(.dark-theme) .closing-header,
+:deep(.v-theme--dark) .closing-header,
+::v-deep(.dark-theme) .closing-header,
+::v-deep(.v-theme--dark) .closing-header {
+  background: #1E1E1E !important;
+  color: #fff !important;
+  border-bottom: 1px solid #373737;
+}
+
+:deep(.dark-theme) .white-background,
+:deep(.v-theme--dark) .white-background,
+::v-deep(.dark-theme) .white-background,
+::v-deep(.v-theme--dark) .white-background {
+  background-color: #1E1E1E !important;
+}
+
+:deep(.dark-theme) .white-table,
+:deep(.v-theme--dark) .white-table,
+::v-deep(.dark-theme) .white-table,
+::v-deep(.v-theme--dark) .white-table {
+  background-color: #1E1E1E !important;
+}
+
+:deep(.dark-theme) .dialog-actions-container,
+:deep(.v-theme--dark) .dialog-actions-container,
+::v-deep(.dark-theme) .dialog-actions-container,
+::v-deep(.v-theme--dark) .dialog-actions-container {
+  background: #1E1E1E !important;
+  border-top: 1px solid #373737;
 }
 
 /* And the responsive section: */

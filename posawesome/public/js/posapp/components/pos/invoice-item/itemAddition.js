@@ -160,6 +160,7 @@ export default {
         new_item.item_uoms.push({ uom: new_item.stock_uom, conversion_factor: 1 });
       }
       new_item.actual_batch_qty = "";
+      new_item.batch_no_expiry_date = item.batch_no_expiry_date || null;
       new_item.conversion_factor = 1;
       new_item.posa_offers = JSON.stringify([]);
       new_item.posa_offer_applied = 0;
@@ -169,6 +170,10 @@ export default {
       new_item.posa_notes = "";
       new_item.posa_delivery_date = "";
       new_item.posa_row_id = this.makeid(20);
+      if (new_item.has_serial_no && !new_item.serial_no_selected) {
+        new_item.serial_no_selected = [];
+        new_item.serial_no_selected_count = 0;
+      }
       // Expand row if batch/serial required
       if (
         (!this.pos_profile.posa_auto_set_batch && new_item.has_batch_no) ||
@@ -195,6 +200,9 @@ export default {
       this.selected_delivery_charge = "";
       // Reset posting date to today
       this.posting_date = frappe.datetime.nowdate();
+
+      // Reset price list to default
+      this.update_price_list();
 
       // Always reset to default customer after invoice
       this.customer = this.pos_profile.customer;

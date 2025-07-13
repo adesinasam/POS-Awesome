@@ -1,8 +1,28 @@
 import Dexie from "dexie";
+import { withWriteLock } from './db-utils.js';
 
 // --- Dexie initialization ---------------------------------------------------
 export const db = new Dexie("posawesome_offline");
 db.version(1).stores({ keyval: "&key" });
+
+export async function checkDbHealth() {
+    try {
+        await db.table('keyval').get('health_check');
+        return true;
+    } catch (e) {
+        console.error('IndexedDB health check failed', e);
+        try {
+            if (db.isOpen()) {
+                await db.close();
+            }
+            await Dexie.delete('posawesome_offline');
+            await db.open();
+        } catch (re) {
+            console.error('Failed to recover IndexedDB', re);
+        }
+        return false;
+    }
+}
 
 let persistWorker = null;
 
@@ -43,6 +63,8 @@ function flushPersistQueue() {
 }
 
 export function persist(key, value) {
+        // Run health check in background; ignore errors
+        checkDbHealth().catch(() => {});
         if (persistWorker) {
                 let cleanValue = value;
                 try {
@@ -58,9 +80,11 @@ export function persist(key, value) {
                 return;
         }
 
-        db.table("keyval")
-                .put({ key, value })
-                .catch((e) => console.error(`Failed to persist ${key}`, e));
+        withWriteLock(() =>
+                db.table("keyval")
+                        .put({ key, value })
+                        .catch((e) => console.error(`Failed to persist ${key}`, e))
+        );
 
         if (typeof localStorage !== "undefined" && key !== "price_list_cache") {
                 try {

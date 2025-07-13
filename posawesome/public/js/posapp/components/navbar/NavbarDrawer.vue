@@ -62,14 +62,12 @@ export default {
   },
   watch: {
     drawer(val) {
-      console.log('Drawer prop changed to:', val);
       this.drawerOpen = val;
       if (val) {
         this.mini = false;
       }
     },
     drawerOpen(val) {
-      console.log('DrawerOpen changed to:', val);
       this.$emit('update:drawer', val);
     },
     item(val) {
@@ -80,11 +78,6 @@ export default {
     }
   },
   mounted() {
-    console.log('NavbarDrawer mounted with:');
-    console.log('- Drawer:', this.drawer);
-    console.log('- Company:', this.company);
-    console.log('- Items:', this.items);
-    console.log('- Company Image:', this.companyImg);
   },
   methods: {
     handleMouseLeave() {
@@ -96,7 +89,6 @@ export default {
       }, 250);
     },
     changePage(key) {
-      console.log('Changing page to:', key);
       this.$emit('change-page', key);
       // Close drawer after selection
       if (window.innerWidth < 1024) {
@@ -233,10 +225,21 @@ export default {
   .drawer-custom {
     width: 280px !important;
   }
-  
+
   :deep(.dark-theme) .drawer-custom,
   :deep(.v-theme--dark) .drawer-custom {
     background-color: var(--surface-primary, #1e1e1e) !important;
   }
 }
-</style>
+
+/* Completely hide the sidebar on very small screens */
+@media (max-width: 600px) {
+  .drawer-custom {
+    display: none !important;
+  }
+
+  :deep(.dark-theme) .drawer-custom,
+  :deep(.v-theme--dark) .drawer-custom {
+    display: none !important;
+  }
+}</style>

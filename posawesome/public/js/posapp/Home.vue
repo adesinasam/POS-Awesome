@@ -20,7 +20,23 @@
 import Navbar from './components/Navbar.vue';
 import POS from './components/pos/Pos.vue';
 import Payments from './components/payments/Pay.vue';
-import { getOpeningStorage, getCacheUsageEstimate } from '../offline/index.js';
+import {
+  getOpeningStorage,
+  getCacheUsageEstimate,
+  checkDbHealth,
+  queueHealthCheck,
+  purgeOldQueueEntries,
+  MAX_QUEUE_ITEMS,
+  initPromise,
+  memoryInitPromise,
+  toggleManualOffline,
+  isManualOffline,
+  syncOfflineInvoices,
+  getPendingOfflineInvoiceCount,
+  isOffline,
+  getLastSyncTotals,
+} from '../offline/index.js';
+import { silentPrint } from './plugins/print.js';
 
 export default {
   data: function () {
@@ -53,6 +69,21 @@ export default {
       return this.$theme?.current === 'dark';
     }
   },
+  watch: {
+    networkOnline(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.refreshTaxInclusiveSetting();
+        this.eventBus.emit('network-online');
+        this.handleSyncInvoices();
+      }
+    },
+    serverOnline(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.eventBus.emit('server-online');
+        this.handleSyncInvoices();
+      }
+    }
+  },
   components: {
     Navbar,
     POS,
@@ -70,15 +101,43 @@ export default {
       this.page = page;
     },
 
-    initializeData() {
+    async initializeData() {
+      await initPromise;
+      await memoryInitPromise;
+      checkDbHealth().catch(() => {});
       // Load POS profile from cache or storage
       const openingData = getOpeningStorage();
       if (openingData && openingData.pos_profile) {
         this.posProfile = openingData.pos_profile;
+        if (navigator.onLine) {
+          await this.refreshTaxInclusiveSetting();
+        }
       }
+
+      if (queueHealthCheck()) {
+        alert('Offline queue is too large. Old entries will be purged.');
+        purgeOldQueueEntries();
+      }
+
+      this.pendingInvoices = getPendingOfflineInvoiceCount();
+      this.syncTotals = getLastSyncTotals();
+
+      getCacheUsageEstimate().then((usage) => {
+        if (usage.percentage > 90) {
+          alert('Local cache nearing capacity. Consider going online to sync.');
+        }
+      }).catch(() => {});
 
       // Check if running on IP host
       this.isIpHost = /^\d+\.\d+\.\d+\.\d+/.test(window.location.hostname);
+
+      // Initialize manual offline state from cached value
+      this.manualOffline = isManualOffline();
+      if (this.manualOffline) {
+        this.networkOnline = false;
+        this.serverOnline = false;
+        window.serverOnline = false;
+      }
     },
 
     setupNetworkListeners() {
@@ -93,6 +152,7 @@ export default {
       window.addEventListener('offline', () => {
         this.networkOnline = false;
         this.serverOnline = false;
+        window.serverOnline = false;
         console.log('Network: Offline');
         this.$forceUpdate();
       });
@@ -163,11 +223,13 @@ export default {
         if (isConnected) {
           this.networkOnline = true;
           this.serverOnline = true;
+          window.serverOnline = true;
           this.serverConnecting = false;
           console.log('Network: Connected');
         } else {
           this.networkOnline = navigator.onLine;
           this.serverOnline = false;
+          window.serverOnline = false;
           this.serverConnecting = false;
           console.log('Network: Disconnected');
         }
@@ -179,6 +241,7 @@ export default {
         console.warn('Network connectivity check failed:', error);
         this.networkOnline = navigator.onLine;
         this.serverOnline = false;
+        window.serverOnline = false;
         this.serverConnecting = false;
         this.$forceUpdate();
       }
@@ -326,6 +389,29 @@ export default {
       if (this.eventBus) {
         this.eventBus.on('register_pos_profile', (data) => {
           this.posProfile = data.pos_profile || {};
+          if (navigator.onLine) {
+            this.refreshTaxInclusiveSetting();
+          }
+        });
+
+        // Track last submitted invoice id
+        this.eventBus.on('set_last_invoice', (invoiceId) => {
+          this.lastInvoiceId = invoiceId;
+        });
+
+        // Allow other components to trigger printing
+        this.eventBus.on('print_last_invoice', () => {
+          this.handlePrintLastInvoice();
+        });
+
+        // Manual trigger to sync offline invoices
+        this.eventBus.on('sync_invoices', () => {
+          this.handleSyncInvoices();
+        });
+
+        // Update pending invoice count when other modules emit the change
+        this.eventBus.on('pending_invoices_changed', (count) => {
+          this.pendingInvoices = count;
         });
       }
 
@@ -333,6 +419,7 @@ export default {
       if (frappe.realtime) {
         frappe.realtime.on('connect', () => {
           this.serverOnline = true;
+          window.serverOnline = true;
           this.serverConnecting = false;
           console.log('Server: Connected via WebSocket');
           this.$forceUpdate();
@@ -340,6 +427,7 @@ export default {
 
         frappe.realtime.on('disconnect', () => {
           this.serverOnline = false;
+          window.serverOnline = false;
           this.serverConnecting = false;
           console.log('Server: Disconnected from WebSocket');
           // Trigger connectivity check to verify if it's just WebSocket or full network
@@ -354,6 +442,7 @@ export default {
 
         frappe.realtime.on('reconnect', () => {
           console.log('Server: Reconnected to WebSocket');
+          window.serverOnline = true;
           this.checkNetworkConnectivity();
         });
       }
@@ -372,22 +461,82 @@ export default {
     },
 
     handleCloseShift() {
-      // Emit to POS component
-      this.eventBus.emit('close_shift');
+      // Trigger POS closing dialog via event bus
+      this.eventBus.emit('open_closing_dialog');
     },
 
     handlePrintLastInvoice() {
-      // Handle print last invoice
-      this.eventBus.emit('print_last_invoice');
+      if (!this.lastInvoiceId) {
+        return;
+      }
+
+      const print_format =
+        this.posProfile.print_format_for_online || this.posProfile.print_format;
+      const letter_head = this.posProfile.letter_head || 0;
+      const url =
+        frappe.urllib.get_base_url() +
+        '/printview?doctype=Sales%20Invoice&name=' +
+        this.lastInvoiceId +
+        '&trigger_print=1' +
+        '&format=' +
+        print_format +
+        '&no_letterhead=' +
+        letter_head;
+
+      if (this.posProfile.posa_silent_print) {
+        silentPrint(url);
+      } else {
+        const printWindow = window.open(url, 'Print');
+        printWindow.addEventListener(
+          'load',
+          function () {
+            printWindow.print();
+          },
+          { once: true }
+        );
+      }
     },
 
-    handleSyncInvoices() {
-      // Handle sync invoices
-      this.eventBus.emit('sync_invoices');
+    async handleSyncInvoices() {
+      const pending = getPendingOfflineInvoiceCount();
+      if (pending) {
+        this.eventBus.emit('show_message', {
+          title: `${pending} invoice${pending > 1 ? 's' : ''} pending for sync`,
+          color: 'warning',
+        });
+      }
+      if (isOffline()) {
+        return;
+      }
+      const result = await syncOfflineInvoices();
+      if (result && (result.synced || result.drafted)) {
+        if (result.synced) {
+          this.eventBus.emit('show_message', {
+            title: `${result.synced} offline invoice${result.synced > 1 ? 's' : ''} synced`,
+            color: 'success',
+          });
+        }
+        if (result.drafted) {
+          this.eventBus.emit('show_message', {
+            title: `${result.drafted} offline invoice${result.drafted > 1 ? 's' : ''} saved as draft`,
+            color: 'warning',
+          });
+        }
+      }
+      this.pendingInvoices = getPendingOfflineInvoiceCount();
+      this.syncTotals = result || this.syncTotals;
     },
 
     handleToggleOffline() {
-      this.manualOffline = !this.manualOffline;
+      toggleManualOffline();
+      this.manualOffline = isManualOffline();
+      if (this.manualOffline) {
+        this.networkOnline = false;
+        this.serverOnline = false;
+        window.serverOnline = false;
+      } else {
+        this.checkNetworkConnectivity();
+      }
     },
 
     handleToggleTheme() {
@@ -416,6 +565,38 @@ export default {
         .finally(() => {
           this.cacheUsageLoading = false;
         });
+
+    },
+
+    async refreshTaxInclusiveSetting() {
+      if (!this.posProfile || !this.posProfile.name || !navigator.onLine) {
+        return;
+      }
+      try {
+        const r = await frappe.call({
+          method: 'posawesome.posawesome.api.utilities.get_pos_profile_tax_inclusive',
+          args: {
+            pos_profile: this.posProfile.name,
+          }
+        });
+        if (r.message !== undefined) {
+          const val = r.message;
+          try {
+            localStorage.setItem('posa_tax_inclusive', JSON.stringify(val));
+          } catch (err) {
+            console.warn('Failed to cache tax inclusive setting', err);
+          }
+          import('../offline/index.js')
+            .then(m => {
+              if (m && m.setTaxInclusiveSetting) {
+                m.setTaxInclusiveSetting(val);
+              }
+            })
+            .catch(() => {});
+        }
+      } catch (e) {
+        console.warn('Failed to refresh tax inclusive setting', e);
+      }
     },
 
     handleUpdateAfterDelete() {
@@ -429,6 +610,11 @@ export default {
       });
     },
   },
+  beforeUnmount() {
+    if (this.eventBus) {
+      this.eventBus.off('pending_invoices_changed');
+    }
+  },
   created: function () {
     setTimeout(() => {
       this.remove_frappe_nav();
@@ -439,12 +625,15 @@ export default {
 
 <style scoped>
 .container1 {
-  height: 100vh;
+  /* Use dynamic viewport units for better mobile support */
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
 .main-content {
-  height: 100vh;
+  /* Fill the available height of the container */
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -459,6 +648,7 @@ export default {
 :deep(.v-main__wrap) {
   display: flex;
   flex-direction: column;
+  min-height: 100%;
   height: 100%;
 }
 </style>

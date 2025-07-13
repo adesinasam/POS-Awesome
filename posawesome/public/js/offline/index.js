@@ -2,34 +2,43 @@
 
 // Core exports
 export {
-	db,
-	initPromise,
-	persist,
-	addToPersistQueue
+        db,
+        initPromise,
+        persist,
+        addToPersistQueue,
+        checkDbHealth
 } from './core.js';
 
 // Cache exports
 export {
-	memory,
-	getItemsStorage,
-	setItemsStorage,
-	getCustomerStorage,
+        memory,
+        memoryInitPromise,
+        getItemsStorage,
+        setItemsStorage,
+        getCustomerStorage,
 	setCustomerStorage,
 	getSalesPersonsStorage,
 	setSalesPersonsStorage,
 	getOpeningStorage,
 	setOpeningStorage,
 	clearOpeningStorage,
-	getOpeningDialogStorage,
-	setOpeningDialogStorage,
-	setLastSyncTotals,
-	getLastSyncTotals,
-	isManualOffline,
-	setManualOffline,
-	toggleManualOffline,
-	resetOfflineState,
-	clearAllCache,
-	getCacheUsageEstimate
+        getOpeningDialogStorage,
+        setOpeningDialogStorage,
+        getTaxTemplate,
+        setTaxTemplate,
+        setLastSyncTotals,
+        getLastSyncTotals,
+        getTaxInclusiveSetting,
+        setTaxInclusiveSetting,
+        isManualOffline,
+        setManualOffline,
+        toggleManualOffline,
+        queueHealthCheck,
+        purgeOldQueueEntries,
+        MAX_QUEUE_ITEMS,
+        resetOfflineState,
+        clearAllCache,
+        getCacheUsageEstimate
 } from './cache.js';
 
 // Stock exports
@@ -85,8 +94,9 @@ export {
 
 // Customers exports
 export {
-	saveCustomerBalance,
-	getCachedCustomerBalance,
-	clearCustomerBalanceCache,
-	clearExpiredCustomerBalances
+        saveCustomerBalance,
+        getCachedCustomerBalance,
+        clearCustomerBalanceCache,
+        clearExpiredCustomerBalances
 } from './customers.js';
+

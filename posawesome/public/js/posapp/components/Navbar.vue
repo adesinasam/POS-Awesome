@@ -39,7 +39,12 @@
       </v-card>
     </v-dialog>
 
-    <OfflineInvoicesDialog v-model="showOfflineInvoices" :pos-profile="posProfile" @deleted="updateAfterDelete" />
+    <OfflineInvoicesDialog
+      v-model="showOfflineInvoices"
+      :pos-profile="posProfile"
+      @deleted="updateAfterDelete"
+      @sync-all="syncPendingInvoices"
+    />
 
     <!-- Snackbar for notifications -->
     <v-snackbar v-model="snack" :timeout="snackTimeout" :color="snackColor" location="top right">
@@ -134,13 +139,21 @@ export default {
   },
   mounted() {
     this.initializeNavbar()
-    
-    // Debug: Check if drawer is receiving props correctly
-    console.log('Navbar mounted with:')
-    console.log('- Company:', this.company)
-    console.log('- Company Image:', this.companyImg)
-    console.log('- Items:', this.items)
-    console.log('- Drawer state:', this.drawer)
+
+    if (this.eventBus) {
+      this.eventBus.on('show_message', this.showMessage)
+      this.eventBus.on('freeze', this.handleFreeze)
+      this.eventBus.on('unfreeze', this.handleUnfreeze)
+      this.eventBus.on('set_company', this.handleSetCompany)
+    }
+  },
+  unmounted() {
+    if (this.eventBus) {
+      this.eventBus.off('show_message', this.showMessage)
+      this.eventBus.off('freeze', this.handleFreeze)
+      this.eventBus.off('unfreeze', this.handleUnfreeze)
+      this.eventBus.off('set_company', this.handleSetCompany)
+    }
   },
   methods: {
     initializeNavbar() {
@@ -156,18 +169,11 @@ export default {
         this.companyImg = frappe.boot.website_settings.banner_image
       }
       
-      // Debug logging to check what data is available
-      console.log('Company:', this.company)
-      console.log('Company Image:', this.companyImg)
-      console.log('Frappe boot data:', frappe.boot)
-      
       // Force reactivity update
       this.$forceUpdate()
     },
     handleNavClick() {
-      console.log('Nav icon clicked, current drawer state:', this.drawer);
       this.drawer = !this.drawer;
-      console.log('New drawer state:', this.drawer);
       this.$emit('nav-click');
     },
     goDesk() {
@@ -215,6 +221,26 @@ export default {
       this.snackText = data.title
       this.snackColor = data.color || 'success'
       this.snack = true
+    },
+    handleFreeze(data) {
+      this.freezeTitle = data?.title || ''
+      this.freezeMsg = data?.message || ''
+      this.freeze = true
+    },
+    handleUnfreeze() {
+      this.freeze = false
+      this.freezeTitle = ''
+      this.freezeMsg = ''
+    },
+    handleSetCompany(data) {
+      if (typeof data === 'string') {
+        this.company = data
+      } else if (data && data.name) {
+        this.company = data.name
+        if (data.company_image) {
+          this.companyImg = data.company_image
+        }
+      }
     },
     handleMouseLeave() {
       if (!this.drawer) return

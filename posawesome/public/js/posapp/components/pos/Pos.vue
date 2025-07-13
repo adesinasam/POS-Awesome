@@ -44,7 +44,7 @@ import NewAddress from './NewAddress.vue';
 import Variants from './Variants.vue';
 import Returns from './Returns.vue';
 import MpesaPayments from './Mpesa-Payments.vue';
-import { getCachedOffers, saveOffers, getOpeningStorage, setOpeningStorage, clearOpeningStorage, initPromise } from '../../../offline/index.js';
+import { getCachedOffers, saveOffers, getOpeningStorage, setOpeningStorage, clearOpeningStorage, initPromise, checkDbHealth, setTaxTemplate } from '../../../offline/index.js';
 // Import the cache cleanup function
 import { clearExpiredCustomerBalances } from "../../../offline/index.js";
 import { responsiveMixin } from '../../mixins/responsive.js';
@@ -82,6 +82,7 @@ export default {
   methods: {
     async check_opening_entry() {
       await initPromise;
+      await checkDbHealth();
       return frappe
         .call('posawesome.posawesome.api.shifts.check_opening_shift', {
           user: frappe.session.user,
@@ -91,6 +92,20 @@ export default {
             this.pos_profile = r.message.pos_profile;
             this.pos_opening_shift = r.message.pos_opening_shift;
             this.get_offers(this.pos_profile.name);
+            if (this.pos_profile.taxes_and_charges) {
+              frappe.call({
+                method: 'frappe.client.get',
+                args: {
+                  doctype: 'Sales Taxes and Charges Template',
+                  name: this.pos_profile.taxes_and_charges
+                },
+                callback: (res) => {
+                  if (res.message) {
+                    setTaxTemplate(this.pos_profile.taxes_and_charges, res.message);
+                  }
+                }
+              });
+            }
             this.eventBus.emit('register_pos_profile', r.message);
             this.eventBus.emit('set_company', r.message.company);
             try {

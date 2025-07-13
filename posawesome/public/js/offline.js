@@ -32,10 +32,15 @@ const memory = {
 	pos_opening_storage: null,
 	opening_dialog_storage: null,
 	sales_persons_storage: [],
-	price_list_cache: {},
-	item_details_cache: {},
-	manual_offline: false,
+        price_list_cache: {},
+        item_details_cache: {},
+        tax_template_cache: {},
+        tax_inclusive: false,
+        manual_offline: false,
 };
+
+// Flag to avoid concurrent invoice syncs which can cause duplicate submissions
+let invoiceSyncInProgress = false;
 
 // Modify initializeStockCache function to set the flag
 export async function initializeStockCache(items, pos_profile) {
@@ -386,26 +391,42 @@ export function setLastSyncTotals(totals) {
 }
 
 export function getLastSyncTotals() {
-	return memory.pos_last_sync_totals;
+        return memory.pos_last_sync_totals;
 }
+
+export function getTaxInclusiveSetting() {
+        return !!memory.tax_inclusive;
+}
+
+export function setTaxInclusiveSetting(value) {
+        memory.tax_inclusive = !!value;
+        persist("tax_inclusive");
+}
+
 
 // Add sync function to clear local cache when invoices are successfully synced
 export async function syncOfflineInvoices() {
-	// Ensure any offline customers are synced first so that invoices
-	// referencing them do not fail during submission
-	await syncOfflineCustomers();
+        // Prevent concurrent syncs which can lead to duplicate submissions
+        if (invoiceSyncInProgress) {
+                return { pending: getPendingOfflineInvoiceCount(), synced: 0, drafted: 0 };
+        }
+        invoiceSyncInProgress = true;
+        try {
+                // Ensure any offline customers are synced first so that invoices
+                // referencing them do not fail during submission
+                await syncOfflineCustomers();
 
 	const invoices = getOfflineInvoices();
-	if (!invoices.length) {
-		// No invoices to sync; clear last totals to avoid repeated messages
-		const totals = { pending: 0, synced: 0, drafted: 0 };
-		setLastSyncTotals(totals);
-		return totals;
-	}
-	if (isOffline()) {
-		// When offline just return the pending count without attempting a sync
-		return { pending: invoices.length, synced: 0, drafted: 0 };
-	}
+                if (!invoices.length) {
+                        // No invoices to sync; clear last totals to avoid repeated messages
+                        const totals = { pending: 0, synced: 0, drafted: 0 };
+                        setLastSyncTotals(totals);
+                        return totals;
+                }
+                if (isOffline()) {
+                        // When offline just return the pending count without attempting a sync
+                        return { pending: invoices.length, synced: 0, drafted: 0 };
+                }
 
 	const failures = [];
 	let synced = 0;
@@ -450,15 +471,18 @@ export async function syncOfflineInvoices() {
 		clearOfflineInvoices();
 	}
 
-	const totals = { pending: pendingLeft, synced, drafted };
-	if (pendingLeft || drafted) {
-		// Persist totals only if there are invoices still pending or drafted
-		setLastSyncTotals(totals);
-	} else {
-		// Clear totals so success message only shows once
-		setLastSyncTotals({ pending: 0, synced: 0, drafted: 0 });
-	}
-	return totals;
+                const totals = { pending: pendingLeft, synced, drafted };
+                if (pendingLeft || drafted) {
+                        // Persist totals only if there are invoices still pending or drafted
+                        setLastSyncTotals(totals);
+                } else {
+                        // Clear totals so success message only shows once
+                        setLastSyncTotals({ pending: 0, synced: 0, drafted: 0 });
+                }
+                return totals;
+        } finally {
+                invoiceSyncInProgress = false;
+        }
 }
 
 export async function syncOfflineCustomers() {
@@ -719,25 +743,48 @@ export function saveItemDetailsCache(profileName, priceList, items) {
 }
 
 export function getCachedItemDetails(profileName, priceList, itemCodes, ttl = 15 * 60 * 1000) {
-	try {
-		const cache = memory.item_details_cache || {};
-		const priceCache = cache[profileName]?.[priceList] || {};
-		const now = Date.now();
-		const cached = [];
-		const missing = [];
-		itemCodes.forEach((code) => {
-			const entry = priceCache[code];
-			if (entry && now - entry.timestamp < ttl) {
-				cached.push(entry.data);
-			} else {
-				missing.push(code);
-			}
-		});
-		return { cached, missing };
-	} catch (e) {
-		console.error("Failed to get cached item details", e);
-		return { cached: [], missing: itemCodes };
-	}
+        try {
+                const cache = memory.item_details_cache || {};
+                const priceCache = cache[profileName]?.[priceList] || {};
+                const now = Date.now();
+                const cached = [];
+                const missing = [];
+                itemCodes.forEach((code) => {
+                        const entry = priceCache[code];
+                        if (entry && now - entry.timestamp < ttl) {
+                                cached.push(entry.data);
+                        } else {
+                                missing.push(code);
+                        }
+                });
+                return { cached, missing };
+        } catch (e) {
+                console.error("Failed to get cached item details", e);
+                return { cached: [], missing: itemCodes };
+        }
+}
+
+// Tax template caching functions
+export function saveTaxTemplate(name, doc) {
+        try {
+                const cache = memory.tax_template_cache || {};
+                const cleanDoc = JSON.parse(JSON.stringify(doc));
+                cache[name] = cleanDoc;
+                memory.tax_template_cache = cache;
+                persist("tax_template_cache");
+        } catch (e) {
+                console.error("Failed to cache tax template", e);
+        }
+}
+
+export function getCachedTaxTemplate(name) {
+        try {
+                const cache = memory.tax_template_cache || {};
+                return cache[name] || null;
+        } catch (e) {
+                console.error("Failed to get cached tax template", e);
+                return null;
+        }
 }
 
 // Local stock management functions
@@ -1007,5 +1054,7 @@ export async function clearAllCache() {
         memory.sales_persons_storage = [];
         memory.price_list_cache = {};
         memory.item_details_cache = {};
+        memory.tax_template_cache = {};
+        memory.tax_inclusive = false;
         memory.manual_offline = false;
 }

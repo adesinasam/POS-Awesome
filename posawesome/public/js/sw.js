@@ -47,25 +47,32 @@ self.addEventListener("fetch", (event) => {
 
 	if (event.request.url.includes("socket.io")) return;
 
-	event.respondWith(
-		caches
-			.match(event.request)
-			.then((response) => {
-				if (response) {
-					return response;
-				}
-				return fetch(event.request).then((resp) => {
-					if (resp && resp.ok && resp.status === 200) {
-						const respClone = resp.clone();
-						caches.open(CACHE_NAME).then((cache) => cache.put(event.request, respClone));
-					}
-					return resp;
-				});
-			})
-			.catch(() =>
-				caches
-					.match(event.request)
-					.then((r) => r || caches.match("/offline.html") || Response.error())
-			)
-	);
+        event.respondWith(
+                (async () => {
+                        try {
+                                const cached = await caches.match(event.request);
+                                if (cached) {
+                                        return cached;
+                                }
+                                const resp = await fetch(event.request);
+                                if (resp && resp.ok && resp.status === 200) {
+                                        try {
+                                                const respClone = resp.clone();
+                                                const cache = await caches.open(CACHE_NAME);
+                                                await cache.put(event.request, respClone);
+                                        } catch (e) {
+                                                console.warn('SW cache put failed', e);
+                                        }
+                                }
+                                return resp;
+                        } catch (err) {
+                                try {
+                                        const fallback = await caches.match(event.request);
+                                        return fallback || (await caches.match('/offline.html')) || Response.error();
+                                } catch (e) {
+                                        return Response.error();
+                                }
+                        }
+                })()
+        );
 });

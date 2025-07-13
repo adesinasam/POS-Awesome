@@ -6,8 +6,11 @@
 
     <!-- Main Invoice Card (contains all invoice content) -->
     <v-card
-      :style="{ height: 'var(--container-height)', maxHeight: 'var(--container-height)', backgroundColor: isDarkTheme ? '#121212' : '' }"
-      :class="['cards my-0 py-0 mt-3', isDarkTheme ? '' : 'bg-grey-lighten-5', { 'return-mode': isReturnInvoice }]">
+      ref="invoiceCard"
+      :style="{ height: invoiceHeight || 'var(--container-height)', maxHeight: invoiceHeight || 'var(--container-height)', backgroundColor: isDarkTheme ? '#121212' : '', resize: 'vertical', overflow: 'auto' }"
+      :class="['cards my-0 py-0 mt-3 resizable', isDarkTheme ? '' : 'bg-grey-lighten-5', { 'return-mode': isReturnInvoice }]"
+      @mouseup="saveInvoiceHeight"
+      @touchend="saveInvoiceHeight">
 
       <!-- Dynamic padding wrapper -->
       <div class="dynamic-padding">
@@ -19,8 +22,8 @@
           </v-col>
           <!-- Invoice Type Selection (Only shown if sales orders are allowed) -->
           <v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="pb-4">
-            <v-select density="compact" hide-details variant="outlined" color="primary"
-              :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" :items="invoiceTypes"
+            <v-select density="compact" hide-details variant="solo" color="primary"
+              :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field sleek-field" :items="invoiceTypes"
               :label="frappe._('Type')" v-model="invoiceType" :disabled="invoiceType == 'Return'"></v-select>
           </v-col>
         </v-row>
@@ -49,12 +52,13 @@
           @update:conversion_rate="(val) => { conversion_rate = val; update_conversion_rate(); }" />
 
         <!-- Items Table Section (Main items list for invoice) -->
-        <!-- Add this right before the ItemsTable component -->
-        <div class="column-selector-container">
-          <v-btn density="compact" variant="text" color="primary" prepend-icon="mdi-cog-outline"
-            @click="toggleColumnSelection" class="column-selector-btn">
-            {{ __('Columns') }}
-          </v-btn>
+        <div class="items-table-wrapper">
+          <!-- Column selector button moved outside the table -->
+          <div class="column-selector-container">
+            <v-btn density="compact" variant="text" color="primary" prepend-icon="mdi-cog-outline"
+              @click="toggleColumnSelection" class="column-selector-btn">
+              {{ __('Columns') }}
+            </v-btn>
 
           <v-dialog v-model="show_column_selector" max-width="500px">
             <v-card>
@@ -81,17 +85,42 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-        </div>
+          </div>
 
-        <!-- ItemsTable component with reorder event handler -->
-        <ItemsTable :headers="items_headers" :items="items" :expanded="expanded" :itemsPerPage="itemsPerPage"
-          :itemSearch="itemSearch" :pos_profile="pos_profile" :invoice_doc="invoice_doc" :invoiceType="invoiceType"
-          :displayCurrency="displayCurrency" :formatFloat="formatFloat" :formatCurrency="formatCurrency"
-          :currencySymbol="currencySymbol" :isNumber="isNumber" :setFormatedQty="setFormatedQty"
-          :calcStockQty="calc_stock_qty" :setFormatedCurrency="setFormatedCurrency" :calcPrices="calc_prices"
-          :calcUom="calc_uom" :removeItem="remove_item" :subtractOne="subtract_one" :addOne="add_one"
-          @update:expanded="expanded = $event" @reorder-items="handleItemReorder" @add-item-from-drag="handleItemDrop"
-          @show-drop-feedback="showDropFeedback" @item-dropped="showDropFeedback(false)" />
+          <!-- ItemsTable component with reorder event handler -->
+          <ItemsTable
+            :headers="items_headers"
+            :items="items"
+            :expanded="expanded"
+            :itemsPerPage="itemsPerPage"
+          :itemSearch="itemSearch"
+          :pos_profile="pos_profile"
+          :invoice_doc="invoice_doc"
+          :invoiceType="invoiceType"
+          :displayCurrency="displayCurrency"
+          :formatFloat="formatFloat"
+          :formatCurrency="formatCurrency"
+          :currencySymbol="currencySymbol"
+          :isNumber="isNumber"
+          :setFormatedQty="setFormatedQty"
+          :calcStockQty="calc_stock_qty"
+          :setFormatedCurrency="setFormatedCurrency"
+          :calcPrices="calc_prices"
+          :calcUom="calc_uom"
+          :setSerialNo="set_serial_no"
+          :setBatchQty="set_batch_qty"
+          :validateDueDate="validate_due_date"
+          :removeItem="remove_item"
+          :subtractOne="subtract_one"
+          :addOne="add_one"
+          :toggleOffer="toggleOffer"
+          @update:expanded="expanded = $event"
+          @reorder-items="handleItemReorder"
+          @add-item-from-drag="handleItemDrop"
+          @show-drop-feedback="showDropFeedback"
+          @item-dropped="showDropFeedback(false)"
+        />
+        </div>
       </div>
     </v-card>
     <!-- Payment Section -->
@@ -181,7 +210,8 @@ export default {
       selected_columns: [], // Selected columns for items table
       temp_selected_columns: [], // Temporary array for column selection
       available_columns: [], // All available columns
-      show_column_selector: false // Column selector dialog visibility
+      show_column_selector: false, // Column selector dialog visibility
+      invoiceHeight: null
     };
   },
 
@@ -214,12 +244,12 @@ export default {
       // Define all available columns
       this.available_columns = [
         { title: __('Name'), align: 'start', sortable: true, key: 'item_name', required: true },
-        { title: __('QTY'), key: 'qty', align: 'center', required: true },
-        { title: __('UOM'), key: 'uom', align: 'center', required: false },
-        { title: __('Rate'), key: 'rate', align: 'center', required: true },
-        { title: __('Discount %'), key: 'discount_value', align: 'center', required: false },
-        { title: __('Discount Amount'), key: 'discount_amount', align: 'center', required: false },
-        { title: __('Amount'), key: 'amount', align: 'center', required: true },
+        { title: __('QTY'), key: 'qty', align: 'start', required: true },
+        { title: __('UOM'), key: 'uom', align: 'start', required: false },
+        { title: __('Rate'), key: 'rate', align: 'start', required: true },
+        { title: __('Discount %'), key: 'discount_value', align: 'start', required: false },
+        { title: __('Discount Amount'), key: 'discount_amount', align: 'start', required: false },
+        { title: __('Amount'), key: 'amount', align: 'start', required: true },
         { title: __('Offer?'), key: 'posa_is_offer', align: 'center', required: false },
       ];
 
@@ -324,6 +354,31 @@ export default {
         }
       } catch (e) {
         console.error('Failed to load column preferences:', e);
+      }
+    },
+
+    saveInvoiceHeight() {
+      if (this.$refs.invoiceCard) {
+        this.invoiceHeight = this.$refs.invoiceCard.clientHeight + 'px';
+        try {
+          localStorage.setItem('posawesome_invoice_height', this.invoiceHeight);
+        } catch (e) {
+          console.error('Failed to save invoice height:', e);
+        }
+      }
+    },
+
+    loadInvoiceHeight() {
+      try {
+        const saved = localStorage.getItem('posawesome_invoice_height');
+        if (saved) {
+          this.invoiceHeight = saved;
+        } else {
+          this.invoiceHeight = getComputedStyle(document.documentElement).getPropertyValue('--container-height') || '68vh';
+        }
+      } catch (e) {
+        console.error('Failed to load invoice height:', e);
+        this.invoiceHeight = getComputedStyle(document.documentElement).getPropertyValue('--container-height') || '68vh';
       }
     },
     makeid(length) {
@@ -850,6 +905,8 @@ export default {
   mounted() {
     // Load saved column preferences
     this.loadColumnPreferences();
+    // Restore saved invoice height
+    this.loadInvoiceHeight();
     this.eventBus.on("item-drag-start", (item) => {
       this.showDropFeedback(true);
     });
@@ -1042,6 +1099,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: nowrap;
 }
 
 /* Style for balance value text */
@@ -1077,13 +1135,15 @@ export default {
 
 /* Dynamic padding for responsive layout */
 .dynamic-padding {
-  padding: var(--dynamic-xs) var(--dynamic-sm) var(--dynamic-xs) var(--dynamic-sm);
+  /* Uniform spacing for better alignment */
+  padding: var(--dynamic-sm);
 }
 
 /* Responsive breakpoints */
 @media (max-width: 768px) {
   .dynamic-padding {
-    padding: var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs);
+    /* Smaller uniform padding on tablets */
+    padding: var(--dynamic-xs);
   }
 
   .dynamic-padding .v-row {
@@ -1097,7 +1157,7 @@ export default {
 
 @media (max-width: 480px) {
   .dynamic-padding {
-    padding: var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs);
+    padding: var(--dynamic-xs);
   }
 
   .dynamic-padding .v-row {
@@ -1115,6 +1175,10 @@ export default {
   padding: 8px 16px;
   background-color: var(--surface-secondary);
   border-radius: 8px 8px 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
 }
 
 :deep(.dark-theme) .column-selector-container,
@@ -1124,6 +1188,11 @@ export default {
 
 .column-selector-btn {
   font-size: 0.875rem;
+}
+
+.items-table-wrapper {
+  position: relative;
+  margin-top: var(--dynamic-xl);
 }
 
 /* New styles for improved column switches */
@@ -1142,6 +1211,4 @@ export default {
 
 :deep(.column-switch .v-label) {
   opacity: 0.9;
-  font-size: 0.95rem;
-}
-</style>
+  font-size: 0.95rem;}</style>

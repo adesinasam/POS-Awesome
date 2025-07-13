@@ -57,9 +57,18 @@
   --table-row-hover: rgba(25, 118, 210, 0.05);
   
   /* Form field colors */
-  --field-bg: #ffffff;
+  --field-bg: var(--surface-secondary);
   --field-border: #e0e0e0;
   --field-focus: rgba(25, 118, 210, 0.1);
+}
+
+/* Ensure the main viewport fills the screen without scroll */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 :root.dark-theme {
@@ -103,7 +112,7 @@
   --table-row-hover: rgba(187, 134, 252, 0.1);
   
   /* Form field colors */
-  --field-bg: #1E1E1E;
+  --field-bg: var(--surface-secondary);
   --field-border: #373737;
   --field-focus: rgba(187, 134, 252, 0.1);
 }
@@ -252,6 +261,12 @@
   background-color: var(--surface-secondary);
 }
 
+/* Keep cards dark in dark theme */
+:root.dark-theme .cards,
+.v-theme--dark .cards {
+  background-color: #121212;
+}
+
 /* ===== COMMON TABLE STYLES ===== */
 .pos-table {
   border-radius: var(--border-radius-lg);
@@ -323,6 +338,43 @@
 }
 
 .pos-form-field .v-field__overlay {
+  background-color: var(--field-bg);
+}
+
+/* Background color for fields to match item selector */
+.dark-field {
+  background-color: var(--surface-secondary) !important;
+}
+
+:root.dark-theme .dark-field,
+.v-theme--dark .dark-field {
+  background-color: #1E1E1E !important;
+}
+
+/* ===== SLEEK FIELD STYLES ===== */
+.sleek-field {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sleek-field .v-field {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+  background-color: var(--field-bg);
+}
+
+.sleek-field:hover .v-field {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.sleek-field input,
+.sleek-field .v-field__input,
+.sleek-field .v-label {
+  color: var(--text-primary);
+}
+
+.sleek-field .v-field__overlay {
   background-color: var(--field-bg);
 }
 
@@ -447,5 +499,12 @@
 
 .disable-events {
   pointer-events: none;
+}
+
+/* Allow manual resizing for POS panels */
+.resizable {
+  resize: vertical;
+  overflow: auto;
+  min-height: 100px;
 }
 

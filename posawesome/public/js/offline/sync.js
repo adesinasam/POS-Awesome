@@ -1,6 +1,9 @@
-import { memory, resetOfflineState, setLastSyncTotals } from './cache.js';
+import { memory, resetOfflineState, setLastSyncTotals, MAX_QUEUE_ITEMS } from './cache.js';
 import { persist } from './core.js';
 import { updateLocalStock } from './stock.js';
+
+// Flag to avoid concurrent invoice syncs which can cause duplicate submissions
+let invoiceSyncInProgress = false;
 
 export function saveOfflineInvoice(entry) {
     // Validate that invoice has items before saving
@@ -23,6 +26,9 @@ export function saveOfflineInvoice(entry) {
     }
 
     entries.push(cleanEntry);
+    if (entries.length > MAX_QUEUE_ITEMS) {
+        entries.splice(0, entries.length - MAX_QUEUE_ITEMS);
+    }
     memory.offline_invoices = entries;
     persist(key, memory.offline_invoices);
 
@@ -103,6 +109,9 @@ export function saveOfflinePayment(entry) {
         throw e;
     }
     entries.push(cleanEntry);
+    if (entries.length > MAX_QUEUE_ITEMS) {
+        entries.splice(0, entries.length - MAX_QUEUE_ITEMS);
+    }
     memory.offline_payments = entries;
     persist(key, memory.offline_payments);
 }
@@ -140,6 +149,9 @@ export function saveOfflineCustomer(entry) {
         throw e;
     }
     entries.push(cleanEntry);
+    if (entries.length > MAX_QUEUE_ITEMS) {
+        entries.splice(0, entries.length - MAX_QUEUE_ITEMS);
+    }
     memory.offline_customers = entries;
     persist(key, memory.offline_customers);
 }
@@ -173,21 +185,27 @@ export function clearOfflineCustomers() {
 
 // Add sync function to clear local cache when invoices are successfully synced
 export async function syncOfflineInvoices() {
-    // Ensure any offline customers are synced first so that invoices
-    // referencing them do not fail during submission
-    await syncOfflineCustomers();
+    // Prevent concurrent syncs which can lead to duplicate submissions
+    if (invoiceSyncInProgress) {
+        return { pending: getPendingOfflineInvoiceCount(), synced: 0, drafted: 0 };
+    }
+    invoiceSyncInProgress = true;
+    try {
+        // Ensure any offline customers are synced first so that invoices
+        // referencing them do not fail during submission
+        await syncOfflineCustomers();
 
     const invoices = getOfflineInvoices();
-    if (!invoices.length) {
-        // No invoices to sync; clear last totals to avoid repeated messages
-        const totals = { pending: 0, synced: 0, drafted: 0 };
-        setLastSyncTotals(totals);
-        return totals;
-    }
-    if (isOffline()) {
-        // When offline just return the pending count without attempting a sync
-        return { pending: invoices.length, synced: 0, drafted: 0 };
-    }
+        if (!invoices.length) {
+            // No invoices to sync; clear last totals to avoid repeated messages
+            const totals = { pending: 0, synced: 0, drafted: 0 };
+            setLastSyncTotals(totals);
+            return totals;
+        }
+        if (isOffline()) {
+            // When offline just return the pending count without attempting a sync
+            return { pending: invoices.length, synced: 0, drafted: 0 };
+        }
 
     const failures = [];
     let synced = 0;
@@ -240,7 +258,10 @@ export async function syncOfflineInvoices() {
         // Clear totals so success message only shows once
         setLastSyncTotals({ pending: 0, synced: 0, drafted: 0 });
     }
-    return totals;
+        return totals;
+    } finally {
+        invoiceSyncInProgress = false;
+    }
 }
 
 export async function syncOfflineCustomers() {
@@ -258,7 +279,7 @@ export async function syncOfflineCustomers() {
     for (const cust of customers) {
         try {
             const result = await frappe.call({
-                method: "posawesome.posawesome.api.customer.create_customer",
+                method: "posawesome.posawesome.api.customers.create_customer",
                 args: cust.args,
             });
             synced++;

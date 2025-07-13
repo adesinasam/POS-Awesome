@@ -96,6 +96,24 @@ def update_invoice(data):
             "Price List", invoice_doc.selling_price_list, "currency"
         )
 
+    # Ensure customer exists before setting missing values
+    customer_name = invoice_doc.get("customer")
+    if customer_name and not frappe.db.exists("Customer", customer_name):
+        try:
+            cust = frappe.get_doc({
+                "doctype": "Customer",
+                "customer_name": customer_name,
+                "customer_group": "All Customer Groups",
+                "territory": "All Territories",
+                "customer_type": "Individual",
+            })
+            cust.flags.ignore_permissions = True
+            cust.insert()
+            invoice_doc.customer = cust.name
+            invoice_doc.customer_name = cust.customer_name
+        except Exception as e:
+            frappe.log_error(f"Failed to create customer {customer_name}: {e}")
+
     # Set missing values first
     invoice_doc.set_missing_values()
 

@@ -1,7 +1,7 @@
 <template>
   <div :style="responsiveStyles">
-    <v-card :class="['selection mx-auto my-0 py-0 mt-3 dynamic-card', isDarkTheme ? '' : 'bg-grey-lighten-5']"
-      :style="{ height: responsiveStyles['--container-height'], maxHeight: responsiveStyles['--container-height'], backgroundColor: isDarkTheme ? '#121212' : '' }">
+    <v-card :class="['selection mx-auto my-0 py-0 mt-3 dynamic-card resizable', isDarkTheme ? '' : 'bg-grey-lighten-5']"
+      :style="{ height: responsiveStyles['--container-height'], maxHeight: responsiveStyles['--container-height'], backgroundColor: isDarkTheme ? '#121212' : '', resize: 'vertical', overflow: 'auto' }">
       <v-progress-linear :active="loading" :indeterminate="loading" absolute location="top"
         color="info"></v-progress-linear>
       <v-overlay :model-value="loading" class="align-center justify-center" absolute>
@@ -40,6 +40,11 @@
                 @click="toggleItemSettings" class="settings-btn">
                 {{ __('Settings') }}
               </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn density="compact" variant="text" color="primary" prepend-icon="mdi-refresh"
+                @click="forceReloadItems" class="settings-btn">
+                {{ __('Reload Items') }}
+              </v-btn>
 
               <v-dialog v-model="show_item_settings" max-width="400px">
                 <v-card>
@@ -66,7 +71,7 @@
           </v-col>
           <v-col cols="12" class="pt-0 mt-0">
             <div fluid class="items-grid dynamic-scroll" ref="itemsContainer" v-if="items_view == 'card'"
-              :style="{ maxHeight: 'calc(' + responsiveStyles['--container-height'] + ' - 80px)' }">
+              :style="{ maxHeight: 'calc(100% - 80px)' }">
               <v-card v-for="item in filtered_items" :key="item.item_code" hover class="dynamic-item-card"
                 :draggable="true"
                 @dragstart="onDragStart($event, item)"
@@ -100,7 +105,7 @@
             </div>
             <div v-else>
               <v-data-table-virtual :headers="headers" :items="filtered_items" class="sleek-data-table overflow-y-auto"
-                :style="{ maxHeight: 'calc(' + responsiveStyles['--container-height'] + ' - 80px)' }"
+                :style="{ maxHeight: 'calc(100% - 80px)' }"
                 item-key="item_code" @click:row="click_item_row">
 
                 <template v-slot:item.rate="{ item }">
@@ -126,7 +131,7 @@
         </v-row>
       </div>
     </v-card>
-    <v-card class="cards mb-0 mt-3 dynamic-padding">
+    <v-card class="cards mb-0 mt-3 dynamic-padding resizable" style="resize: vertical; overflow: auto;">
       <v-row no-gutters align="center" justify="center" class="dynamic-spacing-sm">
         <v-col cols="12" class="mb-2">
           <v-select :items="items_group" :label="frappe._('Items Group')" density="compact" variant="solo" hide-details
@@ -176,7 +181,7 @@
 import format from "../../format";
 import _ from "lodash";
 import CameraScanner from './CameraScanner.vue';
-import { saveItemUOMs, getItemUOMs, getLocalStock, isOffline, initializeStockCache, getItemsStorage, setItemsStorage, getLocalStockCache, setLocalStockCache, initPromise, getCachedPriceListItems, savePriceListItems, updateLocalStockCache, isStockCacheReady, getCachedItemDetails, saveItemDetailsCache } from '../../../offline/index.js';
+import { saveItemUOMs, getItemUOMs, getLocalStock, isOffline, initializeStockCache, getItemsStorage, setItemsStorage, getLocalStockCache, setLocalStockCache, initPromise, checkDbHealth, getCachedPriceListItems, savePriceListItems, updateLocalStockCache, isStockCacheReady, getCachedItemDetails, saveItemDetailsCache } from '../../../offline/index.js';
 import { responsiveMixin } from '../../mixins/responsive.js';
 
 export default {
@@ -322,9 +327,23 @@ export default {
     exchange_rate() {
       this.applyCurrencyConversionToItems();
     },
+    windowWidth(val) {
+      this.adjustItemsPerPage(val, this.windowHeight);
+    },
+    windowHeight(val) {
+      this.adjustItemsPerPage(this.windowWidth, val);
+    },
   },
 
   methods: {
+    adjustItemsPerPage(width, height = this.windowHeight) {
+      const cardWidth = 200; // approximate width of each item card
+      const cardHeight = 160; // approximate height including margins
+      const containerHeight = height * 0.68; // card container is ~68% of viewport
+      const columns = Math.max(1, Math.floor(width / cardWidth));
+      const rows = Math.max(1, Math.floor(containerHeight / cardHeight));
+      this.itemsPerPage = columns * rows;
+    },
     refreshPricesForVisibleItems() {
       const vm = this;
       if (!vm.filtered_items || vm.filtered_items.length === 0) return;
@@ -431,8 +450,13 @@ export default {
     show_coupons() {
       this.eventBus.emit("show_coupons", "true");
     },
+    forceReloadItems() {
+      this.items_loaded = false;
+      this.get_items(true);
+    },
     async get_items(force_server = false) {
       await initPromise;
+      await checkDbHealth();
       const request_token = ++this.items_request_token;
       if (!this.pos_profile) {
         console.error("No POS Profile");
@@ -1654,12 +1678,9 @@ export default {
           }
         });
 
-        // Force request quantity update for filtered items
-        if (final_filtered_list.length > 0) {
-          setTimeout(() => {
-            this.update_items_details(final_filtered_list);
-          }, 100);
-        }
+        // Item details will be refreshed via watchers when the filtered
+        // list length changes. Removing the automatic call here prevents
+        // redundant requests each time this computed property re-evaluates.
 
         return final_filtered_list;
       } else {
@@ -1737,6 +1758,7 @@ export default {
     this.$nextTick(function () { });
     this.eventBus.on("register_pos_profile", async (data) => {
       await initPromise;
+      await checkDbHealth();
       this.pos_profile = data.pos_profile;
       if (this.pos_profile.posa_force_reload_items && !this.pos_profile.posa_smart_reload_mode) {
         await this.get_items(true);
@@ -1764,6 +1786,12 @@ export default {
     });
     this.eventBus.on("update_customer", (data) => {
       this.customer = data;
+    });
+
+    // Manually trigger a full item reload when requested
+    this.eventBus.on("force_reload_items", async () => {
+      this.items_loaded = false;
+      await this.get_items(true);
     });
 
     // Refresh item quantities when connection to server is restored
@@ -1795,7 +1823,8 @@ export default {
 
   mounted() {
     this.scan_barcoud();
-    // grid layout adjusts automatically with CSS, no width tracking needed
+    // grid layout adjusts automatically with CSS, set items per page based on device size
+    this.adjustItemsPerPage(this.windowWidth, this.windowHeight);
   },
 
   beforeUnmount() {
@@ -1836,6 +1865,7 @@ export default {
     this.eventBus.off("update_coupons_counters");
     this.eventBus.off("update_customer_price_list");
     this.eventBus.off("update_customer");
+    this.eventBus.off("force_reload_items");
   },
 };
 </script>
@@ -1846,7 +1876,8 @@ export default {
 }
 
 .dynamic-padding {
-  padding: var(--dynamic-xs) var(--dynamic-sm) var(--dynamic-xs) var(--dynamic-sm);
+  /* Equal spacing on all sides for consistent alignment */
+  padding: var(--dynamic-sm);
 }
 
 .dynamic-scroll {
@@ -1937,7 +1968,8 @@ export default {
 /* Responsive breakpoints */
 @media (max-width: 768px) {
   .dynamic-padding {
-    padding: var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs);
+    /* Reduce spacing uniformly on smaller screens */
+    padding: var(--dynamic-xs);
   }
 
   .dynamic-spacing-sm {
@@ -1952,7 +1984,7 @@ export default {
 
 @media (max-width: 480px) {
   .dynamic-padding {
-    padding: var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs) var(--dynamic-xs);
+    padding: var(--dynamic-xs);
   }
 
   .cards {

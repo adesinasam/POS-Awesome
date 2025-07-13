@@ -1,6 +1,6 @@
 <template>
   <div class="my-0 py-0 overflow-y-auto items-table-container"
-    :style="{ height: 'calc(var(--container-height) - 80px)', maxHeight: 'calc(var(--container-height) - 80px)' }"
+    :style="{ height: 'calc(100% - 80px)', maxHeight: 'calc(100% - 80px)' }"
     @dragover="onDragOverFromSelector($event)" @drop="onDropFromSelector($event)" @dragenter="onDragEnterFromSelector"
     @dragleave="onDragLeaveFromSelector">
     <v-data-table-virtual :headers="headers" :items="items" :theme="$theme.current" :expanded="expanded" show-expand
@@ -145,29 +145,116 @@
                     prepend-inner-icon="mdi-tag-minus"></v-text-field>
                 </div>
               </div>
-              
-              <!-- Third row for serial/batch numbers if applicable -->
-              <div class="form-row" v-if="item.has_serial_no || item.has_batch_no">
-                <div class="form-field" v-if="item.has_serial_no">
-                  <v-autocomplete density="compact" variant="outlined" color="primary" :label="frappe._('Serial Numbers')"
-                    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details clearable
-                    v-model="item.serial_no" :items="item.serial_no_data" item-title="serial_no" item-value="serial_no"
-                    @update:model-value="setSerialNo(item, $event)" :disabled="!!item.posa_is_replace"
-                    prepend-inner-icon="mdi-numeric"></v-autocomplete>
+
+              <!-- Third row of fields -->
+              <div class="form-row">
+                <div class="form-field">
+                  <v-text-field density="compact" variant="outlined" color="primary"
+                    :label="frappe._('Price list Rate')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                    class="dark-field" hide-details :model-value="formatCurrency(item.price_list_rate)" disabled
+                    :prefix="currencySymbol(pos_profile.currency)"></v-text-field>
                 </div>
-                <div class="form-field" v-if="item.has_batch_no">
-                  <v-autocomplete density="compact" variant="outlined" color="primary" :label="frappe._('Batch No')"
-                    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details clearable
-                    v-model="item.batch_no" :items="item.batch_no_data" item-title="batch_no" item-value="batch_no"
-                    @update:model-value="setBatchQty(item, $event)" :disabled="!!item.posa_is_replace"
-                    prepend-inner-icon="mdi-package-variant"></v-autocomplete>
+                <div class="form-field">
+                  <v-text-field density="compact" variant="outlined" color="primary"
+                    :label="frappe._('Available QTY')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                    class="dark-field" hide-details :model-value="formatFloat(item.actual_qty)" disabled></v-text-field>
                 </div>
-                <div class="form-field" v-if="item.has_batch_no">
-                  <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Expiry Date')"
+                <div class="form-field">
+                  <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Group')"
                     :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
-                    v-model="item.expiry_date" type="date" @change="validateDueDate(item, $event.target.value)"
-                    :disabled="!!item.posa_is_replace"
-                    prepend-inner-icon="mdi-calendar"></v-text-field>
+                    v-model="item.item_group" disabled></v-text-field>
+                </div>
+              </div>
+
+              <!-- Fourth row of fields -->
+              <div class="form-row">
+                <div class="form-field">
+                  <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Stock QTY')"
+                    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                    :model-value="formatFloat(item.stock_qty)" disabled></v-text-field>
+                </div>
+                <div class="form-field">
+                  <v-text-field density="compact" variant="outlined" color="primary" :label="frappe._('Stock UOM')"
+                    :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details v-model="item.stock_uom"
+                    disabled></v-text-field>
+                </div>
+                <div class="form-field" v-if="item.posa_offer_applied">
+                  <v-checkbox density="compact" :label="frappe._('Offer Applied')" v-model="item.posa_offer_applied"
+                    readonly hide-details class="mt-1"></v-checkbox>
+                </div>
+              </div>
+
+              <!-- Serial Number Section -->
+              <div class="form-section" v-if="item.has_serial_no == 1 || item.serial_no">
+                <div class="form-row">
+                  <div class="form-field">
+                    <v-text-field density="compact" variant="outlined" color="primary"
+                      :label="frappe._('Serial No QTY')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                      v-model="item.serial_no_selected_count" type="number" disabled></v-text-field>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-field full-width">
+                    <v-autocomplete
+                      v-model="item.serial_no_selected"
+                      :items="item.serial_no_data"
+                      item-title="serial_no"
+                      item-value="serial_no"
+                      variant="outlined"
+                      density="compact"
+                      chips
+                      color="primary"
+                      :bg-color="isDarkTheme ? '#1E1E1E' : 'white'"
+                      class="dark-field"
+                      :label="frappe._('Serial No')" multiple
+                      @update:model-value="setSerialNo(item)"
+                    ></v-autocomplete>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Batch Number Section -->
+              <div class="form-section" v-if="item.has_batch_no == 1 || item.batch_no">
+                <div class="form-row">
+                  <div class="form-field">
+                    <v-text-field density="compact" variant="outlined" color="primary"
+                      :label="frappe._('Batch No. Available QTY')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                      :model-value="formatFloat(item.actual_batch_qty)" disabled></v-text-field>
+                  </div>
+                  <div class="form-field">
+                    <v-text-field density="compact" variant="outlined" color="primary"
+                      :label="frappe._('Batch No Expiry Date')" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" hide-details
+                      v-model="item.batch_no_expiry_date" disabled></v-text-field>
+                  </div>
+                  <div class="form-field">
+                    <v-autocomplete v-model="item.batch_no" :items="item.batch_no_data" item-title="batch_no"
+                      variant="outlined" density="compact" color="primary" :bg-color="isDarkTheme ? '#1E1E1E' : 'white'" class="dark-field" :label="frappe._('Batch No')"
+                      @update:model-value="setBatchQty(item, $event)" hide-details>
+                      <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props">
+                          <v-list-item-title v-html="item.raw.batch_no"></v-list-item-title>
+                          <v-list-item-subtitle v-html="`Available QTY  '${item.raw.batch_qty}' - Expiry Date ${item.raw.expiry_date}`"></v-list-item-subtitle>
+                        </v-list-item>
+                      </template>
+                    </v-autocomplete>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery Date Section -->
+              <div class="form-section" v-if="pos_profile.posa_allow_sales_order && invoiceType == 'Order'">
+                <div class="form-row">
+                  <div class="form-field">
+                    <VueDatePicker
+                      v-model="item.posa_delivery_date"
+                      model-type="format"
+                      format="dd-MM-yyyy"
+                      :min-date="new Date()"
+                      auto-apply
+                      :dark="isDarkTheme"
+                      @update:model-value="validateDueDate(item)"
+                    />
+                  </div>
                 </div>
               </div>
               
@@ -311,6 +398,11 @@ export default {
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+}
+
+/* Ensure items table can scroll when many rows exist */
+.items-table-container {
+  overflow-y: auto;
 }
 
 /* Table wrapper styling */
@@ -541,7 +633,7 @@ export default {
 .currency-display {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .currency-symbol {
@@ -552,7 +644,7 @@ export default {
 
 .amount-value {
   font-weight: 500;
-  text-align: right;
+  text-align: left;
 }
 
 /* Drag and drop styles */

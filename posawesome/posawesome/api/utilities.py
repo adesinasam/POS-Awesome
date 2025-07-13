@@ -243,3 +243,10 @@ def get_translation_dict(lang: str) -> dict:
 			translations[source] = target
 
 	return translations
+
+@frappe.whitelist()
+def get_pos_profile_tax_inclusive(pos_profile: str):
+    """Return the 'posa_tax_inclusive' setting for the given POS Profile."""
+    if not pos_profile:
+        return None
+    return frappe.get_cached_value("POS Profile", pos_profile, "posa_tax_inclusive")

@@ -1,7 +1,7 @@
 <template>
   <v-card
-    :class="['cards mb-0 mt-3 py-2 px-3 rounded-lg', isDarkTheme ? '' : 'bg-grey-lighten-4']"
-    :style="isDarkTheme ? 'background-color:#1E1E1E' : ''"
+    :class="['cards mb-0 mt-3 py-2 px-3 rounded-lg resizable', isDarkTheme ? '' : 'bg-grey-lighten-4']"
+    :style="(isDarkTheme ? 'background-color:#1E1E1E;' : '') + 'resize: vertical; overflow: auto;'"
   >
     <v-row dense>
       <!-- Summary Info -->
@@ -54,6 +54,7 @@
               theme="dark"
               prepend-icon="mdi-content-save"
               @click="$emit('save-and-clear')"
+              class="summary-btn"
             >
               {{ __('Save & Clear') }}
             </v-btn>
@@ -65,7 +66,7 @@
               theme="dark"
               prepend-icon="mdi-file-document"
               @click="$emit('load-drafts')"
-              class="white-text-btn"
+              class="white-text-btn summary-btn"
             >
               {{ __('Load Drafts') }}
             </v-btn>
@@ -77,6 +78,7 @@
               theme="dark"
               prepend-icon="mdi-book-search"
               @click="$emit('select-order')"
+              class="summary-btn"
             >
               {{ __('Select S.O') }}
             </v-btn>
@@ -88,6 +90,7 @@
               theme="dark"
               prepend-icon="mdi-close-circle"
               @click="$emit('cancel-sale')"
+              class="summary-btn"
             >
               {{ __('Cancel Sale') }}
             </v-btn>
@@ -99,6 +102,7 @@
               theme="dark"
               prepend-icon="mdi-backup-restore"
               @click="$emit('open-returns')"
+              class="summary-btn"
             >
               {{ __('Sales Return') }}
             </v-btn>
@@ -110,6 +114,7 @@
               theme="dark"
               prepend-icon="mdi-printer"
               @click="$emit('print-draft')"
+              class="summary-btn"
             >
               {{ __('Print Draft') }}
             </v-btn>
@@ -122,6 +127,7 @@
               size="large"
               prepend-icon="mdi-credit-card"
               @click="$emit('show-payment')"
+              class="summary-btn"
             >
               {{ __('PAY') }}
             </v-btn>
@@ -206,5 +212,10 @@ export default {
 
 .white-text-btn :deep(.v-btn__content) {
   color: white !important;
+}
+
+/* ensure long button labels stay within the button */
+.summary-btn :deep(.v-btn__content) {
+  white-space: normal !important;
 }
 </style>

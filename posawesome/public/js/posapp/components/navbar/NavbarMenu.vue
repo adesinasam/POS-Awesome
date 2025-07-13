@@ -1,9 +1,9 @@
 <template>
-  <v-menu offset-y :min-width="240" :close-on-content-click="false" location="bottom end" :offset="[0, 4]">
+  <v-menu :min-width="240" :close-on-content-click="true" location="bottom end" :offset="[0, 4]">
     <template #activator="{ props }">
       <v-btn v-bind="props" color="primary" variant="elevated" class="menu-btn-compact">
         {{ __('Menu') }}
-        <v-icon right size="16" class="ml-1">mdi-menu-down</v-icon>
+        <v-icon end size="16" class="ml-1">mdi-menu-down</v-icon>
       </v-btn>
     </template>
     <v-card class="menu-card-compact" elevation="12">
@@ -26,7 +26,10 @@
           </div>
         </v-list-item>
 
-        <v-list-item v-if="posProfile.posa_allow_print_last_invoice && lastInvoiceId" @click="$emit('print-last-invoice')"
+        <v-list-item
+          v-if="posProfile.posa_allow_print_last_invoice"
+          @click="$emit('print-last-invoice')"
+          :disabled="!lastInvoiceId"
           class="menu-item-compact secondary-action">
           <template v-slot:prepend>
             <div class="menu-icon-wrapper-compact secondary-icon">

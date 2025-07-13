@@ -1,6 +1,6 @@
 <template>
   <v-row align="center" class="items px-3 py-2 mt-0" v-if="pos_profile.posa_allow_change_posting_date">
-    <v-col cols="4" class="pb-2">
+    <v-col cols="12" sm="4" class="pb-2">
       <VueDatePicker
         v-model="internal_posting_date_display"
         model-type="format"
@@ -8,20 +8,20 @@
         auto-apply
         :placeholder="frappe._('Posting Date')"
         :dark="isDarkTheme"
-        class="dark-field"
+        class="dark-field sleek-field posting-date-input"
         @update:model-value="onUpdate"
       />
     </v-col>
-    <v-col v-if="pos_profile.posa_enable_price_list_dropdown" cols="6" class="pb-2 d-flex align-center">
+    <v-col v-if="pos_profile.posa_enable_price_list_dropdown" cols="12" sm="6" class="pb-2 d-flex align-center">
       <v-select
         density="comfortable"
-        variant="outlined"
+        variant="solo"
         color="primary"
         :items="priceLists"
         :label="frappe._('Price List')"
         v-model="internal_price_list"
         hide-details
-        class="flex-grow-1"
+        class="flex-grow-1 sleek-field"
         @update:model-value="onPriceListUpdate"
       />
       <div
@@ -34,7 +34,7 @@
     </v-col>
     <v-col
       v-else-if="pos_profile.posa_show_customer_balance"
-      cols="8"
+      cols="12" sm="8"
       class="pb-2 d-flex align-center"
     >
       <div class="balance-field">
@@ -134,5 +134,41 @@ export default {
 ::v-deep(.v-theme--dark) .dp__menu {
   background-color: #1E1E1E !important;
   color: #fff !important;
+}
+
+/* Sleek design for VueDatePicker */
+:deep(.sleek-field) .dp__input_wrap {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+:deep(.sleek-field) .dp__input {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+  background-color: var(--field-bg);
+  color: var(--text-primary);
+  padding: 10px 12px;
+}
+
+:deep(.sleek-field:hover) .dp__input {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Align calendar icon to the right, before the clear icon */
+.posting-date-input :deep(.dp__input_icon) {
+  inset-inline-start: auto;
+  inset-inline-end: 30px;
+}
+
+/* Remove extra left padding added for left icon placement */
+.posting-date-input :deep(.dp__input_icon_pad) {
+  padding-inline-start: 12px;
+}
+
+/* Increase right padding to accommodate both icons */
+.posting-date-input :deep(.dp__input) {
+  padding-right: calc(30px + var(--dp-input-icon-padding));
 }
 </style>

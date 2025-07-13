@@ -1,13 +1,16 @@
 # Copyright (c) 2021, Youssef Restom and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
+
 import frappe
-from frappe.utils import flt
 from frappe import _
+from frappe.utils import flt
+
 from posawesome.posawesome.doctype.referral_code.referral_code import (
     create_referral_code,
 )
+
+from . import customers
 
 
 def after_insert(doc, method):
@@ -74,3 +77,9 @@ def get_customer_balance(customer):
     except Exception as e:
         frappe.log_error(f"Error fetching customer balance: {e}")
         return {"balance": 0, "customer_name": None}
+
+
+@frappe.whitelist()
+def create_customer(*args, **kwargs):
+    """Backward compatible wrapper for ``api.customers.create_customer``."""
+    return customers.create_customer(*args, **kwargs)
