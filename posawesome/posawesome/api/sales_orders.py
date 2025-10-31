@@ -42,6 +42,7 @@ def search_orders(company, currency, order_name=None):
 
 def _map_delivery_dates(data):
     """Ensure mandatory delivery_date fields are populated."""
+
     def parse_date(value):
         if not value:
             return None
@@ -63,7 +64,6 @@ def _map_delivery_dates(data):
             parsed = parse_date(delivery)
             if parsed:
                 item["delivery_date"] = parsed
-
 
 
 @frappe.whitelist()
@@ -148,4 +148,3 @@ def submit_sales_order(order):
     # Payment entries run in the background to speed up checkout
 
     return {"name": so_doc.name, "status": so_doc.docstatus}
-

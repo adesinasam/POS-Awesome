@@ -1,5 +1,6 @@
 import frappe
 
+
 def execute():
     try:
         frappe.db.add_index("Item Price", ["price_list", "item_code"], index_name="price_list_item_code")

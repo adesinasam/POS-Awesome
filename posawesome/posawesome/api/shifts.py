@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 import json
 import frappe
-from frappe.utils import nowdate
+from frappe.utils import cint, nowdate
 from frappe import _
 from .utilities import get_version
 
@@ -13,16 +13,20 @@ from .utilities import get_version
 @frappe.whitelist()
 def get_opening_dialog_data():
     data = {}
-    
+
     # Get only POS Profiles where current user is defined in POS Profile User table
-    pos_profiles_data = frappe.db.sql("""
+    pos_profiles_data = frappe.db.sql(
+        """
         SELECT DISTINCT p.name, p.company, p.currency 
         FROM `tabPOS Profile` p
         INNER JOIN `tabPOS Profile User` u ON u.parent = p.name
         WHERE p.disabled = 0 AND u.user = %s
         ORDER BY p.name
-    """, frappe.session.user, as_dict=1)
-    
+    """,
+        frappe.session.user,
+        as_dict=1,
+    )
+
     data["pos_profiles_data"] = pos_profiles_data
 
     # Derive companies from accessible POS Profiles
@@ -36,9 +40,7 @@ def get_opening_dialog_data():
     for i in data["pos_profiles_data"]:
         pos_profiles_list.append(i.name)
 
-    payment_method_table = (
-        "POS Payment Method" if get_version() == 13 else "Sales Invoice Payment"
-    )
+    payment_method_table = "POS Payment Method" if get_version() == 13 else "Sales Invoice Payment"
     data["payments_method"] = frappe.get_list(
         payment_method_table,
         filters={"parent": ["in", pos_profiles_list]},
@@ -49,9 +51,7 @@ def get_opening_dialog_data():
     )
     # set currency from pos profile
     for mode in data["payments_method"]:
-        mode["currency"] = frappe.get_cached_value(
-            "POS Profile", mode["parent"], "currency"
-        )
+        mode["currency"] = frappe.get_cached_value("POS Profile", mode["parent"], "currency")
 
     return data
 
@@ -79,13 +79,14 @@ def create_opening_voucher(pos_profile, company, balance_details):
     update_opening_shift_data(data, new_pos_opening.pos_profile)
     return data
 
+
 @frappe.whitelist()
 def check_opening_shift(user):
     open_vouchers = frappe.db.get_all(
         "POS Opening Shift",
         filters={
             "user": user,
-            "pos_closing_shift": ["in", ["", None]],
+            "pos_closing_shift": ["is", "not set"],
             "docstatus": 1,
             "status": "Open",
         },
@@ -95,9 +96,7 @@ def check_opening_shift(user):
     data = ""
     if len(open_vouchers) > 0:
         data = {}
-        data["pos_opening_shift"] = frappe.get_doc(
-            "POS Opening Shift", open_vouchers[0]["name"]
-        )
+        data["pos_opening_shift"] = frappe.get_doc("POS Opening Shift", open_vouchers[0]["name"])
         update_opening_shift_data(data, open_vouchers[0]["pos_profile"])
     return data
 
@@ -107,8 +106,6 @@ def update_opening_shift_data(data, pos_profile):
     if data["pos_profile"].get("posa_language"):
         frappe.local.lang = data["pos_profile"].posa_language
     data["company"] = frappe.get_doc("Company", data["pos_profile"].company)
-    allow_negative_stock = frappe.get_value(
-        "Stock Settings", None, "allow_negative_stock"
-    )
+    allow_negative_stock = cint(frappe.db.get_single_value("Stock Settings", "allow_negative_stock") or 0)
     data["stock_settings"] = {}
-    data["stock_settings"].update({"allow_negative_stock": allow_negative_stock})
+    data["stock_settings"].update({"allow_negative_stock": bool(allow_negative_stock)})
