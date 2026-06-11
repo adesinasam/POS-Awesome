@@ -1,115 +1,118 @@
-// Include onscan.js
+const POSA_VERSION_ENDPOINT = "/assets/posawesome/dist/js/version.json";
+const POSA_LOADER_LEGACY_URL = "/assets/posawesome/dist/js/loader.js";
+const POSA_LOADER_SCRIPT_ID = "posa-loader-script";
+
+const fetchPosBuildManifest = async () => {
+	try {
+		const response = await fetch(`${POSA_VERSION_ENDPOINT}?t=${Date.now()}`, {
+			cache: "no-store",
+		});
+		if (!response.ok) {
+			return null;
+		}
+		const payload = await response.json();
+		const version = payload?.version || payload?.buildVersion;
+		const assets = payload?.assets && typeof payload.assets === "object" ? payload.assets : {};
+		return {
+			version: typeof version === "string" && version.trim().length ? version.trim() : null,
+			assets,
+		};
+	} catch (error) {
+		console.warn("Unable to fetch POS build manifest", error);
+		return null;
+	}
+};
+
+const buildVersionedLoaderUrl = (version) =>
+	version ? `${POSA_LOADER_LEGACY_URL}?v=${encodeURIComponent(version)}` : POSA_LOADER_LEGACY_URL;
+
+const resolveLoaderUrl = (manifest) => {
+	// Prefer the hashed loader URL published in version.json. Falls
+	// back to the legacy un-hashed path (with `?v=`) for transitional
+	// deploys where an old build is still serving the manifest.
+	const fromAssets = manifest?.assets?.loader;
+	if (typeof fromAssets === "string" && fromAssets.trim().length) {
+		return fromAssets.trim();
+	}
+	return buildVersionedLoaderUrl(manifest?.version);
+};
+
+const ensurePosBootController = async () => {
+	const manifest = await fetchPosBuildManifest();
+	const version = manifest?.version || "";
+	const loaderUrl = resolveLoaderUrl(manifest);
+	const existingScript = document.getElementById(POSA_LOADER_SCRIPT_ID);
+
+	// `data-build-version` survives across page mounts; reuse the in-flight
+	// boot controller when the requested version + URL match.
+	if (
+		existingScript &&
+		existingScript.getAttribute("data-build-version") === version &&
+		existingScript.getAttribute("src") === loaderUrl &&
+		typeof window.startPosBoot === "function"
+	) {
+		return;
+	}
+
+	if (existingScript) {
+		existingScript.remove();
+	}
+
+	await new Promise((resolve, reject) => {
+		const script = document.createElement("script");
+		script.id = POSA_LOADER_SCRIPT_ID;
+		script.type = "module";
+		script.async = true;
+		script.src = loaderUrl;
+		script.setAttribute("data-build-version", version);
+		script.onload = () => resolve();
+		script.onerror = () =>
+			reject(new Error(`Failed to load POS boot controller (${version || "unversioned"})`));
+		document.head.appendChild(script);
+	});
+};
+
 frappe.pages["posapp"].on_page_load = async function (wrapper) {
-	var page = frappe.ui.make_app_page({
+	const page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: "POS Awesome",
 		single_column: true,
 	});
+	const pageRef = (wrapper && wrapper.page) || page;
 
-	this.page.$PosApp = new frappe.PosApp.posapp(this.page);
+	try {
+		await ensurePosBootController();
+		await window.startPosBoot({ pageRef });
+	} catch (error) {
+		console.error("Unable to start POS boot controller", error);
+		frappe.msgprint({
+			title: "POS Awesome",
+			indicator: "red",
+			message:
+				"POS app failed to start before the boot controller could run. Reload /app/posapp and try again.",
+		});
+	}
+};
 
-	$("div.navbar-fixed-top").find(".container").css("padding", "0");
+frappe.pages["posapp"].on_page_unload = function (wrapper) {
+	if (
+		wrapper &&
+		wrapper.page &&
+		wrapper.page._posaTaxInclusiveHandler &&
+		frappe.realtime &&
+		typeof frappe.realtime.off === "function"
+	) {
+		frappe.realtime.off("pos_profile_registered", wrapper.page._posaTaxInclusiveHandler);
+		wrapper.page._posaTaxInclusiveHandler = null;
+	}
 
-	$("head").append(
-		"<link href='/assets/posawesome/node_modules/vuetify/dist/vuetify.min.css' rel='stylesheet'>",
-	);
-	$("head").append(
-		"<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css'>",
-	);
-	$("head").append("<link rel='preconnect' href='https://fonts.googleapis.com'>");
-	$("head").append("<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>");
-	$("head").append(
-		"<link rel='preload' href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900' as='style'>",
-	);
-	$("head").append(
-		"<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'>",
-	);
-
-	// Listen for POS Profile registration
-	frappe.realtime.on("pos_profile_registered", () => {
-		const update_totals_based_on_tax_inclusive = () => {
-			console.log("Updating totals based on tax inclusive settings");
-			const posProfile = this.page.$PosApp.pos_profile;
-
-			if (!posProfile) {
-				console.error("POS Profile is not set.");
-				return;
-			}
-
-			const cacheKey = "posa_tax_inclusive";
-			const cachedValue = localStorage.getItem(cacheKey);
-
-			const applySetting = (taxInclusive) => {
-				const totalAmountField = document.getElementById("input-v-25");
-				const grandTotalField = document.getElementById("input-v-29");
-
-				if (totalAmountField && grandTotalField) {
-					if (taxInclusive) {
-						totalAmountField.value = grandTotalField.value;
-						console.log("Total amount copied from grand total:", grandTotalField.value);
-					} else {
-						totalAmountField.value = "";
-						console.log("Total amount cleared because checkbox is unchecked.");
-					}
-				} else {
-					console.error("Could not find total amount or grand total field by ID.");
-				}
-			};
-
-			const fetchAndCache = () => {
-				frappe.call({
-					method: "posawesome.posawesome.api.utilities.get_pos_profile_tax_inclusive",
-					args: {
-						pos_profile: posProfile,
-					},
-					callback: function (response) {
-						if (response.message !== undefined) {
-							const posa_tax_inclusive = response.message;
-							try {
-								localStorage.setItem(cacheKey, JSON.stringify(posa_tax_inclusive));
-							} catch (err) {
-								console.warn("Failed to cache tax inclusive setting", err);
-							}
-							applySetting(posa_tax_inclusive);
-							import("/assets/posawesome/dist/js/offline/index.js")
-								.then((m) => {
-									if (m && m.setTaxInclusiveSetting) {
-										m.setTaxInclusiveSetting(posa_tax_inclusive);
-									}
-								})
-								.catch(() => {});
-						} else {
-							console.error("Error fetching POS Profile or POS Profile not found.");
-						}
-					},
-				});
-			};
-
-			if (navigator.onLine) {
-				fetchAndCache();
-				return;
-			}
-
-			if (cachedValue !== null) {
-				try {
-					const val = JSON.parse(cachedValue);
-					applySetting(val);
-					import("/assets/posawesome/dist/js/offline/index.js")
-						.then((m) => {
-							if (m && m.setTaxInclusiveSetting) {
-								m.setTaxInclusiveSetting(val);
-							}
-						})
-						.catch(() => {});
-				} catch (e) {
-					console.warn("Failed to parse cached tax inclusive value", e);
-				}
-				return;
-			}
-
-			fetchAndCache();
-		};
-
-		update_totals_based_on_tax_inclusive();
-	});
+	if (
+		wrapper &&
+		wrapper.page &&
+		wrapper.page.$PosApp &&
+		typeof wrapper.page.$PosApp.unmount === "function"
+	) {
+		wrapper.page.$PosApp.unmount();
+		wrapper.page.$PosApp = null;
+	}
 };

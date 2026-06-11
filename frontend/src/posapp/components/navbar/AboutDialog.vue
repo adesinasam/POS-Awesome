@@ -1,6 +1,6 @@
 <template>
 	<v-dialog v-model="dialogOpen" max-width="650" persistent>
-		<v-card class="about-dialog-card-improved">
+		<v-card class="about-dialog-card-improved pos-themed-card">
 			<v-card-title class="about-header-improved pa-5">
 				<div class="header-content-improved">
 					<div class="header-icon-wrapper-improved">
@@ -15,16 +15,27 @@
 							<v-icon start size="14">mdi-application-outline</v-icon>
 							{{ appInfo.length }} {{ __("Apps") }}
 						</v-chip>
-						<v-chip
-							v-if="formattedBuildVersion"
-							size="small"
-							color="secondary"
-							variant="tonal"
-							class="status-chip-improved"
-						>
-							<v-icon start size="14">mdi-counter</v-icon>
-							{{ __("Build Time:") }} {{ formattedBuildVersion }}
-						</v-chip>
+						<div class="build-meta-improved">
+							<v-chip
+								v-if="formattedBuildVersion"
+								size="small"
+								color="secondary"
+								variant="tonal"
+								class="status-chip-improved"
+							>
+								<v-icon start size="14">mdi-counter</v-icon>
+								{{ __("Build Time:") }} {{ formattedBuildVersion }}
+							</v-chip>
+							<v-chip
+								size="small"
+								color="secondary"
+								variant="tonal"
+								class="status-chip-improved"
+							>
+								<v-icon start size="14">mdi-package-variant-closed</v-icon>
+								{{ __("Deployed Bundle:") }} {{ deployedBundleVersion }}
+							</v-chip>
+						</div>
 					</div>
 				</div>
 				<v-btn
@@ -33,10 +44,11 @@
 					size="default"
 					@click="close"
 					class="close-btn-improved"
+					:aria-label="__('Close about dialog')"
 				></v-btn>
 			</v-card-title>
 
-			<v-card-text class="pa-0 white-background">
+			<v-card-text class="pa-0 dialog-body-background">
 				<div class="content-container-improved">
 					<!-- Loading State -->
 					<div v-if="loadingAppInfo" class="empty-state-improved text-center">
@@ -91,70 +103,77 @@
 	</v-dialog>
 </template>
 
-<script>
-import { formatBuildVersion } from "../../stores/updateStore.js";
+<script setup>
+import { computed, ref, watch } from "vue";
+import { formatBuildVersion } from "../../stores/updateStore";
+
+defineOptions({
+	name: "AboutDialog",
+});
 
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== "undefined" ? __BUILD_VERSION__ : null;
+const __ = window.__ || ((text) => text);
 
-export default {
-	name: "AboutDialog",
-	props: {
-		modelValue: Boolean,
+const props = defineProps({
+	modelValue: Boolean,
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
+const dialogOpen = ref(props.modelValue);
+const loadingAppInfo = ref(false);
+const appInfoError = ref(false);
+const appInfo = ref([]);
+const buildVersion = ref(BUILD_VERSION);
+
+const formattedBuildVersion = computed(() =>
+	buildVersion.value ? formatBuildVersion(buildVersion.value) : null,
+);
+const deployedBundleVersion = computed(() =>
+	buildVersion.value ? String(buildVersion.value) : __("Unavailable"),
+);
+
+watch(
+	() => props.modelValue,
+	(val) => {
+		dialogOpen.value = val;
+		if (val) {
+			loadAppInfo();
+		}
 	},
-	data() {
-		return {
-			dialogOpen: this.modelValue,
-			loadingAppInfo: false,
-			appInfoError: false,
-			appInfo: [],
-			buildVersion: BUILD_VERSION,
-		};
-	},
-	computed: {
-		formattedBuildVersion() {
-			return this.buildVersion ? formatBuildVersion(this.buildVersion) : null;
-		},
-	},
-	watch: {
-		modelValue(val) {
-			this.dialogOpen = val;
-			if (val) {
-				this.loadAppInfo();
+);
+
+watch(dialogOpen, (val) => {
+	emit("update:modelValue", val);
+});
+
+function close() {
+	dialogOpen.value = false;
+}
+
+function loadAppInfo() {
+	loadingAppInfo.value = true;
+	appInfoError.value = false;
+
+	frappe.call({
+		method: "posawesome.posawesome.api.utilities.get_app_info",
+		callback: (r) => {
+			loadingAppInfo.value = false;
+			if (Array.isArray(r.message.apps)) {
+				appInfo.value = r.message.apps;
+				if (r.message.build_version) {
+					buildVersion.value = r.message.build_version;
+				}
+			} else {
+				appInfoError.value = true;
 			}
 		},
-		dialogOpen(val) {
-			this.$emit("update:modelValue", val);
+		error: () => {
+			loadingAppInfo.value = false;
+			appInfoError.value = true;
 		},
-	},
-	methods: {
-		close() {
-			this.dialogOpen = false;
-		},
-		loadAppInfo() {
-			this.loadingAppInfo = true;
-			this.appInfoError = false;
-
-			frappe.call({
-				method: "posawesome.posawesome.api.utilities.get_app_info",
-				callback: (r) => {
-					this.loadingAppInfo = false;
-					if (Array.isArray(r.message.apps)) {
-						this.appInfo = r.message.apps;
-						if (r.message.build_version) {
-							this.buildVersion = r.message.build_version;
-						}
-					} else {
-						this.appInfoError = true;
-					}
-				},
-				error: () => {
-					this.loadingAppInfo = false;
-					this.appInfoError = true;
-				},
-			});
-		},
-	},
-};
+	});
+}
 </script>
 
 <style scoped>
@@ -162,16 +181,17 @@ export default {
 .about-dialog-card-improved {
 	border-radius: 16px !important;
 	overflow: hidden;
-	background: white;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+	background: var(--pos-card-bg);
+	color: var(--pos-text-primary);
+	box-shadow: 0 4px 20px var(--pos-shadow) !important;
 	max-height: 90vh;
 }
 
 /* Improved Header with Better Spacing */
 .about-header-improved {
-	background: white;
-	color: #1a1a1a;
-	border-bottom: 1px solid #f0f0f0;
+	background: var(--pos-card-bg);
+	color: var(--pos-text-primary);
+	border-bottom: 1px solid var(--pos-border);
 	position: relative;
 	min-height: auto !important;
 }
@@ -215,7 +235,7 @@ export default {
 .header-title-improved {
 	margin: 0 0 4px 0;
 	font-weight: 600;
-	color: #1a1a1a;
+	color: var(--pos-text-primary);
 	font-size: 1.25rem;
 	line-height: 1.2;
 }
@@ -223,7 +243,7 @@ export default {
 .header-subtitle-improved {
 	margin: 0;
 	font-size: 14px;
-	color: #666;
+	color: var(--pos-text-secondary);
 	font-weight: 400;
 	line-height: 1.2;
 }
@@ -231,6 +251,14 @@ export default {
 .header-stats-improved {
 	display: flex;
 	gap: 8px;
+	align-items: flex-end;
+}
+
+.build-meta-improved {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
 }
 
 .status-chip-improved {
@@ -243,11 +271,11 @@ export default {
 	position: absolute;
 	top: 12px;
 	right: 12px;
-	color: #666 !important;
+	color: var(--pos-text-secondary) !important;
 }
 
-.white-background {
-	background: white;
+.dialog-body-background {
+	background: var(--pos-card-bg);
 }
 
 /* Improved Content */
@@ -269,7 +297,7 @@ export default {
 .apps-header-improved {
 	margin-bottom: 16px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid #f0f0f0;
+	border-bottom: 1px solid var(--pos-border);
 }
 
 .apps-grid-improved {
@@ -285,17 +313,17 @@ export default {
 	align-items: center;
 	gap: 12px;
 	padding: 12px 16px;
-	background: #f8f9fa;
+	background: var(--pos-surface-muted);
 	border-radius: 10px;
-	border: 1px solid #e9ecef;
+	border: 1px solid var(--pos-border);
 	transition: all 0.2s ease;
 }
 
 .app-item-improved:hover {
-	background: #e3f2fd;
-	border-color: #1976d2;
+	background: color-mix(in srgb, var(--pos-primary) 14%, var(--pos-surface));
+	border-color: var(--pos-primary);
 	transform: translateY(-1px);
-	box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+	box-shadow: 0 2px 8px var(--pos-shadow);
 }
 
 .app-icon-improved {
@@ -317,7 +345,7 @@ export default {
 .app-name-improved {
 	font-weight: 500;
 	font-size: 14px;
-	color: #1a1a1a;
+	color: var(--pos-text-primary);
 	line-height: 1.3;
 	white-space: nowrap;
 	overflow: hidden;
@@ -326,7 +354,7 @@ export default {
 
 .app-version-improved {
 	font-size: 12px;
-	color: #666;
+	color: var(--pos-text-secondary);
 	font-weight: 400;
 	line-height: 1.3;
 	margin-top: 2px;
@@ -334,8 +362,8 @@ export default {
 
 /* Improved Footer */
 .dialog-actions-improved {
-	background: #f8f9fa;
-	border-top: 1px solid #f0f0f0;
+	background: var(--pos-surface-muted);
+	border-top: 1px solid var(--pos-border);
 	min-height: auto !important;
 }
 
@@ -346,7 +374,7 @@ export default {
 
 .footer-text-improved {
 	font-size: 13px;
-	color: #666;
+	color: var(--pos-text-secondary);
 	display: flex;
 	align-items: center;
 	gap: 6px;
@@ -391,18 +419,18 @@ export default {
 
 .content-container-improved::-webkit-scrollbar-track,
 .apps-grid-improved::-webkit-scrollbar-track {
-	background: #f1f1f1;
+	background: var(--pos-surface-muted);
 	border-radius: 3px;
 }
 
 .content-container-improved::-webkit-scrollbar-thumb,
 .apps-grid-improved::-webkit-scrollbar-thumb {
-	background: #c1c1c1;
+	background: var(--pos-border);
 	border-radius: 3px;
 }
 
 .content-container-improved::-webkit-scrollbar-thumb:hover,
 .apps-grid-improved::-webkit-scrollbar-thumb:hover {
-	background: #a8a8a8;
+	background: var(--pos-text-secondary);
 }
 </style>

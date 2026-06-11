@@ -10,6 +10,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 module.exports = {
 	branches: ["develop"],
 	tagFormat: "${version}",
+	repositoryUrl: "https://github.com/defendicon/POS-Awesome-V15.git",
 	plugins: [
 		"@semantic-release/commit-analyzer",
 		[
@@ -76,7 +77,8 @@ module.exports = {
 		[
 			"@semantic-release/exec",
 			{
-				prepareCmd: "python scripts/update_version.py ${nextRelease.version}",
+				prepareCmd:
+					"python scripts/update_version.py ${nextRelease.version} && yarn build && yarn verify:build && yarn electron:smoke && yarn electron:build:win && yarn electron:smoke --require-artifact",
 			},
 		],
 		[
@@ -84,9 +86,18 @@ module.exports = {
 			{
 				assets: ["CHANGELOG.md", "package.json", "yarn.lock", "posawesome/__init__.py"],
 				message:
-					"Release: v${nextRelease.version} — ${new Date().toISOString().slice(0, 10)}\n\n${nextRelease.notes}\n",
+					"Release: ${nextRelease.version} — ${new Date().toISOString().slice(0, 10)}\n\n${nextRelease.notes}\n",
 			},
 		],
-		"@semantic-release/github",
+		[
+			"@semantic-release/github",
+			{
+				assets: [
+					"dist-electron/*.exe",
+					"dist-electron/*.blockmap",
+					"posawesome/public/dist/js/checksums.sha256",
+				],
+			},
+		],
 	],
 };

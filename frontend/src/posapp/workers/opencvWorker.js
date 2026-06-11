@@ -737,7 +737,7 @@ self.onmessage = async function (e) {
 				self.postMessage({ id, type: "INIT_SUCCESS" });
 				break;
 
-			case "PROCESS":
+			case "PROCESS": {
 				const { imageData, options } = data;
 				// Auto-detect quality level if not specified
 				const enhancedOptions = {
@@ -755,8 +755,9 @@ self.onmessage = async function (e) {
 					data: processedImageData,
 				});
 				break;
+			}
 
-			case "PROCESS_EXTREME":
+			case "PROCESS_EXTREME": {
 				// Use extreme processing for very poor quality images
 				const { imageData: extremeImageData } = data;
 				const extremeProcessedData = await processVeryPoorImage(extremeImageData);
@@ -766,8 +767,9 @@ self.onmessage = async function (e) {
 					data: extremeProcessedData,
 				});
 				break;
+			}
 
-			case "DETECT_BARCODES":
+			case "DETECT_BARCODES": {
 				// Native OpenCV barcode detection
 				const { imageData: barcodeImageData, options: barcodeOptions } = data;
 				const barcodeResults = await detectBarcodesWithPreprocessing(
@@ -780,6 +782,7 @@ self.onmessage = async function (e) {
 					data: barcodeResults,
 				});
 				break;
+			}
 
 			case "CLEANUP":
 				// Cleanup any remaining resources

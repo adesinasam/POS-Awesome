@@ -1,10 +1,11 @@
 <template>
 	<v-menu
-		:min-width="isMobile ? 280 : 240"
-		:close-on-content-click="true"
+		v-model="menuOpen"
+		:min-width="isMobile ? 240 : 220"
+		:close-on-content-click="false"
 		:location="isMobile ? 'bottom end' : 'bottom end'"
 		:offset="[0, 4]"
-		:max-height="isMobile ? '80vh' : 'auto'"
+		:max-height="isMobile ? '90vh' : undefined"
 	>
 		<template #activator="{ props }">
 			<v-btn
@@ -15,6 +16,8 @@
 					'menu-btn-compact pos-themed-button',
 					isMobile ? 'mobile-menu-btn' : 'desktop-menu-btn',
 				]"
+				:aria-label="__('Open actions menu')"
+				:title="__('Open actions menu')"
 			>
 				<template v-if="isMobile">
 					<v-icon class="pos-text-primary">mdi-dots-vertical</v-icon>
@@ -25,230 +28,177 @@
 				</template>
 			</v-btn>
 		</template>
-		<v-card class="menu-card-compact pos-themed-card" elevation="12">
+		<v-card
+			class="menu-card-compact pos-themed-card"
+			:class="{ 'menu-card-compact--settings': activePanel === 'settings' }"
+			elevation="12"
+		>
 			<div class="menu-header-compact">
-				<v-icon class="pos-text-primary" size="20">mdi-menu</v-icon>
-				<span class="menu-header-text-compact pos-text-primary">{{ __("Actions") }}</span>
+				<button
+					v-if="activePanel === 'settings'"
+					type="button"
+					class="menu-header-back"
+					@click="closeSettingsPanel"
+					data-test="settings-back-button"
+				>
+					<v-icon class="pos-text-primary" size="18">mdi-arrow-left</v-icon>
+				</button>
+				<v-icon v-else class="pos-text-primary" size="20">mdi-flash-outline</v-icon>
+				<div class="menu-header-copy">
+					<span class="menu-header-text-compact pos-text-primary">{{ panelTitle }}</span>
+					<span class="menu-header-subtitle-compact">{{ panelSubtitle }}</span>
+				</div>
 			</div>
 
-			<!-- Mobile-only: Show hidden items first -->
-			<template v-if="isMobile">
-				<v-list density="compact" class="menu-list-compact mobile-only-section">
-					<!-- Profile Information on mobile -->
-					<v-list-item class="menu-item-compact profile-info-mobile">
-						<template v-slot:prepend>
-							<div class="menu-icon-wrapper-compact info-icon">
-								<v-icon color="white" size="16">mdi-account-circle</v-icon>
-							</div>
-						</template>
-						<div class="menu-content-compact">
-							<v-list-item-title class="menu-item-title-compact">{{
-								displayUserName
-							}}</v-list-item-title>
-							<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-								__("Current User")
-							}}</v-list-item-subtitle>
+			<div class="menu-content-scrollable">
+				<div v-if="activePanel === 'main'" class="menu-panel">
+					<div class="menu-profile-card">
+						<div class="menu-profile-card__icon">
+							<v-icon color="white" size="18">mdi-storefront-outline</v-icon>
 						</div>
-					</v-list-item>
+						<div class="menu-profile-card__copy">
+							<div class="menu-profile-card__title">{{ displayUserName }}</div>
+							<div class="menu-profile-card__subtitle">
+								{{ cashierName ? `${__("Cashier")}: ${cashierName}` : __("Current User") }}
+							</div>
+						</div>
+					</div>
 
-					<!-- Cache and System Status on mobile -->
-					<v-list-item
-						class="menu-item-compact system-info-mobile"
-						@click="$emit('refresh-cache-usage')"
+					<div class="menu-section-block">
+						<div class="menu-section-heading">
+							<div class="menu-section-title">{{ __("Quick Actions") }}</div>
+							<div class="menu-section-subtitle">
+								{{ __("Daily cashier actions without scrolling.") }}
+							</div>
+						</div>
+
+						<div class="quick-actions-grid">
+							<div
+								v-for="(row, rowIndex) in quickActionRows"
+								:key="`quick-row-${rowIndex}`"
+								class="quick-actions-row"
+							>
+								<button
+									v-for="action in row"
+									:key="action.id"
+									type="button"
+									class="quick-action-card"
+									:class="`quick-action-card--${action.tone}`"
+									:disabled="action.disabled"
+									:data-test="`quick-action-${action.id}`"
+									@click="handleAction(action)"
+								>
+									<div class="quick-action-card__icon">
+										<v-icon color="white" size="18">{{ action.icon }}</v-icon>
+									</div>
+									<div class="quick-action-card__copy">
+										<div class="quick-action-card__title">{{ action.label }}</div>
+										<div class="quick-action-card__subtitle">{{ action.subtitle }}</div>
+									</div>
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<button
+						type="button"
+						class="settings-launch-card"
+						data-test="open-settings-panel"
+						@click="openSettingsPanel"
 					>
-						<template v-slot:prepend>
-							<div class="menu-icon-wrapper-compact neutral-icon">
-								<v-icon color="white" size="16">mdi-database-clock</v-icon>
+						<div class="settings-launch-card__icon">
+							<v-icon color="white" size="18">mdi-cog-outline</v-icon>
+						</div>
+						<div class="settings-launch-card__copy">
+							<div class="settings-launch-card__title">{{ __("Settings") }}</div>
+							<div class="settings-launch-card__subtitle">
+								{{ __("Language, theme, terminal tools, and session controls.") }}
 							</div>
-						</template>
-						<div class="menu-content-compact">
-							<v-list-item-title class="menu-item-title-compact">{{
-								__("System Status")
-							}}</v-list-item-title>
-							<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-								__("Check cache and performance")
-							}}</v-list-item-subtitle>
 						</div>
-					</v-list-item>
+						<div class="settings-launch-card__meta">{{ settingsActionCount }}</div>
+					</button>
+				</div>
 
-					<v-divider class="menu-section-divider-compact"></v-divider>
-				</v-list>
-			</template>
-
-			<v-list density="compact" class="menu-list-compact">
-				<v-list-item
-					v-if="!posProfile.posa_hide_closing_shift"
-					@click="$emit('close-shift')"
-					class="menu-item-compact primary-action"
-				>
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact primary-icon">
-							<v-icon color="white" size="16">mdi-content-save-move-outline</v-icon>
+				<div v-else class="menu-panel menu-panel--settings">
+					<div
+						v-for="section in settingsSections"
+						:key="section.id"
+						class="settings-section"
+						:data-test="`settings-section-${section.id}`"
+					>
+						<div class="menu-section-heading">
+							<div class="menu-section-title">{{ section.title }}</div>
+							<div class="menu-section-subtitle">{{ section.description }}</div>
 						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("Close Shift")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("End current session")
-						}}</v-list-item-subtitle>
+
+						<div
+							class="settings-actions-list"
+							:class="{ 'settings-actions-list--danger': section.danger }"
+						>
+							<button
+								v-for="action in section.actions"
+								:key="action.id"
+								type="button"
+								class="settings-action"
+								:class="`settings-action--${action.tone}`"
+								:disabled="action.disabled"
+								:data-test="`settings-action-${action.id}`"
+								@click="handleAction(action)"
+							>
+								<div class="settings-action__icon">
+									<v-icon color="white" size="16">{{ action.icon }}</v-icon>
+								</div>
+								<div class="settings-action__copy">
+									<div class="settings-action__title">{{ action.label }}</div>
+									<div class="settings-action__subtitle">{{ action.subtitle }}</div>
+								</div>
+							</button>
+						</div>
 					</div>
-				</v-list-item>
 
-				<v-list-item
-					v-if="posProfile.posa_allow_print_last_invoice"
-					@click="$emit('print-last-invoice')"
-					:disabled="!lastInvoiceId"
-					class="menu-item-compact secondary-action"
-				>
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact secondary-icon">
-							<v-icon color="white" size="16">mdi-printer</v-icon>
+					<div
+						v-for="section in supervisorSections"
+						:key="section.id"
+						class="settings-section settings-section--restricted"
+						:data-test="`settings-section-${section.id}`"
+					>
+						<div class="menu-section-heading menu-section-heading--restricted">
+							<div>
+								<div class="menu-section-title">{{ section.title }}</div>
+								<div class="menu-section-subtitle">{{ section.description }}</div>
+							</div>
+							<span class="restricted-badge">{{ __("Restricted") }}</span>
 						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("Print Last Invoice")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("Reprint previous transaction")
-						}}</v-list-item-subtitle>
-					</div>
-				</v-list-item>
 
-				<v-list-item @click="$emit('sync-invoices')" class="menu-item-compact info-action">
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact info-icon">
-							<v-icon color="white" size="16">mdi-sync</v-icon>
+						<div class="settings-actions-list">
+							<button
+								v-for="action in section.actions"
+								:key="action.id"
+								type="button"
+								class="settings-action"
+								:class="`settings-action--${action.tone}`"
+								:disabled="action.disabled"
+								:data-test="`settings-action-${action.id}`"
+								@click="handleAction(action)"
+							>
+								<div class="settings-action__icon">
+									<v-icon color="white" size="16">{{ action.icon }}</v-icon>
+								</div>
+								<div class="settings-action__copy">
+									<div class="settings-action__title">{{ action.label }}</div>
+									<div class="settings-action__subtitle">{{ action.subtitle }}</div>
+								</div>
+							</button>
 						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("Sync Offline Invoices")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("Upload pending transactions")
-						}}</v-list-item-subtitle>
 					</div>
-				</v-list-item>
-
-				<v-list-item @click="$emit('toggle-offline')" class="menu-item-compact warning-action">
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact warning-icon">
-							<v-icon color="white" size="16">mdi-wifi-off</v-icon>
-						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							manualOffline ? __("Go Online") : __("Go Offline")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">
-							{{
-								manualOffline
-									? __("Disable offline mode")
-									: __("Work without server connection")
-							}}
-						</v-list-item-subtitle>
-					</div>
-				</v-list-item>
-
-				<v-list-item
-					@click="$emit('clear-cache')"
-					:disabled="manualOffline || !networkOnline || !serverOnline"
-					class="menu-item-compact neutral-action"
-				>
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact neutral-icon">
-							<v-icon color="white" size="16">mdi-delete-sweep-outline</v-icon>
-						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("Clear Cache")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("Remove local data and refresh")
-						}}</v-list-item-subtitle>
-					</div>
-				</v-list-item>
-
-				<v-divider class="menu-section-divider-compact"></v-divider>
-
-				<v-list-item @click="$emit('show-about')" class="menu-item-compact neutral-action">
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact neutral-icon">
-							<v-icon color="white" size="16">mdi-information-outline</v-icon>
-						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("About")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("App information")
-						}}</v-list-item-subtitle>
-					</div>
-				</v-list-item>
-
-				<!-- Language selection menu item -->
-				<v-list-item @click="showLanguageDialog = true" class="menu-item-compact primary-action">
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact primary-icon">
-							<v-icon color="white" size="16">mdi-translate</v-icon>
-						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("Language")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("Change interface language")
-						}}</v-list-item-subtitle>
-					</div>
-				</v-list-item>
-
-				<!-- Theme toggle menu item -->
-				<v-list-item @click="$emit('toggle-theme')" class="menu-item-compact info-action">
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact info-icon">
-							<v-icon color="white" size="16">{{
-								$theme.isDark ? "mdi-white-balance-sunny" : "mdi-moon-waning-crescent"
-							}}</v-icon>
-						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							$theme.isDark ? __("Light Mode") : __("Dark Mode")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("Switch theme appearance")
-						}}</v-list-item-subtitle>
-					</div>
-				</v-list-item>
-
-				<v-list-item @click="$emit('logout')" class="menu-item-compact danger-action">
-					<template v-slot:prepend>
-						<div class="menu-icon-wrapper-compact danger-icon">
-							<v-icon color="white" size="16">mdi-logout</v-icon>
-						</div>
-					</template>
-					<div class="menu-content-compact">
-						<v-list-item-title class="menu-item-title-compact">{{
-							__("Logout")
-						}}</v-list-item-title>
-						<v-list-item-subtitle class="menu-item-subtitle-compact">{{
-							__("Sign out of session")
-						}}</v-list-item-subtitle>
-					</div>
-				</v-list-item>
-			</v-list>
+				</div>
+			</div>
 		</v-card>
 	</v-menu>
 
 	<!-- Language Selection Dialog -->
 	<v-dialog v-model="showLanguageDialog" max-width="400" persistent>
-		<v-card>
+		<v-card class="pos-themed-card">
 			<v-card-title class="text-h6 d-flex align-center">
 				<v-icon start color="primary" class="mr-2">mdi-translate</v-icon>
 				{{ __("Select Language") }}
@@ -330,6 +280,8 @@
 		</v-card>
 	</v-dialog>
 
+	<QzTrayDialog v-model="showQzTrayDialog" />
+
 	<!-- Notification Snackbars -->
 	<v-snackbar
 		v-model="notification.show"
@@ -347,7 +299,6 @@
 </template>
 
 <script>
-/* global frappe */
 const FALLBACK_LANGUAGES = [
 	{ code: "en", name: "English", native_name: "English" },
 	{ code: "ar", name: "العربية", native_name: "العربية" },
@@ -355,18 +306,37 @@ const FALLBACK_LANGUAGES = [
 	{ code: "pt", name: "Português", native_name: "Português" },
 ];
 
+import { useLastInvoicePrinting } from "../../composables/core/useLastInvoicePrinting";
+import { useUpdateStore } from "../../stores/updateStore";
+import { useEmployeeStore } from "../../stores/employeeStore";
+import { storeToRefs } from "pinia";
+import QzTrayDialog from "./QzTrayDialog.vue";
+
 export default {
 	name: "NavbarMenu",
+	components: {
+		QzTrayDialog,
+	},
 	props: {
 		posProfile: { type: Object, default: () => ({}) },
-		lastInvoiceId: String,
+		cashierName: { type: String, default: "" },
 		manualOffline: Boolean,
 		networkOnline: Boolean,
 		serverOnline: Boolean,
 	},
+	setup() {
+		const { printLastInvoice } = useLastInvoicePrinting();
+		const updateStore = useUpdateStore();
+		const employeeStore = useEmployeeStore();
+		const { currentCashier, currentCashierDisplay } = storeToRefs(employeeStore);
+		return { printLastInvoice, updateStore, employeeStore, currentCashier, currentCashierDisplay };
+	},
 	data() {
 		return {
+			menuOpen: false,
+			activePanel: "main",
 			showLanguageDialog: false,
+			showQzTrayDialog: false,
 			selectedLanguage: "en",
 			currentLanguage: "en",
 			availableLanguages: FALLBACK_LANGUAGES,
@@ -383,16 +353,16 @@ export default {
 			},
 		};
 	},
-	mounted() {
-		// Add window resize listener for responsive behavior
-		this.handleResize = () => {
-			this.windowWidth = window.innerWidth;
-		};
-		window.addEventListener("resize", this.handleResize);
-	},
 	beforeUnmount() {
 		// Clean up the event listener
 		window.removeEventListener("resize", this.handleResize);
+	},
+	watch: {
+		menuOpen(isOpen) {
+			if (!isOpen) {
+				this.activePanel = "main";
+			}
+		},
 	},
 	computed: {
 		canChangeLanguage() {
@@ -416,6 +386,195 @@ export default {
 		isDesktop() {
 			return this.windowWidth >= 1024;
 		},
+		panelTitle() {
+			return this.activePanel === "settings" ? __("Settings") : __("Quick Actions");
+		},
+		panelSubtitle() {
+			return this.activePanel === "settings"
+				? __("Grouped controls for terminal, UI, and session settings.")
+				: __("Fast cashier actions for active shifts.");
+		},
+		quickActions() {
+			const actions = [
+				{
+					id: "switch-cashier",
+					label: __("Switch Cashier"),
+					subtitle: this.cashierName || __("Change terminal cashier"),
+					icon: "mdi-account-switch-outline",
+					tone: "primary",
+					handler: "openEmployeeSwitch",
+				},
+				{
+					id: "lock-screen",
+					label: __("Lock Screen"),
+					subtitle: __("Pause terminal until next cashier"),
+					icon: "mdi-lock-outline",
+					tone: "warning",
+					handler: "lockPos",
+				},
+				this.isEnabledSetting(this.posProfile?.posa_allow_print_last_invoice)
+					? {
+							id: "print-last-invoice",
+							label: __("Print Last Invoice"),
+							subtitle: __("Reprint previous transaction"),
+							icon: "mdi-printer",
+							tone: "secondary",
+							handler: "printLastInvoiceAction",
+						}
+					: null,
+				{
+					id: "sync-offline-sales",
+					label: __("Sync Offline Sales"),
+					subtitle: __("Upload pending transactions"),
+					icon: "mdi-sync",
+					tone: "info",
+					handler: "syncInvoices",
+				},
+				!this.posProfile?.posa_hide_closing_shift
+					? {
+							id: "close-shift",
+							label: __("Close Shift"),
+							subtitle: __("End current session"),
+							icon: "mdi-content-save-move-outline",
+							tone: "primary",
+							handler: "closeShift",
+						}
+					: null,
+			];
+
+			return actions.filter(Boolean);
+		},
+		quickActionRows() {
+			return this.quickActions.map((action) => [action]);
+		},
+		settingsSections() {
+			return [
+				{
+					id: "personal",
+					title: __("Personal"),
+					description: __("Cashier identity and appearance preferences."),
+					actions: [
+						{
+							id: "language",
+							label: __("Language"),
+							subtitle: __("Change interface language"),
+							icon: "mdi-translate",
+							tone: "primary",
+							handler: "openLanguageDialog",
+						},
+						{
+							id: "theme",
+							label: this.$theme.isDark.value ? __("Light Mode") : __("Dark Mode"),
+							subtitle: __("Switch theme appearance"),
+							icon: this.$theme.isDark.value
+								? "mdi-white-balance-sunny"
+								: "mdi-moon-waning-crescent",
+							tone: "info",
+							handler: "toggleThemeAction",
+						},
+					],
+				},
+				{
+					id: "terminal",
+					title: __("Terminal"),
+					description: __("Customer-facing tools and printer setup."),
+					actions: [
+						this.isEnabledSetting(this.posProfile?.posa_enable_customer_display)
+							? {
+									id: "customer-display",
+									label: __("Open Customer Display"),
+									subtitle: __("Show cart on customer-facing screen"),
+									icon: "mdi-monitor-eye",
+									tone: "primary",
+									handler: "openCustomerDisplay",
+								}
+							: null,
+						this.isEnabledSetting(this.posProfile?.posa_silent_print)
+							? {
+									id: "qz-tray-setup",
+									label: __("QZ Tray Setup"),
+									subtitle: __("Connect printer and manage certificate"),
+									icon: "mdi-printer-wireless",
+									tone: "primary",
+									handler: "openQzTraySetup",
+								}
+							: null,
+					].filter(Boolean),
+				},
+				{
+					id: "tools",
+					title: __("Tools"),
+					description: __("Updates and app info that stay out of the cashier flow."),
+					actions: [
+						{
+							id: "check-for-updates",
+							label: __("Check for Updates"),
+							subtitle: __("Check for new commits"),
+							icon: "mdi-update",
+							tone: "info",
+							handler: "checkForUpdatesAction",
+							disabled: this.manualOffline || !this.networkOnline || !this.serverOnline,
+						},
+						{
+							id: "about",
+							label: __("About"),
+							subtitle: __("App information"),
+							icon: "mdi-information-outline",
+							tone: "neutral",
+							handler: "showAboutAction",
+						},
+					],
+				},
+				{
+					id: "session",
+					title: __("Session"),
+					description: __("Sensitive actions kept away from quick taps."),
+					danger: true,
+					actions: [
+						{
+							id: "logout",
+							label: __("Logout"),
+							subtitle: __("Sign out of session"),
+							icon: "mdi-logout",
+							tone: "danger",
+							handler: "logoutAction",
+						},
+					],
+				},
+			];
+		},
+		showSupervisorSection() {
+			return Boolean(this.currentCashier?.is_supervisor);
+		},
+		supervisorSections() {
+			if (!this.showSupervisorSection) {
+				return [];
+			}
+
+			return [
+				{
+					id: "restricted",
+					title: __("Supervisor Tools"),
+					description: __("Restricted operational controls for supervisors only."),
+					actions: [
+						{
+							id: "awesome-dashboard",
+							label: __("Awesome Dashboard"),
+							subtitle: __("View restricted POS insights"),
+							icon: "mdi-view-dashboard-outline",
+							tone: "primary",
+							handler: "openDashboard",
+						},
+					],
+				},
+			];
+		},
+		settingsActionCount() {
+			const count =
+				this.settingsSections.reduce((total, section) => total + section.actions.length, 0) +
+				this.supervisorSections.reduce((total, section) => total + section.actions.length, 0);
+			return `${count} ${this.__("options")}`;
+		},
 		// Display name for mobile menu
 		displayUserName() {
 			// Show POS profile name if available, otherwise show user name
@@ -437,11 +596,96 @@ export default {
 		},
 	},
 	async mounted() {
-		// Add window resize listener for responsive behavior (already added above)
+		this.handleResize = () => {
+			this.windowWidth = window.innerWidth;
+		};
+		window.addEventListener("resize", this.handleResize);
 		await this.initializeLanguage();
 		this.initializeWesternNumerals();
 	},
 	methods: {
+		openSettingsPanel() {
+			this.activePanel = "settings";
+		},
+		closeSettingsPanel() {
+			this.activePanel = "main";
+		},
+		closeMenu() {
+			this.menuOpen = false;
+		},
+		handleAction(action) {
+			if (!action || action.disabled) {
+				return;
+			}
+
+			switch (action.handler) {
+				case "openEmployeeSwitch":
+					this.closeMenu();
+					this.$emit("open-employee-switch");
+					break;
+				case "lockPos":
+					this.closeMenu();
+					this.$emit("lock-pos");
+					break;
+				case "printLastInvoiceAction":
+					this.closeMenu();
+					this.printLastInvoice();
+					break;
+				case "syncInvoices":
+					this.closeMenu();
+					this.$emit("sync-invoices");
+					break;
+				case "closeShift":
+					this.closeMenu();
+					this.$emit("close-shift");
+					break;
+				case "openLanguageDialog":
+					this.closeMenu();
+					this.showLanguageDialog = true;
+					break;
+				case "toggleThemeAction":
+					this.closeMenu();
+					this.$emit("toggle-theme");
+					break;
+				case "openCustomerDisplay":
+					this.closeMenu();
+					this.$emit("open-customer-display");
+					break;
+				case "openQzTraySetup":
+					this.closeMenu();
+					this.showQzTrayDialog = true;
+					break;
+				case "clearCacheAction":
+					this.closeMenu();
+					this.$emit("clear-cache");
+					break;
+				case "checkForUpdatesAction":
+					this.closeMenu();
+					void this.checkForUpdates();
+					break;
+				case "showAboutAction":
+					this.closeMenu();
+					this.$emit("show-about");
+					break;
+				case "logoutAction":
+					this.closeMenu();
+					this.$emit("logout");
+					break;
+				case "refreshCacheUsage":
+					this.closeMenu();
+					this.$emit("refresh-cache-usage");
+					break;
+				case "openDashboard":
+					this.closeMenu();
+					this.openDashboard();
+					break;
+				default:
+					break;
+			}
+		},
+		openDashboard() {
+			window.location.href = "/app/posapp/dashboard";
+		},
 		initializeWesternNumerals() {
 			try {
 				const stored = localStorage.getItem("use_western_numerals");
@@ -571,15 +815,47 @@ export default {
 		hideNotification() {
 			this.notification.show = false;
 		},
+		isEnabledSetting(value) {
+			if (value === undefined || value === null) return false;
+			if (typeof value === "string") {
+				const normalized = value.trim().toLowerCase();
+				return ["1", "true", "yes", "on"].includes(normalized);
+			}
+			if (typeof value === "number") return value === 1;
+			return Boolean(value);
+		},
+
+		async checkForUpdates() {
+			try {
+				await this.updateStore.checkForUpdates(true);
+				if (this.updateStore.isUpdateReady) {
+					this.updateStore.clearDismissed();
+					this.updateStore.resetSnooze();
+				} else {
+					this.showNotification("You are up to date", "success");
+				}
+			} catch (error) {
+				this.showNotification(
+					`Failed to check for updates: ${error?.message || "Unknown error"}`,
+					"error",
+				);
+			}
+		},
 
 		__(text) {
-			return window.__ ? window.__(text) : text;
+			if (window.__) {
+				const args = Array.prototype.slice.call(arguments, 1);
+				return window.__(text, ...args);
+			}
+			return text;
 		},
 	},
 	emits: [
 		"close-shift",
-		"print-last-invoice",
 		"sync-invoices",
+		"open-employee-switch",
+		"lock-pos",
+		"open-customer-display",
 		"toggle-offline",
 		"clear-cache",
 		"show-about",
@@ -603,12 +879,12 @@ export default {
 	letter-spacing: 0.5px;
 	box-shadow: none;
 	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-	background: rgba(25, 118, 210, 0.08) !important;
-	border: 1px solid rgba(25, 118, 210, 0.12);
+	background: var(--pos-hover-bg) !important;
+	border: 1px solid var(--pos-border);
 	backdrop-filter: blur(8px);
 	min-width: 90px;
 	height: 36px;
-	color: #1976d2 !important;
+	color: var(--pos-primary) !important;
 }
 
 /* Mobile Menu Button Styles */
@@ -620,13 +896,13 @@ export default {
 	max-width: 36px !important;
 	width: 36px !important;
 	height: 36px !important;
-	background: rgba(25, 118, 210, 0.08) !important;
-	border: 1px solid rgba(25, 118, 210, 0.12) !important;
+	background: var(--pos-hover-bg) !important;
+	border: 1px solid var(--pos-border) !important;
 }
 
 .mobile-menu-btn:hover {
-	background: rgba(25, 118, 210, 0.12) !important;
-	border-color: rgba(25, 118, 210, 0.2) !important;
+	background: var(--pos-focus-bg) !important;
+	border-color: var(--pos-primary) !important;
 	transform: translateY(-1px);
 }
 
@@ -637,27 +913,27 @@ export default {
 
 /* Elite menu button text and icon colors */
 .menu-btn-compact .v-btn__content {
-	color: #1976d2 !important;
+	color: var(--pos-primary) !important;
 	font-weight: 500;
 }
 
 .menu-btn-compact .pos-text-primary,
 .menu-btn-compact .v-icon {
-	color: #1976d2 !important;
+	color: var(--pos-primary) !important;
 	transition: color 0.25s ease;
 }
 
 .menu-btn-compact:hover {
 	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
-	background: rgba(25, 118, 210, 0.12) !important;
-	border-color: rgba(25, 118, 210, 0.2);
+	box-shadow: 0 4px 12px var(--pos-shadow);
+	background: var(--pos-focus-bg) !important;
+	border-color: var(--pos-primary);
 }
 
 .menu-btn-compact:hover .v-btn__content,
 .menu-btn-compact:hover .pos-text-primary,
 .menu-btn-compact:hover .v-icon {
-	color: #1565c0 !important;
+	color: var(--pos-primary-variant) !important;
 }
 
 /* Elite Menu Card - Glass Morphism Design */
@@ -671,9 +947,19 @@ export default {
 		0 8px 16px rgba(0, 0, 0, 0.04),
 		0 0 0 1px rgba(255, 255, 255, 0.3) inset;
 	backdrop-filter: blur(20px) saturate(1.2);
-	min-width: 260px;
-	max-width: 280px;
+	min-width: min(260px, calc(100vw - 24px));
+	max-width: min(280px, calc(100vw - 24px));
 	margin-top: 2px;
+	display: flex;
+	flex-direction: column;
+	max-height: 85vh;
+}
+
+.menu-content-scrollable {
+	overflow-y: auto;
+	flex: 1;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
 }
 
 /* Elite Menu Header */
@@ -685,20 +971,258 @@ export default {
 	align-items: center;
 	gap: 10px;
 	border-bottom: 1px solid rgba(25, 118, 210, 0.08);
+	flex-shrink: 0;
+}
+
+.menu-header-back {
+	width: 30px;
+	height: 30px;
+	border-radius: 999px;
+	border: 1px solid var(--pos-border);
+	background: var(--pos-hover-bg);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.menu-header-copy {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
 }
 
 .menu-header-text-compact {
 	font-size: 14px;
 	font-weight: 500;
-	color: #1976d2;
+	color: var(--pos-primary);
 	letter-spacing: 0.5px;
 	opacity: 0.9;
+}
+
+.menu-header-subtitle-compact {
+	font-size: 11px;
+	color: var(--pos-text-secondary);
+}
+
+.menu-panel {
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.menu-panel--settings {
+	padding-top: 12px;
+}
+
+.menu-profile-card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	border-radius: 16px;
+	border: 1px solid var(--pos-border);
+	background: linear-gradient(135deg, rgba(25, 118, 210, 0.06), rgba(66, 165, 245, 0.12));
+}
+
+.menu-profile-card__icon,
+.quick-action-card__icon,
+.settings-launch-card__icon,
+.settings-action__icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 12px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.menu-profile-card__icon {
+	background: linear-gradient(135deg, #0288d1 0%, #4fc3f7 100%);
+}
+
+.menu-profile-card__copy,
+.quick-action-card__copy,
+.settings-launch-card__copy,
+.settings-action__copy {
+	min-width: 0;
+	flex: 1;
+	text-align: left;
+}
+
+.menu-profile-card__title,
+.quick-action-card__title,
+.settings-launch-card__title,
+.settings-action__title {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--pos-text-primary);
+}
+
+.menu-profile-card__subtitle,
+.quick-action-card__subtitle,
+.settings-launch-card__subtitle,
+.settings-action__subtitle {
+	font-size: 11px;
+	line-height: 1.35;
+	color: var(--pos-text-secondary);
+}
+
+.menu-section-block,
+.settings-section {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.menu-section-heading {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.menu-section-heading--restricted {
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.menu-section-title {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--pos-text-primary);
+}
+
+.menu-section-subtitle {
+	font-size: 11px;
+	color: var(--pos-text-secondary);
+}
+
+.quick-actions-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.quick-actions-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 10px;
+}
+
+.quick-action-card,
+.settings-launch-card,
+.settings-action {
+	border: 1px solid var(--pos-border);
+	background: var(--pos-card-bg);
+	border-radius: 16px;
+	padding: 12px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease,
+		border-color 0.18s ease;
+}
+
+.quick-action-card:hover,
+.settings-launch-card:hover,
+.settings-action:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 6px 16px var(--pos-shadow);
+	border-color: var(--pos-primary);
+}
+
+.quick-action-card:disabled,
+.settings-action:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.quick-action-card--primary .quick-action-card__icon,
+.settings-action--primary .settings-action__icon,
+.settings-launch-card__icon {
+	background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+}
+
+.quick-action-card--secondary .quick-action-card__icon,
+.settings-action--secondary .settings-action__icon {
+	background: linear-gradient(135deg, #7b1fa2 0%, #ba68c8 100%);
+}
+
+.quick-action-card--warning .quick-action-card__icon,
+.settings-action--warning .settings-action__icon {
+	background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+}
+
+.quick-action-card--info .quick-action-card__icon,
+.settings-action--info .settings-action__icon {
+	background: linear-gradient(135deg, #0288d1 0%, #4fc3f7 100%);
+}
+
+.quick-action-card--neutral .quick-action-card__icon,
+.settings-action--neutral .settings-action__icon {
+	background: linear-gradient(135deg, #616161 0%, #9e9e9e 100%);
+}
+
+.settings-action--danger .settings-action__icon {
+	background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+}
+
+.settings-launch-card {
+	align-items: center;
+}
+
+.settings-launch-card__meta {
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--pos-primary);
+	flex-shrink: 0;
+}
+
+.settings-actions-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.settings-actions-list--danger {
+	padding: 10px;
+	border-radius: 16px;
+	background: rgba(211, 47, 47, 0.04);
+	border: 1px dashed rgba(211, 47, 47, 0.28);
+}
+
+.settings-section--restricted {
+	padding-top: 4px;
+}
+
+.restricted-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 8px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 700;
+	color: #8a4b00;
+	background: rgba(255, 193, 7, 0.18);
+	border: 1px solid rgba(255, 193, 7, 0.28);
 }
 
 /* Compact Menu List */
 .menu-list-compact {
 	padding: 8px 6px 12px;
-	background: #ffffff;
+	background: var(--pos-card-bg);
 }
 
 /* Compact Menu Items */
@@ -736,6 +1260,19 @@ export default {
 .menu-item-compact:hover {
 	transform: translateX(3px) scale(1.01);
 	box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.profile-info-mobile--static {
+	cursor: default;
+}
+
+.profile-info-mobile--static::before {
+	background: linear-gradient(135deg, rgba(25, 118, 210, 0.03) 0%, rgba(66, 165, 245, 0.05) 100%);
+}
+
+.profile-info-mobile--static:hover {
+	transform: none;
+	box-shadow: none;
 }
 
 /* Compact Icon Wrapper */
@@ -797,7 +1334,7 @@ export default {
 .menu-item-title-compact {
 	font-weight: 600;
 	font-size: 14px;
-	color: #212121;
+	color: var(--pos-text-primary);
 	line-height: 1.2;
 	margin-bottom: 1px;
 }
@@ -813,7 +1350,7 @@ export default {
 .menu-section-divider-compact {
 	margin: 8px 10px;
 	opacity: 0.12;
-	border-color: #1976d2;
+	border-color: var(--pos-border);
 }
 
 /* Compact Hover Effects */
@@ -858,15 +1395,20 @@ export default {
 /* Compact Responsive Design */
 @media (max-width: 768px) {
 	.menu-card-compact {
-		min-width: 240px;
-		max-width: 260px;
+		min-width: min(280px, calc(100vw - 20px));
+		max-width: min(320px, calc(100vw - 20px));
 		border-radius: 14px;
+		min-height: 300px;
 	}
 
 	.menu-item-compact {
 		padding: 10px 14px;
 		min-height: 52px;
 		gap: 10px;
+	}
+
+	.quick-actions-row {
+		grid-template-columns: 1fr;
 	}
 
 	.menu-icon-wrapper-compact {
@@ -889,8 +1431,8 @@ export default {
 
 @media (max-width: 480px) {
 	.menu-card-compact {
-		min-width: 220px;
-		max-width: 240px;
+		min-width: min(260px, calc(100vw - 16px));
+		max-width: min(300px, calc(100vw - 16px));
 	}
 
 	.menu-item-compact {

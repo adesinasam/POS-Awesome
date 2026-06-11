@@ -1,0 +1,51 @@
+name: Build Verify
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  build-verify:
+    name: Production build and artifact gates
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: |
+            yarn.lock
+            frontend/yarn.lock
+
+      - name: Install root dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build production frontend
+        run: yarn build
+
+      - name: Test build verifier
+        run: yarn test:build-verify
+
+      - name: Verify emitted POS assets
+        run: yarn verify:build
+
+      - name: Electron package smoke
+        run: yarn electron:smoke
+
+      - name: Upload build provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: posawesome-build-provenance
+          path: |
+            posawesome/public/dist/js/version.json
+            posawesome/public/dist/js/checksums.sha256
+          if-no-files-found: error

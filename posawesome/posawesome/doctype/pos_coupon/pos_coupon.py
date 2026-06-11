@@ -9,6 +9,10 @@ from frappe.utils import strip
 from frappe.utils import getdate, today
 
 
+def _optional_date(value):
+    return getdate(value) if value else None
+
+
 class POSCoupon(Document):
     def autoname(self):
         self.coupon_name = strip(self.coupon_name)
@@ -32,10 +36,15 @@ class POSCoupon(Document):
             frappe.throw(_("Please select Coupon Code Based POS Offer."))
         if pos_offer.disable:
             frappe.throw(_("POS Offer is disable."))
-        if pos_offer.valid_from and pos_offer.valid_from > getdate(self.valid_from):
-            self.valid_from = pos_offer.valid_from
-        if pos_offer.valid_upto and pos_offer.valid_upto < getdate(self.valid_upto):
-            self.valid_upto = pos_offer.valid_upto
+        offer_valid_from = _optional_date(pos_offer.valid_from)
+        coupon_valid_from = _optional_date(self.valid_from)
+        if offer_valid_from and (not coupon_valid_from or offer_valid_from > coupon_valid_from):
+            self.valid_from = offer_valid_from
+
+        offer_valid_upto = _optional_date(pos_offer.valid_upto)
+        coupon_valid_upto = _optional_date(self.valid_upto)
+        if offer_valid_upto and (not coupon_valid_upto or offer_valid_upto < coupon_valid_upto):
+            self.valid_upto = offer_valid_upto
 
     def create_coupon_from_referral(self):
         if not self.customer:
@@ -81,13 +90,16 @@ def check_coupon_code(coupon_code, customer=None, company=None):
 
     coupon = frappe.get_doc("POS Coupon", {"coupon_code": coupon_code.upper()})
     pos_offer = frappe.get_doc("POS Offer", coupon.pos_offer)
+    current_date = getdate(today())
 
-    if coupon.valid_from:
-        if coupon.valid_from > getdate(today()):
+    coupon_valid_from = _optional_date(coupon.valid_from)
+    if coupon_valid_from:
+        if coupon_valid_from > current_date:
             res["msg"] = _("Sorry, this coupon code's validity has not started")
             return res
-    if coupon.valid_upto:
-        if coupon.valid_upto < getdate(today()):
+    coupon_valid_upto = _optional_date(coupon.valid_upto)
+    if coupon_valid_upto:
+        if coupon_valid_upto < current_date:
             res["msg"] = _("Sorry, this coupon code's validity has expired")
             return res
     if coupon.used and coupon.maximum_use and coupon.used >= coupon.maximum_use:
@@ -97,12 +109,14 @@ def check_coupon_code(coupon_code, customer=None, company=None):
     if pos_offer.disable:
         res["msg"] = _("Sorry, this coupon code is no longer valid")
         return res
-    if pos_offer.valid_from:
-        if pos_offer.valid_from > getdate(today()):
+    offer_valid_from = _optional_date(pos_offer.valid_from)
+    if offer_valid_from:
+        if offer_valid_from > current_date:
             res["msg"] = _("Sorry, this coupon code's validity has not started")
             return res
-    if pos_offer.valid_upto:
-        if pos_offer.valid_upto < getdate(today()):
+    offer_valid_upto = _optional_date(pos_offer.valid_upto)
+    if offer_valid_upto:
+        if offer_valid_upto < current_date:
             res["msg"] = _("Sorry, this coupon code's validity has expired")
             return res
 

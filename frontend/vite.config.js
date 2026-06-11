@@ -7,6 +7,7 @@ import frappeVueStyle from "../frappe-vue-style";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
+import { buildVersionPayload, getEntryFileName } from "./build-manifest.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,15 +18,20 @@ function posawesomeBuildVersionPlugin(version) {
 	return {
 		name: "posawesome-build-version",
 		apply: "build",
-		async writeBundle() {
+		async writeBundle(_options, bundle) {
 			const versionFile = path.resolve(__dirname, "../posawesome/public/dist/js/version.json");
 			await fs.mkdir(path.dirname(versionFile), { recursive: true });
-			await fs.writeFile(versionFile, JSON.stringify({ version }, null, 2), "utf8");
+			await fs.writeFile(
+				versionFile,
+				JSON.stringify(buildVersionPayload(version, bundle), null, 2),
+				"utf8",
+			);
 		},
 	};
 }
 
 export default defineConfig({
+	base: "/assets/posawesome/dist/js/",
 	plugins: [
 		posawesomeBuildVersionPlugin(buildVersion),
 		frappeVueStyle(),
@@ -41,15 +47,12 @@ export default defineConfig({
 					dest: "libs",
 				},
 				{
-					src: "src/offline/*",
-					dest: "offline",
+					src: "node_modules/jsbarcode/dist/JsBarcode.all.min.js",
+					dest: "libs",
 				},
 				{
-					src: "src/sw.js",
-					dest: "../www",
-					transform(contents) {
-						return contents.replace(/__BUILD_VERSION__/g, buildVersion);
-					},
+					src: "node_modules/html2pdf.js/dist/html2pdf.bundle.min.js",
+					dest: "libs",
 				},
 			],
 		}),
@@ -61,29 +64,38 @@ export default defineConfig({
 	},
 	build: {
 		target: "esnext",
-		lib: {
-			entry: path.resolve(__dirname, "src/posawesome.bundle.js"),
-			name: "PosAwesome",
-			fileName: "posawesome",
-		},
+		modulePreload: false,
 		outDir: "../posawesome/public/dist/js",
 		emptyOutDir: true,
+		cssCodeSplit: false,
 		rollupOptions: {
+			input: {
+				posawesome: path.resolve(__dirname, "src/posawesome.bundle.ts"),
+				"offline/index": path.resolve(__dirname, "src/offline/index.ts"),
+				loader: path.resolve(__dirname, "src/loader.ts"),
+			},
 			external: ["socket.io-client"],
-			output: [
-				{
-					format: "es",
-					entryFileNames: "posawesome.js",
+			output: {
+				format: "es",
+				entryFileNames: getEntryFileName,
+				chunkFileNames: "[name]-[hash].js",
+				// Hash assets too — entries are now hashed
+				// (build-manifest.js) so the un-hashed `posawesome.css`
+				// would otherwise be the only file the browser can pin
+				// stale across deploys.
+				assetFileNames: "[name]-[hash].[ext]",
+				manualChunks: (id) => {
+					if (id.includes("node_modules")) {
+						if (id.includes("vuetify")) {
+							return "vuetify";
+						}
+						if (id.includes("vue")) {
+							return "vue";
+						}
+						return "vendor";
+					}
 				},
-				{
-					format: "umd",
-					name: "PosAwesome",
-					entryFileNames: "posawesome.umd.js",
-					globals: {
-						"socket.io-client": "io",
-					},
-				},
-			],
+			},
 		},
 	},
 	worker: {
@@ -98,5 +110,9 @@ export default defineConfig({
 		__BUILD_VERSION__: JSON.stringify(buildVersion),
 		"process.env.NODE_ENV": '"production"',
 		process: '{"env":{}}',
+	},
+	test: {
+		include: ["tests/**/*.spec.{js,ts}", "tests/**/*.test.{js,ts}"],
+		exclude: ["tests/smoke/**"],
 	},
 });

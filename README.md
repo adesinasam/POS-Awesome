@@ -3,9 +3,13 @@
     <h2>POS AWESOME</h2>
 </div>
 
-#### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify) (VERSION 15 Support)
+#### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify) (VERSION 15 and 16 Support)
 
 ---
+
+NOTE: Application is undergoing major refactoring. please report for any bug or issue it will be solved on high priority. For now it is stable and tested.
+
+Recommended to use stable version for production. 
 
 ### Quick Start
 
@@ -33,6 +37,10 @@ Follow these steps to install and start using POS Awesome:
         - **Applicable for Users** – add the users allowed to use this POS.
         - **Payment Methods** – add accepted modes (e.g., Cash, Card).
 
+    - Optional operational settings:
+        - Assign trusted users the **POS Awesome Supervisor** role from **User > Roles** when they need supervisor-only POS controls.
+        - Enable **Allow Offline Sale Without Stock Verification** if offline invoices should be saved even when local stock data is missing or insufficient. Stock is still validated again on the server when the invoice syncs.
+
 4. **Save the profile**
 
 5. **Start selling**
@@ -54,60 +62,346 @@ After switching branches or pulling latest changes:
 5. bench build --app posawesome
 6. bench --site your.site migrate
 
-Go to developer tools in browser, then go to application tab, then go to storage and clear site data. 
-After clearing site data go to browser settings and delete cache and images data in history also. 
+Go to developer tools in browser, then go to application tab, then go to storage and clear site data.
+After clearing site data go to browser settings and delete cache and images data in history also.
+
+---
+
+### Update Notifications (POS)
+
+- POS automatically checks for updates every 24 hours.
+- Manual check: **Menu → Check for Updates**.
+- Updates are checked **only against the current git branch**.
+- The update dialog shows **all commits ahead** (commit message + date).
+- Dismissed updates will reappear only when a **new commit** is available.
+- It only check for updates on the current branch you are on. It will not update in backend.
+
+---
+
+### Project Structure (Modernized)
+
+Key folders in the modernized POS app:
+
+- `frontend/src/posapp/components/pos/` UI split into small, focused components (invoice, items, payments, closing, etc.)
+- `frontend/src/posapp/composables/` business logic and state orchestration (invoice, items, payments, offers, offline)
+- `frontend/src/posapp/stores/` Pinia stores for normalized app state
+- `posawesome/posawesome/api/` backend APIs split by domain (invoice_processing, item_processing, payment_processing)
+
+---
+
+### TypeScript Migration Status
+
+The POS frontend has been migrated to TypeScript. If you add new modules, prefer `.ts`/`.vue` with `lang="ts"` and keep types in `frontend/src/posapp/types/`.
+
+---
+
+### Returns & Discounts (Important Behavior)
+
+- **Return invoices** use negative quantities and negative totals.
+- **Additional Discount (Percentage)** is recalculated automatically based on the current return total.
+- **Additional Discount (Amount)** is **prorated** on partial returns.
+- Applied as a **negative** discount on returns.
+- For **Return without Invoice**, discount logic depends on the POS Profile and may require manual adjustment.
+
+---
+
+### Payments & Write-Offs
+
+- Write-off amount is capped by POS Profile and validated against payment coverage.
+- Refunds/returns use negative payment amounts.
+- Partial payments and credit sales respect the same write-off limits.
+- POS Awesome Payments supports **Receive** and **Pay** workflows from the Payments route.
+- **Receive** is used for customer payments and can create new Payment Entries, reconcile unallocated payments, reconcile M-Pesa payments, and allocate payments against outstanding Sales Invoices.
+- **Pay** supports customer payouts, supplier/vendor payments, and employee payments. Supplier/vendor payments can be allocated against outstanding Purchase Invoices.
+- Reconciliation can be done manually by selecting invoices and unallocated payments, or automatically with **Auto Allocate Payment Amount** / auto reconcile.
+- Customer reconciliation supports Sales Invoices, credit notes, unallocated Payment Entries, and M-Pesa entries when enabled.
+- Supplier/vendor reconciliation supports Purchase Invoices and supplier unallocated payments.
+- Payment creation and reconciliation are controlled from POS Profile with `Use POS Awesome Payments`, `Allow Make New Payments`, `Allow Reconcile Payments`, and `Allow Mpesa Reconcile Payments`.
+- Multi-currency payment methods are supported with exchange-rate handling when invoice, party, and bank/cash account currencies differ.
+
+---
+
+### Offline Mode
+
+- Invoices, customers, and payments can be created offline.
+- Background sync replays changes when connectivity returns.
+- Failed offline submissions are saved as Drafts.
+- **Allow Offline Sale Without Stock Verification** on POS Profile lets offline invoice saving continue when local stock cache is missing or below the requested quantity.
+- This option only skips local offline stock blocking. Server-side stock validation still runs when the invoice syncs online.
+
+---
+
+### POS Awesome Supervisor
+
+Supervisor access is now controlled by the **POS Awesome Supervisor** role on the **User** doctype. This replaces the old user-level `posa_is_pos_supervisor` custom field and uses the new role name instead of **POS Supervisor**.
+
+Users with this role can access supervisor-only POS functions:
+
+- Open the **Awesome Dashboard** from the POS navigation/menu, when the dashboard is enabled for the POS Profile.
+- View dashboard data for the current profile, a specific profile, or all allowed profiles depending on dashboard scope settings.
+- Use supervisor invoice-management scope to view/search submitted invoices and drafts across the company, with profile filtering available from the invoice management dialog.
+- See supervisor-only item rate details such as last purchase rate and cost/manufacturing cost while selecting items.
+- Issue and top up gift cards from the payments/gift-card workflows. Non-supervisors can still check gift-card balances when gift cards are enabled.
+
+To grant access, open the ERPNext **User** record and add **POS Awesome Supervisor** in the user's Roles table.
+
+---
+
+### Gift Cards
+
+Gift cards are available when **Use Gift Cards** is enabled on POS Profile.
+
+- Cashiers can scan or enter gift-card codes and check live balance/status.
+- Gift cards can be redeemed from the invoice payment screen.
+- POS supervisors can issue new gift cards and top up existing cards from the payment/gift-card workflows.
+- Gift-card issue and top-up actions create the required accounting entry against the configured gift-card liability account.
+- Supervisor management is controlled by POS Profile gift-card settings and the **POS Awesome Supervisor** role.
+
+---
+
+### Purchase Orders, Receiving, And Purchase Payments
+
+The **Purchase Order** module lets users create purchasing documents directly from POS.
+
+- Create Purchase Orders from the POS item selector.
+- Select supplier/vendor, warehouse, transaction date, and schedule date.
+- Use supplier-specific buying price lists and supplier currency where available.
+- Optionally receive stock immediately by creating a linked Purchase Receipt.
+- Optionally create a linked Purchase Invoice.
+- Pay suppliers/vendors from the same purchase flow using POS Profile payment methods.
+- Create new suppliers/vendors from POS when `Allow Create Suppliers from POS` is enabled.
+- Create purchase items from POS when `Allow Create Items from POS` is enabled.
+
+Configure the purchase feature from POS Profile:
+
+- `Allow Purchase Order`
+- `Allow Receive Stock from POS`
+- `Allow Create Items from POS`
+- `Allow Create Suppliers from POS`
+
+---
+
+### Barcode Printing
+
+The **Barcode Printing** module prints item labels directly from POS.
+
+- Add barcode-enabled items from the item selector.
+- Choose item UOM and label quantity per row.
+- Print labels or export them as PDF.
+- Configure A4 label grids by rows and columns.
+- Optionally include item price and batch/serial details on labels.
+- Supports scale/weighted barcode generation using scale barcode settings and item/UOM barcode templates.
+
+---
+
+### POS Cash Movement (Journal Entry Based)
+
+Use this feature to post shift-level cash expenses and cash deposits from POS App without touching monolithic accounting flows.
+
+#### Usage Notes
+
+- Open POS App and go to `Cash Movement` from the side menu (visible only if enabled in POS Profile).
+- Submit `Expense` to book: **Dr Expense Account, Cr POS Cash Account**.
+- Submit `Deposit` to book: **Dr Back Office Cash Account, Cr POS Cash Account**.
+- Entries are saved as `POS Cash Movement` and linked to a submitted `Journal Entry`.
+- History supports:
+  - Submitted/Cancelled/Draft filters
+  - Expense/Deposit filters
+  - Journal Entry reference visibility
+  - Cancel action (profile-controlled)
+  - Delete action for cancelled records (profile-controlled)
+
+#### Admin Configuration (POS Profile)
+
+Configure these fields in `POS Profile`:
+
+- `Enable Cash Movement`
+- `Allow POS Expense`
+- `Allow Cash Deposit`
+- `Default POS Expense Account`
+- `Back Office Cash Account`
+- `Allow Cancel Submitted Cash Movement`
+- `Allow Delete Cancelled Cash Movement`
+- `Require Cash Movement Remarks`
+- `Cash Movement Max Amount`
+
+Recommended setup:
+
+- Set a dedicated `Cash` mode of payment and map it correctly at company level.
+- Set `Default POS Expense Account` and `Back Office Cash Account` before enabling user access.
+- Enable cancel/delete only for trusted operational roles.
+
+#### Offline + Sync Behavior
+
+- Cash movements queue locally when POS is offline.
+- Sync runs from:
+  - Main sync action in POS layout
+  - Manual sync button in Cash Movement screen when queue exists
+- Duplicate-safe replay uses `client_request_id` idempotency.
+
+#### Closing Shift Impact
+
+- Submitted cash movements are included in shift overview.
+- Expected cash on hand is reduced by submitted cash movement total.
+- Closing screen shows a dedicated submitted cash movement summary.
+
+#### Known Limitations / Guardrails
+
+- Backend permissioned runtime tests require a full Frappe/ERPNext bench environment.
+- Cash movement amounts are currently reconciled in company currency for closing impact.
+- If profile flags are disabled mid-shift, creation and management actions are blocked by backend checks.
+
+For deployment details, see `CASH_MOVEMENT_ROLLOUT.md`.
+
+---
+
+### Debugging (Quick Tips)
+
+- Check browser console for errors and attached logs with issue for better debugging.
+- If UI totals look stale after a major update, clear site data from developer tools and browser cache and files from browsing history.
+
+---
+
+
+### Electron Desktop App
+
+Use the bundled Electron shell when you need an offline-friendly desktop build that remembers the ERPNext server URL.
+
+1. **Install dependencies** (root): `yarn install`
+2. **Run the desktop shell**: `yarn electron:dev`
+3. **Build installers**: `yarn electron:build`
+
+Notes:
+
+- The app prompts for the server URL on first launch (the `/app/posapp` path is added automatically) and saves it locally so you do not need to re-enter it.
+- If connectivity drops, an offline screen appears with options to retry or change the saved server.
+- Windows (`.exe`) builds require Wine/Mono when running `electron-builder` on Linux. By default, `yarn electron:build` targets the current platform and writes artifacts into `dist-electron/`.
 
 ### Main Features
 
-1. Supports Erpnext Version 15
-2. Supports Multi-Currency Transactions.
-   Customers can be invoiced in different currencies.
-   Exchange Rate is fetched automatically based on selected currency. When a price list has its own exchange rate set, POS Awesome uses that rate and falls back to the standard ERPNext rate otherwise.
-   Invoices made with posawesome display Grand Total in both base and selected currency in erpnext.
-3. Supports offline mode for creating invoices and customers, saves data locally with stock validation, and syncs automatically when reconnected. If **Allow Negative Stock** is enabled in Stock Settings, offline invoices can still be saved even when quantities are below zero. **Enable browser local storage from settings and also enable the server cache for offline mode.**
-4. User-friendly and provides a good user experience and speed of use
-5. The cashier can either use list view or card view during sales transactions. Card view shows the images of the items
-6. Supports enqueue invoice submission after printing the receipt for faster processing
-7. Supports batch & serial numbering
-8. Supports batch-based pricing
-9. Supports UOM-specific barcode and pricing
-10. Supports sales of scale (weighted) products
-11. Ability to make returns from POS
-12. Supports Making returns for either cash or customer credit
-13. Supports using customer credit notes for payment
-14. Supports credit sales
-15. Allows the user to choose a due date for credit sales
-16. Supports customer loyalty points
-17. Shortcut keys
-18. Supports Customer Discount
-19. Supports POS Offers
-20. Auto-apply batches for bundle items
-21. Search and add items by Serial Number
-22. Create Sales Orders from POS directly
-23. Supports template items with variants
-24. Supports multiple languages with language selection per POS Profile (English, Arabic, Portuguese and Spanish provided)
-25. Supports Mpesa mobile payment
-26. POS Coupons
-27. Supports Referral Code
-28. Supports Customer and Customer Group price list
-29. Supports Sales Person
-30. Supports Delivery Charges
-31. Search and add items by Batch Number
-32. Accept new payments from customers against existing invoices
-33. Payments Reconciliation
-34. A lot more bug fixes from the version 14
-35. Offline invoices that fail to submit are saved as draft documents
+#### 🏗️ Architecture (New)
 
+- **Vue Router**: Fully Client-Side Routing for instant navigation between POS, Orders, and Payments.
+- **Modular Design**: Separated concerns using Vue 3 Composition API.
+
+#### 🎨 UI/UX & Interface
+#### 🎨 UI/UX & Interface
+
+- **Modern Interface**: User-friendly design using Vue.js and Vuetify, optimized for speed and experience.
+- **View Modes**: Toggle between List View (efficient for data entry) and Card View (visual with item images).
+- **Dark Mode & Theming**: Built-in dark mode support with automatic or manual toggle, plus customizable theme options.
+- **RTL Support**: Full support for Right-to-Left languages (Arabic, etc.).
+- **System Status Gadgets**: Real-time monitoring of Server, Database, Cache, and Network status directly from the POS navbar.
+- **Fly to Cart Animation**: Visual feedback when adding items to the cart.
+- **Performance**: Optimized for large datasets using virtual scrolling and efficient state management.
+- **Shortcuts**: Extensive keyboard shortcuts for rapid operation.
+- **Multi-Language**: Supports English, Arabic, Portuguese, Spanish, and more.
+
+#### 💸 Transactions & Sales
+
+- **Multi-Currency**: Full support for invoicing in different currencies with automatic exchange rate fetching.
+- **Quotations**: Create, update, and submit Quotations directly from the POS interface.
+- **Sales Orders**: Create Sales Orders directly. Configurable "Sales Order Only" mode available.
+- **Purchase Orders**: Create supplier/vendor Purchase Orders from POS, with optional Purchase Receipt, Purchase Invoice, and supplier payment creation.
+- **Purchase Receiving**: Receive stock from POS when allowed by POS Profile.
+- **Returns**: Process returns for Cash or Customer Credit (Credit Note).
+- **Credit Sales**: Support for credit sales with configurable due dates.
+- **Change Posting Date**: Ability to change the transaction posting date (backdating) if allowed by profile.
+- **Additional Notes**: Fields for internal notes and authorization codes.
+- **Customer PO**: Capture Customer Purchase Order (PO) number and date.
+
+#### 📦 Inventory & Products
+
+- **Batch & Serial**: Comprehensive support for Batch and Serial number selection and search.
+- **Product Bundles**: Auto-apply batches for bundle items.
+- **Variants**: Support for template items with product variants.
+- **UOM Support**: Barcode and pricing support specific to Units of Measure.
+- **Weighted Products**: Support for scale/weighted product barcodes.
+- **Stock Validation**: Configurable stock validation (warn or block) including negative stock handling.
+- **Offline Stock Verification Skip**: POS Profile option to save offline invoices even when local stock cannot be verified, while keeping server validation during sync.
+- **Barcode Printing**: Build item label batches, print barcodes, export PDF labels, include price/batch/serial data, and generate scale barcodes for weighted items.
+
+#### 💳 Payments & Pricing
+
+- **POS Awesome Payments**: Dedicated payment route for customer Receive workflows and Pay workflows for customers, suppliers/vendors, and employees.
+- **Payment Entry Creation**: Create new Payment Entries from POS when enabled in POS Profile.
+- **Payment Reconciliation**: Reconcile outstanding invoices against unallocated payments, credit notes, and M-Pesa payments.
+- **Auto Reconcile**: Automatically allocate available unallocated payments against outstanding invoices in chronological order.
+- **Supplier/Vendor Payments**: Pay suppliers/vendors and allocate payments against Purchase Invoices.
+- **Employee Payments**: Pay employees through the POS payments workflow.
+- **Payment Auto Allocation**: Automatically allocate newly created payment amounts against selected invoices when enabled.
+- **Payment Reference Tracking**: Capture reference number/date for POS-created payments.
+- **Smart Tender**: "Quick Cash" suggestions based on currency denominations for faster checkout.
+- **Split Payments**: Accept multiple payment modes for a single transaction.
+- **M-Pesa**: Integrated M-Pesa mobile payment support.
+- **Gift Cards**: Check gift-card balances, redeem gift cards at checkout, and allow supervisors to issue or top up cards.
+- **Loyalty Points**: Earn and redeem Customer Loyalty Points.
+- **Coupons & Offers**: Support for POS Coupons, Promotional Offers, and Referral Codes.
+- **Price Lists**: Support for Customer/Group price lists, with option to manually select Price List per transaction.
+- **Discounts**: Customer-level and Transaction-level discount support.
+- **Delivery Charges**: Add shipping/delivery charges to the invoice.
+- **Write Off**: Option to write off small difference amounts in change.
+
+#### 🔄 Offline & Technical
+
+- **Robust Offline Mode**: Create invoices and customers offline. Data syncs automatically when reconnected.
+- **Offline Payments**: POS Awesome Payments can be queued offline and synced when connectivity returns.
+- **Background Sync**: Advanced background synchronization for offline transactions and master data updates.
+- **Local Storage**: Option to use browser Local Storage for caching to improve reliability.
+- **Background Submission**: Enqueue invoice submission to background jobs for faster UI response.
+- **Drafts**: Failed offline submissions are safely saved as Draft documents.
+- **Offline Stock Guard Control**: `Allow Offline Sale Without Stock Verification` can defer stock blocking to online sync when local stock data is incomplete.
+
+#### ⚙️ Configuration & Shift Management
+
+- **Shift Management**: Opening and Closing shifts with cash reconciliation and detailed payment breakdown reports.
+- **Role-Based Supervisor Access**: Supervisor features are granted through the **POS Awesome Supervisor** role on User roles.
+- **Cash Movement**: Profile-controlled POS expenses and cash deposits with closing-shift impact.
+- **Customer Balance**: Option to display current customer balance on the main screen.
+- **Address Management**: Manage multiple shipping addresses for customers.
+- **ERPNext v15 Support**: Fully compatible with the latest ERPNext version.
 
 ### Shortcuts:
 
-- `CTRL or CMD + S` open payments
-- `CTRL or CMD + X` submit payments
-- `CTRL or CMD + D` remove the first item from the top
-- `CTRL or CMD + A` expand the first item from the top
-- `CTRL or CMD + E` focus on discount field
-- `CTRL or CMD + B` focus on customer search
-- `CTRL or CMD + I` focus on item search field
+#### Global (Invoice Screen)
+
+- `F4` profile switch (currently shows “not available” message).
+- `F6` open new customer form.
+- `F7` open shift details.
+- `F8` POS lock (currently shows “not available” message).
+
+#### Alt + Number
+
+- `Alt + 1` close payments panel.
+- `Alt + 2` open cancel dialog.
+- `Alt + 3` focus item search.
+- `Alt + 4` select top item.
+- `Alt + 5` focus customer search.
+- `Alt + 6` select first customer.
+- `Alt + 7` load sales orders.
+- `Alt + 8` open returns.
+- `Alt + 9` focus delivery charges.
+- `Alt + `` focus posting date.
+
+#### Alt + Keys
+
+- `Alt + PageUp` open payments panel.
+- `Alt + Home` go to home and reload.
+- `Alt + A` focus additional discount field.
+- `Alt + Q` focus quantity field for first item and then the next item (cycles).
+- `Alt + U` focus UOM field for first item and then the next item (cycles).
+- `Alt + R` focus rate field for first item and then the next item (cycles).
+- `Alt + E` remove the first item from the top.
+- `Alt + F` focus item table search field for added items searching.
+- `Alt + L` load draft invoices.
+- `Alt + M` toggle item selector settings.
+- `Alt + S` save and clear invoice.
+
+#### Payments Panel
+
+- `Alt + D` open payments panel.
+- `Alt + X` on invoice it open payments, then submit automatically (prompts if payments are closed). on payments it submit directly.
+- `Alt + P` on invoice it open payments, then submit & print automatically (prompts if payments are closed). on payments it submit directly.
 
 ---
 
@@ -116,6 +410,7 @@ After clearing site data go to browser settings and delete cache and images data
 - [Frappe](https://github.com/frappe/frappe)
 - [Erpnext](https://github.com/frappe/erpnext)
 - [Vue.js](https://github.com/vuejs/vue)
+- [Vue Router](https://router.vuejs.org/) (New Architecture)
 - [Vuetify.js](https://github.com/vuetifyjs/vuetify)
 
 ---

@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "creation": "2026-04-05 21:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "gift_card_code",
+  "redeemed_amount",
+  "balance_before",
+  "balance_after",
+  "status",
+  "cashier"
+ ],
+ "fields": [
+  {
+   "fieldname": "gift_card_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Gift Card",
+   "options": "POS Gift Card",
+   "reqd": 1
+  },
+  {
+   "fieldname": "redeemed_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Redeemed Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "balance_before",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Balance Before",
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_after",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Balance After",
+   "read_only": 1
+  },
+  {
+   "default": "Applied",
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cashier",
+   "fieldtype": "Link",
+   "label": "Cashier",
+   "options": "User",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-05 21:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "POSAwesome",
+ "name": "POS Gift Card Redemption",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

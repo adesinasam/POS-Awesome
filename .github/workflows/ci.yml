@@ -51,6 +51,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      - name: Frontend Type Check and Offline Tests
+        run: |
+          cd frontend
+          yarn install --frozen-lockfile
+          yarn type-check
+          yarn vitest run tests/cashMovement.spec.ts tests/offlineCashMovements.spec.ts tests/loaderPathNormalization.spec.ts tests/offlineKeyMapParity.spec.ts
+
       - name: Install Frappe Bench CLI
         run: |
           pip3 install --upgrade pip
@@ -60,6 +67,16 @@ jobs:
       - name: Initialize Frappe Bench (v15)
         run: |
           bench init --frappe-branch version-15 --python python3 frappe-bench
+
+      - name: Start Frappe Redis services
+        run: |
+          cd frappe-bench
+          for service in redis_cache redis_queue redis_socketio; do
+            if [ -f "config/${service}.conf" ]; then
+              redis-server "config/${service}.conf" --daemonize yes
+            fi
+          done
+          redis-cli -p 11000 ping
 
       - name: Setup Site and Install App (Dynamic)
         run: |

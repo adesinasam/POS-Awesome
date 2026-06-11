@@ -1,6 +1,5 @@
 <template>
 	<v-app-bar
-		app
 		flat
 		:height="isMobile ? 64 : 56"
 		:class="[
@@ -61,103 +60,151 @@
 				<slot name="status-indicator"></slot>
 
 				<!-- Offline Invoices with higher priority on mobile -->
-				<v-btn
-					icon
-					size="small"
+				<div
 					:class="[
-						'offline-invoices-btn mobile-btn pos-themed-button',
-						isRtl ? 'rtl-offline-btn' : 'ltr-offline-btn',
-						{ 'has-pending': pendingInvoices > 0 },
+						'primary-actions-cluster mobile-primary-actions',
+						isRtl ? 'rtl-primary-actions' : 'ltr-primary-actions',
 					]"
-					:aria-label="__('View offline invoices') + ` (${pendingInvoices})`"
-					@click="$emit('show-offline-invoices')"
 				>
-					<v-badge v-if="pendingInvoices > 0" :content="pendingInvoices" color="error" overlap>
-						<v-icon class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
-					</v-badge>
-					<v-icon v-else class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
-					<v-tooltip activator="parent" location="bottom">
-						{{ __("Offline Invoices") }} ({{ pendingInvoices }})
-					</v-tooltip>
-				</v-btn>
+					<v-btn
+						icon
+						size="small"
+						:class="[
+							'offline-invoices-btn mobile-btn pos-themed-button',
+							isRtl ? 'rtl-offline-btn' : 'ltr-offline-btn',
+							{ 'has-pending': pendingInvoices > 0 },
+						]"
+						:aria-label="__('View offline invoices') + ` (${pendingInvoices})`"
+						@click="$emit('show-offline-invoices')"
+					>
+						<v-badge v-if="pendingInvoices > 0" :content="pendingInvoices" color="error" floating>
+							<v-icon class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
+						</v-badge>
+						<v-icon v-else class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
+						<v-tooltip activator="parent" location="bottom">
+							{{ __("Offline Invoices") }} ({{ pendingInvoices }})
+						</v-tooltip>
+					</v-btn>
 
-				<!-- Mobile Menu - contains all other items -->
-				<slot name="menu"></slot>
+					<!-- Notification bell centered between offline invoices and menu -->
+					<div class="notification-wrapper">
+						<slot name="notification-bell"></slot>
+					</div>
+
+					<!-- Mobile Menu - contains all other items -->
+					<div class="menu-wrapper">
+						<slot name="menu"></slot>
+					</div>
+				</div>
 			</template>
 
 			<!-- Desktop: Show all items normally -->
 			<template v-else>
-				<!-- Enhanced connectivity status indicator -->
+				<!-- Enhanced connectivity status indicator (kept outside info menu) -->
 				<div class="gadget-wrapper status-gadget">
 					<slot name="status-indicator"></slot>
 				</div>
 
-				<!-- Cache Usage Meter -->
-				<div class="gadget-wrapper cache-gadget">
-					<slot name="cache-usage-meter"></slot>
-				</div>
+				<NavbarInfoGadgets
+					:class="['info-gadgets-wrapper', isRtl ? 'rtl-info-gadgets' : 'ltr-info-gadgets']"
+				>
+					<!-- Cache Usage Meter -->
+					<template #cache-usage-meter>
+						<slot name="cache-usage-meter"></slot>
+					</template>
 
-				<!-- Database Usage Gadget -->
-				<div class="gadget-wrapper db-gadget">
-					<slot name="db-usage-gadget"></slot>
-				</div>
+					<!-- Database Usage Gadget -->
+					<template #db-usage-gadget>
+						<slot name="db-usage-gadget"></slot>
+					</template>
 
-				<!-- CPU Load Gadget -->
-				<div class="gadget-wrapper cpu-gadget">
-					<slot name="cpu-gadget"></slot>
-				</div>
+					<!-- CPU Load Gadget -->
+					<template #cpu-gadget>
+						<slot name="cpu-gadget"></slot>
+					</template>
+				</NavbarInfoGadgets>
 
 				<div :class="['profile-section', isRtl ? 'rtl-profile-section' : 'ltr-profile-section']">
 					<v-chip
+						v-if="cashierChipLabel"
 						variant="outlined"
 						:class="[
-							'profile-chip pos-themed-card',
+							'profile-chip cashier-chip pos-themed-card',
 							isRtl ? 'rtl-profile-chip' : 'ltr-profile-chip',
 						]"
+						data-test="cashier-chip"
+						tabindex="0"
+						role="button"
+						@click="$emit('open-employee-switch')"
+						@keydown.enter="$emit('open-employee-switch')"
 					>
 						<v-icon
 							:start="!isRtl"
 							:end="isRtl"
 							:class="['pos-text-primary', isRtl ? 'rtl-profile-icon' : 'ltr-profile-icon']"
 						>
-							mdi-account-circle
+							mdi-account-switch-outline
 						</v-icon>
-						<span :class="['pos-text-primary', isRtl ? 'rtl-profile-text' : 'ltr-profile-text']">
-							{{ displayName }}
+						<span
+							:class="[
+								'profile-chip__content',
+								isRtl ? 'rtl-profile-text' : 'ltr-profile-text',
+							]"
+						>
+							<span class="pos-text-primary profile-chip__title">
+								{{ cashierChipLabel }}
+							</span>
+							<span v-if="cashierChipMeta" class="profile-chip__meta">
+								{{ cashierChipMeta }}
+							</span>
 						</span>
 					</v-chip>
 				</div>
 
-				<v-btn
-					icon
+				<div
 					:class="[
-						'offline-invoices-btn pos-themed-button',
-						isRtl ? 'rtl-offline-btn' : 'ltr-offline-btn',
-						{ 'has-pending': pendingInvoices > 0 },
+						'primary-actions-cluster desktop-primary-actions',
+						isRtl ? 'rtl-primary-actions' : 'ltr-primary-actions',
 					]"
-					:aria-label="__('View offline invoices') + ` (${pendingInvoices})`"
-					:aria-describedby="'offline-invoices-tooltip'"
-					@click="$emit('show-offline-invoices')"
-					@keydown.enter="$emit('show-offline-invoices')"
-					tabindex="0"
 				>
-					<v-badge v-if="pendingInvoices > 0" :content="pendingInvoices" color="error" overlap>
-						<v-icon class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
-					</v-badge>
-					<v-icon v-else class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
-					<v-tooltip
-						id="offline-invoices-tooltip"
-						activator="parent"
-						:location="isRtl ? 'bottom start' : 'bottom end'"
-						:open-delay="500"
-						:close-delay="200"
+					<v-btn
+						icon
+						:class="[
+							'offline-invoices-btn pos-themed-button',
+							isRtl ? 'rtl-offline-btn' : 'ltr-offline-btn',
+							{ 'has-pending': pendingInvoices > 0 },
+						]"
+						:aria-label="__('View offline invoices') + ` (${pendingInvoices})`"
+						:aria-describedby="'offline-invoices-tooltip'"
+						@click="$emit('show-offline-invoices')"
+						@keydown.enter="$emit('show-offline-invoices')"
+						tabindex="0"
 					>
-						{{ __("Offline Invoices") }} ({{ pendingInvoices }})
-					</v-tooltip>
-				</v-btn>
+						<v-badge v-if="pendingInvoices > 0" :content="pendingInvoices" color="error" floating>
+							<v-icon class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
+						</v-badge>
+						<v-icon v-else class="pos-text-primary">mdi-file-document-multiple-outline</v-icon>
+						<v-tooltip
+							id="offline-invoices-tooltip"
+							activator="parent"
+							:location="isRtl ? 'bottom start' : 'bottom end'"
+							:open-delay="500"
+							:close-delay="200"
+						>
+							{{ __("Offline Invoices") }} ({{ pendingInvoices }})
+						</v-tooltip>
+					</v-btn>
 
-				<!-- Menu component slot -->
-				<slot name="menu"></slot>
+					<!-- Notification bell between offline invoices and menu -->
+					<div class="notification-wrapper">
+						<slot name="notification-bell"></slot>
+					</div>
+
+					<!-- Menu component slot -->
+					<div class="menu-wrapper">
+						<slot name="menu"></slot>
+					</div>
+				</div>
 			</template>
 		</div>
 
@@ -166,10 +213,11 @@
 			<div v-if="loadingActive" class="loading-container">
 				<div class="glass-card">
 					<span class="loading-message">{{ loadingMessage }}</span>
-					<div class="progress-badge">{{ loadingProgress }}%</div>
+					<div v-if="!loadingIndeterminate" class="progress-badge">{{ loadingProgress }}%</div>
 				</div>
 				<v-progress-linear
 					:model-value="loadingProgress"
+					:indeterminate="loadingIndeterminate"
 					color="primary"
 					height="4"
 					absolute
@@ -182,11 +230,15 @@
 </template>
 
 <script>
-import { useRtl } from "../../composables/useRtl.js";
+import { useRtl } from "../../composables/core/useRtl";
 import posLogo from "../pos/pos.png";
+import NavbarInfoGadgets from "./NavbarInfoGadgets.vue";
 
 export default {
 	name: "NavbarAppBar",
+	components: {
+		NavbarInfoGadgets,
+	},
 	setup() {
 		const { isRtl, rtlStyles, rtlClasses } = useRtl();
 		return {
@@ -234,9 +286,17 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		loadingIndeterminate: {
+			type: Boolean,
+			default: false,
+		},
 		loadingMessage: {
 			type: String,
 			default: "Loading app data...",
+		},
+		cashierName: {
+			type: String,
+			default: "",
 		},
 	},
 	computed: {
@@ -260,6 +320,22 @@ export default {
 			}
 
 			return "User";
+		},
+
+		cashierChipLabel() {
+			return this.cashierName || this.displayName;
+		},
+
+		cashierChipMeta() {
+			if (!this.cashierName) {
+				return "";
+			}
+
+			if (this.displayName && this.displayName !== this.cashierName) {
+				return this.displayName;
+			}
+
+			return "";
 		},
 
 		// Mobile breakpoint detection
@@ -308,7 +384,7 @@ export default {
 			}
 		},
 	},
-	emits: ["nav-click", "go-desk", "show-offline-invoices"],
+	emits: ["nav-click", "go-desk", "show-offline-invoices", "open-employee-switch"],
 };
 </script>
 
@@ -345,8 +421,9 @@ export default {
 	gap: 12px;
 	flex-direction: row;
 	/* Default to normal row */
-	flex-shrink: 0;
-	min-width: max-content;
+	flex: 1 1 auto;
+	min-width: 0;
+	max-width: 100%;
 }
 
 .pos-navbar-title-compact {
@@ -371,6 +448,7 @@ export default {
 	gap: 8px;
 	flex-direction: row;
 	/* Default to normal row */
+	min-width: 0;
 }
 
 .rtl-actions-section {
@@ -382,75 +460,68 @@ export default {
 	/* Explicit normal row for LTR */
 }
 
+.primary-actions-cluster {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	flex-shrink: 0;
+	min-width: 0;
+}
+
+.mobile-primary-actions {
+	gap: 6px;
+}
+
+.rtl-primary-actions {
+	flex-direction: row-reverse;
+}
+
+.ltr-primary-actions {
+	flex-direction: row;
+}
+
+.primary-actions-cluster .offline-invoices-btn,
+.primary-actions-cluster .notification-wrapper,
+.primary-actions-cluster .menu-wrapper {
+	order: 0;
+}
+
+.notification-wrapper,
+.menu-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 /* LTR Actions ordering for proper sequence */
-.ltr-actions-section > :nth-child(1) {
-	/* status-indicator */
+.status-gadget {
 	order: 1;
 }
 
-.ltr-actions-section > :nth-child(2) {
-	/* cache-usage-meter */
+.ltr-info-gadgets {
 	order: 2;
-}
-
-.ltr-actions-section > :nth-child(3) {
-	/* db-usage-gadget */
-	order: 3;
-}
-
-.ltr-actions-section > :nth-child(4) {
-	/* cpu-gadget */
-	order: 4;
 }
 
 .ltr-actions-section .profile-section {
-	order: 5;
-}
-
-.ltr-actions-section .offline-invoices-btn {
-	order: 6;
-}
-
-/* Menu should be the last element */
-.ltr-actions-section> :last-child,
-/* menu slot */
-.ltr-actions-section .v-menu,
-.ltr-actions-section [role="menu"] {
-	order: 7 !important;
-}
-
-/* RTL adjustments for gadgets - reverse the order */
-.rtl-actions-section > :nth-child(1) {
-	order: 6;
-	/* Reverse order in RTL */
-}
-
-.rtl-actions-section > :nth-child(2) {
-	order: 5;
-}
-
-.rtl-actions-section > :nth-child(3) {
-	order: 4;
-}
-
-.rtl-actions-section > :nth-child(4) {
 	order: 3;
 }
 
+.ltr-actions-section .primary-actions-cluster {
+	order: 4;
+}
+
+/* RTL adjustments for gadgets - reverse the order */
+.rtl-info-gadgets {
+	order: 4;
+}
+
 .rtl-actions-section .profile-section {
-	order: 2;
+	order: 3;
 }
 
-.rtl-actions-section .offline-invoices-btn {
+.rtl-actions-section .primary-actions-cluster {
 	order: 1;
-}
-
-/* RTL Menu should be first */
-.rtl-actions-section> :last-child,
-/* menu slot */
-.rtl-actions-section .v-menu,
-.rtl-actions-section [role="menu"] {
-	order: 0 !important;
 }
 
 .pos-navbar-enhanced:hover {
@@ -494,6 +565,11 @@ export default {
 	.mobile-navbar .pos-navbar-actions-section {
 		gap: 4px;
 	}
+	.pos-navbar-title-compact {
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 }
 
 @media (max-width: 600px) {
@@ -511,11 +587,13 @@ export default {
 	border-bottom: none !important;
 	transition: color 0.3s ease;
 	white-space: nowrap;
-	overflow: visible !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis;
 	display: flex;
 	align-items: center;
-	min-width: max-content;
-	flex-shrink: 0;
+	min-width: 0;
+	max-width: 100%;
+	flex: 1 1 auto;
 	/* Use same blue as Menu button - matching gradient blue */
 	color: #1976d2 !important;
 }
@@ -546,6 +624,8 @@ export default {
 	margin-right: 2px;
 	display: inline-block;
 	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .pos-navbar-title-bold {
@@ -553,6 +633,8 @@ export default {
 	letter-spacing: 0.25px;
 	display: inline-block;
 	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* RTL Title Spacing */
@@ -609,25 +691,6 @@ export default {
 	display: none;
 }
 
-/* Individual gadget responsiveness */
-@media (max-width: 1200px) {
-	.db-gadget {
-		display: none;
-	}
-}
-
-@media (max-width: 1024px) {
-	.cpu-gadget {
-		display: none;
-	}
-}
-
-@media (max-width: 900px) {
-	.cache-gadget {
-		display: none;
-	}
-}
-
 /* Profile Section */
 .profile-section {
 	margin: 0;
@@ -658,6 +721,25 @@ export default {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+}
+
+.profile-chip__content {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.profile-chip__title {
+	font-weight: 600;
+	line-height: 1.1;
+}
+
+.profile-chip__meta {
+	font-size: 0.72rem;
+	line-height: 1.1;
+	color: var(--pos-text-secondary);
+	white-space: nowrap;
 }
 
 .profile-chip:hover {

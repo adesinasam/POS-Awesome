@@ -53,6 +53,7 @@
 								color="error"
 								class="header-close-btn"
 								@click="dialog = false"
+								:aria-label="__('Close offline invoices dialog')"
 							>
 								<v-tooltip activator="parent" location="bottom">
 									{{ __("Close Dialog") }}
@@ -141,6 +142,7 @@
 										variant="text"
 										@click="removeInvoice(index)"
 										class="delete-btn"
+										:aria-label="__('Delete offline invoice')"
 									>
 										<v-icon size="18">mdi-delete-outline</v-icon>
 										<v-tooltip activator="parent" location="top">
@@ -193,83 +195,110 @@
 	</v-row>
 </template>
 
-<script>
-import format from "../format";
-import {
-	getOfflineInvoices,
-	deleteOfflineInvoice,
-	getPendingOfflineInvoiceCount,
-} from "../../offline/index.js";
+<script setup>
+import { ref, watch } from "vue";
+import { formatUtils } from "../format";
+import { getOfflineInvoices, deleteOfflineInvoice, getPendingOfflineInvoiceCount } from "../../offline/index";
 
-export default {
+defineOptions({
 	name: "OfflineInvoicesDialog",
-	mixins: [format],
-	props: {
-		modelValue: Boolean,
-		posProfile: {
-			type: Object,
-			default: () => ({}),
-		},
+});
+
+const props = defineProps({
+	modelValue: Boolean,
+	posProfile: {
+		type: Object,
+		default: () => ({}),
 	},
-	emits: ["update:modelValue", "deleted", "sync-all"],
-	data() {
-		return {
-			dialog: this.modelValue,
-			invoices: [],
-			headers: [
-				{
-					title: this.__("Customer"),
-					value: "customer",
-					align: "start",
-					width: "35%",
-				},
-				{
-					title: this.__("Date"),
-					value: "posting_date",
-					align: "center",
-					width: "20%",
-				},
-				{
-					title: this.__("Amount"),
-					value: "grand_total",
-					align: "end",
-					width: "25%",
-				},
-				{
-					title: this.__("Actions"),
-					value: "actions",
-					align: "center",
-					width: "20%",
-					sortable: false,
-				},
-			],
-		};
+});
+
+const emit = defineEmits(["update:modelValue", "deleted", "sync-all"]);
+const __ = window.__ || ((text) => text);
+const get_currency_symbol = window.get_currency_symbol;
+const currency_precision = ref(2);
+
+const dialog = ref(props.modelValue);
+const invoices = ref([]);
+const headers = [
+	{
+		title: __("Customer"),
+		value: "customer",
+		align: "start",
+		width: "35%",
 	},
-	watch: {
-		modelValue(val) {
-			this.dialog = val;
-			if (val) {
-				this.loadInvoices();
-			}
-		},
-		dialog(val) {
-			this.$emit("update:modelValue", val);
-		},
+	{
+		title: __("Date"),
+		value: "posting_date",
+		align: "center",
+		width: "20%",
 	},
-	methods: {
-		loadInvoices() {
-			this.invoices = getOfflineInvoices();
-		},
-		removeInvoice(index) {
-			if (!this.posProfile.posa_allow_delete_offline_invoice) {
-				return;
-			}
-			deleteOfflineInvoice(index);
-			this.loadInvoices();
-			this.$emit("deleted", getPendingOfflineInvoiceCount());
-		},
+	{
+		title: __("Amount"),
+		value: "grand_total",
+		align: "end",
+		width: "25%",
 	},
-};
+	{
+		title: __("Actions"),
+		value: "actions",
+		align: "center",
+		width: "20%",
+		sortable: false,
+	},
+];
+
+watch(
+	() => props.modelValue,
+	(val) => {
+		dialog.value = val;
+		if (val) {
+			loadInvoices();
+		}
+	},
+);
+
+watch(dialog, (val) => {
+	emit("update:modelValue", val);
+});
+
+function formatCurrency(value, precision) {
+	if (value === null || value === undefined) {
+		value = 0;
+	}
+	let number = Number(formatUtils.fromArabicNumerals(String(value)).replace(/,/g, ""));
+	if (isNaN(number)) number = 0;
+	let prec = precision != null ? Number(precision) : Number(currency_precision.value) || 2;
+	if (!Number.isInteger(prec) || prec < 0 || prec > 20) {
+		prec = Math.min(Math.max(parseInt(prec) || 2, 0), 20);
+	}
+
+	const locale = formatUtils.getNumberLocale();
+	let formatted = number.toLocaleString(locale, {
+		minimumFractionDigits: prec,
+		maximumFractionDigits: prec,
+		useGrouping: true,
+	});
+
+	formatted = formatUtils.toArabicNumerals(formatted);
+	return formatted;
+}
+
+function currencySymbol(currency) {
+	return get_currency_symbol?.(currency);
+}
+
+function loadInvoices() {
+	invoices.value = getOfflineInvoices();
+}
+
+async function removeInvoice(index) {
+	if (!props.posProfile.posa_allow_delete_offline_invoice) {
+		return;
+	}
+	await deleteOfflineInvoice(index);
+	loadInvoices();
+	emit("deleted", getPendingOfflineInvoiceCount());
+}
 </script>
 
 <style>
