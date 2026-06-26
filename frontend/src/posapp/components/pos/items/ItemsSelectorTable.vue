@@ -2,7 +2,7 @@
 	<div class="items-table-container">
 		<v-data-table-virtual
 			ref="tableRef"
-			:headers="headers"
+			:headers="effectiveHeaders"
 			:items="displayedItems"
 			class="sleek-data-table overflow-y-auto"
 			:style="{ height: 'calc(100% - 80px)' }"
@@ -16,6 +16,18 @@
 			:row-props="rowProps"
 			@scroll.passive="handleListScroll"
 		>
+			<template v-if="multiSelect" v-slot:item.item-select="{ item }">
+				<v-checkbox-btn
+					:model-value="isItemSelected(item)"
+					@click.stop="emit('toggle-selection', item)"
+				/>
+			</template>
+			<template v-if="multiSelect" v-slot:header.item-select>
+				<v-checkbox-btn
+					:model-value="allSelected"
+					@click.stop="emit('select-all', !allSelected)"
+				/>
+			</template>
 			<template v-slot:item.rate="{ item }">
 				<div v-if="context !== 'purchase'">
 					<div class="text-primary rate-cell-primary">
@@ -60,7 +72,13 @@
 						class="text-success"
 					>
 						{{ currencySymbol(selectedCurrency) }}
-						{{ formatCurrency(item.rate, selectedCurrency, ratePrecision(item.rate)) }}
+						{{
+							formatCurrency(
+								secondaryRate(item),
+								selectedCurrency,
+								ratePrecision(secondaryRate(item)),
+							)
+						}}
 					</div>
 				</div>
 				<div v-else>
@@ -105,8 +123,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import ItemRateInfoMenu from "./ItemRateInfoMenu.vue";
+import { priceListToSelectedCurrency } from "../../../utils/erpnextCurrency";
 
 const props = defineProps({
 	displayedItems: { type: Array, default: () => [] },
@@ -115,6 +134,8 @@ const props = defineProps({
 	context: { type: String, default: "pos" },
 	posProfile: { type: Object, default: () => ({}) },
 	selectedCurrency: { type: String, default: "" },
+	selectedExchangeRate: { type: Number, default: 1 },
+	selectedConversionRate: { type: Number, default: 1 },
 	hideQtyDecimals: { type: Boolean, default: false },
 	showRateInfo: { type: Boolean, default: true },
 	currencySymbol: { type: Function, required: true },
@@ -126,9 +147,32 @@ const props = defineProps({
 	itemClass: { type: [String, Function], default: "" },
 	rowProps: { type: [Object, Function], default: null },
 	noDataText: { type: String, default: "" },
+	multiSelect: { type: Boolean, default: false },
+	selectedKeys: { type: Set, default: () => new Set() },
 });
 
-const emit = defineEmits(["row-click", "list-scroll"]);
+const emit = defineEmits(["row-click", "list-scroll", "toggle-selection", "select-all"]);
+
+const effectiveHeaders = computed(() => {
+	if (!props.multiSelect) return props.headers;
+	return [
+		{ key: "item-select", title: "", sortable: false, width: "48px" },
+		...props.headers,
+	];
+});
+
+function isItemSelected(item) {
+	const key = item?.item_code || item?.name;
+	return key ? props.selectedKeys.has(key) : false;
+}
+
+const allSelected = computed(() => {
+	if (!props.displayedItems.length) return false;
+	return props.displayedItems.every((item) => {
+		const key = item?.item_code || item?.name;
+		return key ? props.selectedKeys.has(key) : false;
+	});
+});
 
 const handleRowClick = (event, data) => {
 	emit("row-click", event, data);
@@ -148,6 +192,26 @@ const formatActualQty = (value) => {
 	}
 	return props.formatNumber(numericQty, 4);
 };
+
+const priceListCurrency = (item) =>
+	item.original_currency ||
+	item.currency ||
+	item.price_list_currency ||
+	props.posProfile.currency;
+
+const primaryRate = (item) => item.original_rate ?? item.rate ?? 0;
+
+const secondaryRate = (item) =>
+	priceListToSelectedCurrency(
+		{
+			pos_profile: props.posProfile,
+			price_list_currency: priceListCurrency(item),
+			selected_currency: props.selectedCurrency || props.posProfile.currency,
+			exchange_rate: props.selectedExchangeRate,
+			conversion_rate: props.selectedConversionRate,
+		},
+		primaryRate(item),
+	);
 
 const tableRef = ref(null);
 

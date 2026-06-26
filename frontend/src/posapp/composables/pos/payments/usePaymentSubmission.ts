@@ -10,6 +10,8 @@ import { ensureInvoiceClientRequestId } from "../../../../offline/idempotency";
 import stockCoordinator from "../../../utils/stockCoordinator";
 import { parseBooleanSetting } from "../../../utils/stock";
 import { resolvePosDocumentDoctype } from "../../../utils/posDocumentMode";
+import { toCompanyCurrency } from "../../../utils/erpnextCurrency";
+import { shouldApplyReturnRefundCap } from "../../../utils/paymentInitialization";
 
 declare const frappe: any;
 declare const __: (_str: string, _args?: any[]) => string;
@@ -70,6 +72,11 @@ export function usePaymentSubmission(options: PaymentSubmissionOptions) {
 		formatFloat,
 		stores,
 	} = options;
+
+	const currencyContext = (doc = unref(invoiceDoc)) => ({
+		...(doc || {}),
+		pos_profile: unref(posProfile),
+	});
 
 	const formatStockErrors = (errors: any[]) => {
 		const settings = unref(stockSettings) || {};
@@ -384,6 +391,26 @@ export function usePaymentSubmission(options: PaymentSubmissionOptions) {
 		// 1. Ensure return payments are negative
 		if (doc.is_return) {
 			ensureReturnPaymentsAreNegative();
+
+			// Never refund more cash than was actually paid on the original
+			// invoice. Mirrors the backend guard, but blocks here so the cashier
+			// gets one clean message instead of a failed submit round-trip
+			// (which the API layer would surface as a "connection problem").
+			if (shouldApplyReturnRefundCap(doc)) {
+				let refund = 0;
+				(doc.payments || []).forEach((p: any) => {
+					refund += Math.abs(formatFloat(p.amount, prec));
+				});
+				const refundable = formatFloat(doc.posa_refundable_amount, prec);
+				if (refund > refundable + 0.001) {
+					throw new Error(
+						__(
+							'Cannot refund {0} for this return: only {1} was paid on the original invoice. Turn on "Store as Credit?" to record it as a credit note that reduces the customer\'s balance.',
+							[refund, refundable],
+						),
+					);
+				}
+			}
 		}
 
 		let current_total_payments = 0;
@@ -622,7 +649,9 @@ export function usePaymentSubmission(options: PaymentSubmissionOptions) {
 				const amount = doc.rounded_total || doc.grand_total;
 				default_payment.amount = -Math.abs(amount);
 				if (default_payment.base_amount !== undefined) {
-					default_payment.base_amount = -Math.abs(amount);
+					default_payment.base_amount = -Math.abs(
+						toCompanyCurrency(currencyContext(doc), amount),
+					);
 				}
 			}
 		}
@@ -757,7 +786,7 @@ export function usePaymentSubmission(options: PaymentSubmissionOptions) {
 			ensureInvoiceClientRequestId(doc);
 			doc.write_off_amount = writeOffAmount;
 			doc.base_write_off_amount = formatFloat(
-				writeOffAmount * (doc.conversion_rate || 1),
+				toCompanyCurrency(currencyContext(doc), writeOffAmount),
 				prec,
 			);
 			doc.paid_change = pChange;

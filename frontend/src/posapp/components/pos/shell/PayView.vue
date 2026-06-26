@@ -191,9 +191,11 @@
 
 					<PayActionButtons
 						:loading="isSubmitting"
+						:share-loading="isSharingPayment"
 						:disabled="false"
 						@submit="submit"
 						@submit-and-print="submit_and_print"
+						@share-last-payment="share_last_payment"
 					/>
 				</v-card>
 			</v-col>
@@ -236,6 +238,7 @@ import { getValidCachedOpeningForCurrentUser } from "../../../utils/openingCache
 import { usePosPayData } from "../../../composables/pos/payments/usePosPayData";
 import { usePosPaySelection } from "../../../composables/pos/payments/usePosPaySelection";
 import { usePosPaySubmission } from "../../../composables/pos/payments/usePosPaySubmission";
+import { usePaymentSharing } from "../../../composables/pos/payments/usePaymentSharing";
 import {
 	getAllowedPartyTypes,
 	normalizePartyTypeForPaymentType,
@@ -254,7 +257,7 @@ import {
 	buildPaymentRouteLoadingMessage,
 	isPaymentRouteLocked as resolvePaymentRouteLocked,
 } from "../../../utils/paymentRouteReadiness";
-import { loadPaymentMethodCurrencyMap } from "../../../utils/paymentMethodCurrencyCache";
+import { DEFAULT_PAYMENT_ENTRY_PRINT_FORMAT } from "../../../utils/paymentPrintFormat";
 
 const getTodayDate = () => frappe?.datetime?.nowdate?.() || new Date().toISOString().slice(0, 10);
 const formatDisplayDate = (date) => {
@@ -422,7 +425,7 @@ export default {
 						await printDocumentViaQz({
 							doctype: "Payment Entry",
 							name: payment_name,
-							printFormat: "Standard",
+							printFormat: DEFAULT_PAYMENT_ENTRY_PRINT_FORMAT,
 							noLetterhead: 1,
 						});
 						return;
@@ -659,6 +662,12 @@ export default {
 			autoAllocatePaymentAmount,
 			autoReconcile,
 		});
+		const { isSharing: isSharingPayment, shareLastPayment: share_last_payment } =
+			usePaymentSharing({
+				customerName: customer_name,
+				partyType,
+				eventBus: proxy?.eventBus,
+			});
 
 		const fetchCompanyCurrency = async () => {
 			if (!company.value) return;
@@ -1213,6 +1222,8 @@ export default {
 			selected_payments,
 			selected_mpesa_payments,
 			payment_methods,
+			selected_payments_detail,
+			new_payments_detail,
 			total_selected_invoices,
 			total_selected_payments,
 			total_selected_mpesa_payments,
@@ -1223,6 +1234,7 @@ export default {
 			isInvoiceSelected,
 			clearSelections,
 			isSubmitting,
+			isSharingPayment,
 			processPayment,
 			invoiceTotalCurrency,
 			paymentTotalCurrency,
@@ -1253,6 +1265,7 @@ export default {
 			handleInvoiceSelection,
 			submit,
 			submit_and_print,
+			share_last_payment,
 			rtlStyles,
 			rtlClasses,
 			customersStore,

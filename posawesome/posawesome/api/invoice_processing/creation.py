@@ -14,7 +14,7 @@ from posawesome.posawesome.api.invoice_processing.utils import (
     _resolve_effective_price_list,
     _build_invoice_remarks,
     _set_return_valid_upto,
-    get_latest_rate,
+    resolve_erpnext_currency_rates,
 )
 from posawesome.posawesome.api.invoice_processing.stock import (
     _strip_client_freebies_from_payload,
@@ -48,6 +48,11 @@ STATE_SUBMITTED = "SUBMITTED"
 STATE_POST_SUBMIT_DONE = "POST_SUBMIT_DONE"
 STATE_FAILED = "FAILED"
 FINAL_LEDGER_STATES = {STATE_SUBMITTED, STATE_POST_SUBMIT_DONE}
+
+RETURN_OUTSTANDING_MESSAGE_MARKERS = (
+    "Updating the outstanding to this invoice.",
+    "Update Outstanding for Self",
+)
 
 
 def _json_dumps(value):
@@ -207,8 +212,14 @@ def _get_or_create_submission_ledger(client_request_id, invoice, data, document_
     try:
         ledger_doc = frappe.get_doc(payload)
         return _save_submission_ledger(ledger_doc)
-    except Exception:
-        return _get_submission_ledger_by_key(ledger_key)
+    except frappe.DuplicateEntryError:
+        # A concurrent request already created this ledger row — fall back to
+        # fetching it. Any other error (e.g. validation) must propagate so the
+        # invoice is never processed without idempotency protection.
+        ledger = _get_submission_ledger_by_key(ledger_key)
+        if not ledger:
+            frappe.throw(_("A concurrent request is already processing this invoice. Please try again."))
+        return ledger
 
 
 def _ledger_response(ledger_doc, replayed=True):
@@ -759,6 +770,92 @@ def _normalize_return_payment_rows(invoice_doc, conversion_rate=1):
     invoice_doc.paid_amount = flt(sum(p.amount for p in invoice_doc.payments or []))
     invoice_doc.base_paid_amount = flt(sum(p.base_amount for p in invoice_doc.payments or []))
 
+    _guard_return_cash_refund(invoice_doc)
+
+
+def _apply_return_outstanding_policy(invoice_doc):
+    """Match ERPNext's credit-note target before validation mutates the draft."""
+    if not invoice_doc.get("is_return") or not invoice_doc.get("return_against"):
+        return
+
+    if invoice_doc.get("is_pos") or invoice_doc.get("is_paid"):
+        return
+
+    against_voucher_outstanding = flt(
+        frappe.db.get_value(
+            invoice_doc.doctype,
+            invoice_doc.return_against,
+            "outstanding_amount",
+        )
+    )
+    return_total = abs(flt(invoice_doc.get("rounded_total")) or flt(invoice_doc.get("grand_total")))
+    invoice_doc.update_outstanding_for_self = cint(return_total > against_voucher_outstanding)
+
+
+def _is_return_outstanding_message(message):
+    if isinstance(message, dict):
+        text = message.get("message") or ""
+    else:
+        text = getattr(message, "message", "") or ""
+    return any(marker in str(text) for marker in RETURN_OUTSTANDING_MESSAGE_MARKERS)
+
+
+def _run_without_return_outstanding_prompts(invoice_doc, operation):
+    """Remove only ERPNext's expected linked-credit-note info dialogs."""
+    if not invoice_doc.get("is_return") or not invoice_doc.get("return_against"):
+        return operation()
+
+    local = getattr(frappe, "local", None)
+    message_log = getattr(local, "message_log", None)
+    start = len(message_log) if isinstance(message_log, list) else None
+
+    try:
+        return operation()
+    finally:
+        if start is not None:
+            local.message_log = message_log[:start] + [
+                message
+                for message in message_log[start:]
+                if not _is_return_outstanding_message(message)
+            ]
+
+
+def _guard_return_cash_refund(invoice_doc):
+    """Block a cash refund larger than what was actually paid on the original.
+
+    A return against an UNPAID (credit / on-account) invoice must not pay out
+    cash: the credit should reduce the customer's outstanding instead. Refunding
+    cash here both gives money for an unpaid sale and leaves the customer's
+    balance untouched, while corrupting the cash drawer. We cap the refund at
+    the amount the customer actually paid on the original invoice and reject
+    anything beyond it so the error surfaces instead of silently losing money.
+    """
+    return_against = invoice_doc.get("return_against")
+    if not return_against:
+        return
+
+    # paid_amount is negative for returns; the cash refunded is its magnitude.
+    refund = abs(flt(invoice_doc.paid_amount))
+    if refund <= 0:
+        return
+
+    original_paid = flt(
+        frappe.db.get_value(invoice_doc.doctype, return_against, "paid_amount")
+    )
+    tolerance = 1.0 / (10 ** (cint(invoice_doc.precision("paid_amount")) or 2))
+    if refund > original_paid + tolerance:
+        frappe.throw(
+            _(
+                "Cannot refund {0} for this return: only {1} was paid on the "
+                "original invoice {2}. Set the paid amount to 0 so the return is "
+                "recorded as a credit note that reduces the customer's balance."
+            ).format(
+                frappe.format_value(refund, {"fieldtype": "Currency"}),
+                frappe.format_value(original_paid, {"fieldtype": "Currency"}),
+                return_against,
+            )
+        )
+
 
 @frappe.whitelist()
 def update_invoice(data):
@@ -893,75 +990,75 @@ def update_invoice(data):
         invoice_doc.currency = selected_currency
     price_list_currency = price_list_currency or company_currency
 
-    conversion_rate = 1
-    exchange_rate_date = invoice_doc.posting_date
-    if invoice_doc.currency != company_currency:
-        conversion_rate, exchange_rate_date = get_latest_rate(
-            invoice_doc.currency,
-            company_currency,
-            cache=currency_cache,
+    rates = resolve_erpnext_currency_rates(
+        invoice_doc.currency,
+        price_list_currency,
+        company_currency,
+        invoice_doc.posting_date,
+        cache=currency_cache,
+    )
+    conversion_rate = rates["conversion_rate"]
+    plc_conversion_rate = rates["plc_conversion_rate"]
+    exchange_rate_date = rates["exchange_rate_date"]
+
+    if invoice_doc.currency != company_currency and not conversion_rate:
+        frappe.throw(
+            _(
+                "Unable to find exchange rate for {0} to {1}. Please create a Currency Exchange record manually"
+            ).format(invoice_doc.currency, company_currency)
         )
-        if not conversion_rate:
-            frappe.throw(
-                _(
-                    "Unable to find exchange rate for {0} to {1}. Please create a Currency Exchange record manually"
-                ).format(invoice_doc.currency, company_currency)
+    if price_list_currency != company_currency and not plc_conversion_rate:
+        frappe.throw(
+            _(
+                "Unable to find exchange rate for {0} to {1}. Please create a Currency Exchange record manually"
+            ).format(price_list_currency, company_currency)
+        )
+
+    invoice_doc.conversion_rate = conversion_rate
+    invoice_doc.plc_conversion_rate = plc_conversion_rate
+    invoice_doc.price_list_currency = price_list_currency
+
+    for item in invoice_doc.items:
+        if item.price_list_rate:
+            item.base_price_list_rate = flt(
+                item.price_list_rate * conversion_rate,
+                item.precision("base_price_list_rate"),
+            )
+        if item.rate:
+            item.base_rate = flt(item.rate * conversion_rate, item.precision("base_rate"))
+        if item.amount:
+            item.base_amount = flt(item.amount * conversion_rate, item.precision("base_amount"))
+        if item.discount_amount:
+            item.base_discount_amount = flt(
+                item.discount_amount * conversion_rate,
+                item.precision("base_discount_amount"),
             )
 
-        plc_conversion_rate = 1
-        if price_list_currency != invoice_doc.currency:
-            plc_conversion_rate, _ignored = get_latest_rate(
-                price_list_currency,
-                invoice_doc.currency,
-                cache=currency_cache,
-            )
-            if not plc_conversion_rate:
-                frappe.throw(
-                    _(
-                        "Unable to find exchange rate for {0} to {1}. Please create a Currency Exchange record manually"
-                    ).format(price_list_currency, invoice_doc.currency)
-                )
+    for payment in invoice_doc.payments:
+        payment.amount, payment.base_amount = _resolve_payment_amounts(payment, conversion_rate)
 
-        invoice_doc.conversion_rate = conversion_rate
-        invoice_doc.plc_conversion_rate = plc_conversion_rate
-        invoice_doc.price_list_currency = price_list_currency
+    invoice_doc.base_total = flt(flt(invoice_doc.total) * conversion_rate, invoice_doc.precision("base_total"))
+    invoice_doc.base_net_total = flt(
+        flt(invoice_doc.net_total) * conversion_rate,
+        invoice_doc.precision("base_net_total"),
+    )
+    invoice_doc.base_grand_total = flt(
+        flt(invoice_doc.grand_total) * conversion_rate,
+        invoice_doc.precision("base_grand_total"),
+    )
+    invoice_doc.base_rounded_total = flt(
+        flt(invoice_doc.rounded_total) * conversion_rate,
+        invoice_doc.precision("base_rounded_total"),
+    )
+    invoice_doc.base_discount_amount = flt(
+        flt(invoice_doc.discount_amount) * conversion_rate,
+        invoice_doc.precision("base_discount_amount"),
+    )
+    invoice_doc.base_in_words = money_in_words(invoice_doc.base_rounded_total, company_currency)
 
-        # Update rates and amounts for all items using multiplication
-        for item in invoice_doc.items:
-            if item.price_list_rate:
-                item.base_price_list_rate = flt(
-                    item.price_list_rate * (conversion_rate / plc_conversion_rate),
-                    item.precision("base_price_list_rate"),
-                )
-            if item.rate:
-                item.base_rate = flt(item.rate * conversion_rate, item.precision("base_rate"))
-            if item.amount:
-                item.base_amount = flt(item.amount * conversion_rate, item.precision("base_amount"))
-
-        # Update payment amounts
-        for payment in invoice_doc.payments:
-            payment.amount, payment.base_amount = _resolve_payment_amounts(payment, conversion_rate)
-
-        # Update invoice level amounts
-        invoice_doc.base_total = flt(invoice_doc.total * conversion_rate, invoice_doc.precision("base_total"))
-        invoice_doc.base_net_total = flt(
-            invoice_doc.net_total * conversion_rate,
-            invoice_doc.precision("base_net_total"),
-        )
-        invoice_doc.base_grand_total = flt(
-            invoice_doc.grand_total * conversion_rate,
-            invoice_doc.precision("base_grand_total"),
-        )
-        invoice_doc.base_rounded_total = flt(
-            invoice_doc.rounded_total * conversion_rate,
-            invoice_doc.precision("base_rounded_total"),
-        )
-        invoice_doc.base_in_words = money_in_words(invoice_doc.base_rounded_total, company_currency)
-
-        # Update data to be sent back to frontend
-        data["conversion_rate"] = conversion_rate
-        data["plc_conversion_rate"] = plc_conversion_rate
-        data["exchange_rate_date"] = exchange_rate_date
+    data["conversion_rate"] = conversion_rate
+    data["plc_conversion_rate"] = plc_conversion_rate
+    data["exchange_rate_date"] = exchange_rate_date
 
     inclusive = frappe.get_cached_value("POS Profile", invoice_doc.pos_profile, "posa_tax_inclusive")
     if invoice_doc.get("taxes"):
@@ -973,10 +1070,15 @@ def update_invoice(data):
 
     _normalize_return_payment_rows(invoice_doc, conversion_rate)
 
+    _apply_return_outstanding_policy(invoice_doc)
+
     invoice_doc.flags.ignore_permissions = True
     frappe.flags.ignore_account_permission = True
     invoice_doc.docstatus = 0
-    invoice_doc = _save_draft_with_latest_timestamp(invoice_doc)
+    invoice_doc = _run_without_return_outstanding_prompts(
+        invoice_doc,
+        lambda: _save_draft_with_latest_timestamp(invoice_doc),
+    )
 
     # Return both the invoice doc and the updated data
     response = invoice_doc.as_dict()
@@ -1140,6 +1242,7 @@ def submit_invoice(invoice, data, submit_in_background=False):
 
     _apply_invoice_gift_card_settlement(invoice_doc, data)
     _normalize_return_payment_rows(invoice_doc, invoice_doc.get("conversion_rate") or 1)
+    _apply_return_outstanding_policy(invoice_doc)
 
     payments = [
         row
@@ -1160,7 +1263,10 @@ def submit_invoice(invoice, data, submit_in_background=False):
     invoice_doc.flags.ignore_permissions = True
     frappe.flags.ignore_account_permission = True
     invoice_doc.posa_is_printed = 1
-    invoice_doc = _save_draft_with_latest_timestamp(invoice_doc)
+    invoice_doc = _run_without_return_outstanding_prompts(
+        invoice_doc,
+        lambda: _save_draft_with_latest_timestamp(invoice_doc),
+    )
     _normalize_return_payment_rows(invoice_doc, invoice_doc.get("conversion_rate") or 1)
 
     if data.get("due_date"):
@@ -1212,7 +1318,7 @@ def submit_invoice(invoice, data, submit_in_background=False):
             },
         )
     else:
-        invoice_doc.submit()
+        _run_without_return_outstanding_prompts(invoice_doc, invoice_doc.submit)
         if ledger_doc:
             _update_submission_ledger(
                 ledger_doc,

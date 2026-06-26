@@ -226,6 +226,81 @@ describe("invoiceItemMethods._applyItemDetailPayload", () => {
 	});
 });
 
+describe("invoiceItemMethods UOM row identity", () => {
+	it("does not apply a dozen-row override to a unit row of the same item", () => {
+		const context = createContext();
+		const override = {
+			keys: {
+				name: "ITEM-1",
+				posa_row_id: "ROW-DOZEN",
+				item_code: "ITEM-1",
+				uom: "Dozen",
+				conversion_factor: 12,
+			},
+		};
+		const unitRow = {
+			name: "ITEM-1",
+			posa_row_id: "ROW-UNIT",
+			item_code: "ITEM-1",
+			uom: "Unit",
+			conversion_factor: 1,
+		};
+
+		expect(
+			invoiceItemMethods._doesManualOverrideMatchItem.call(
+				context,
+				override,
+				unitRow,
+			),
+		).toBe(false);
+	});
+
+	it("restores separate UOM values for duplicate item rows", () => {
+		const context = createContext();
+		const rows = [
+			{
+				name: "ITEM-1",
+				posa_row_id: "ROW-DOZEN",
+				item_code: "ITEM-1",
+				uom: "Dozen",
+				conversion_factor: 12,
+				rate: 120,
+			},
+			{
+				name: "ITEM-1",
+				posa_row_id: "ROW-UNIT",
+				item_code: "ITEM-1",
+				uom: "Unit",
+				conversion_factor: 1,
+				rate: 10,
+			},
+		];
+		const snapshots =
+			invoiceItemMethods._snapshotManualValuesFromDocItems.call(
+				context,
+				rows,
+			);
+		const reloadedRows = [
+			{ ...rows[0], uom: "Unit", conversion_factor: 1 },
+			{ ...rows[1], uom: "Dozen", conversion_factor: 12 },
+		];
+
+		invoiceItemMethods._restoreManualSnapshots.call(
+			context,
+			reloadedRows,
+			snapshots,
+		);
+
+		expect(reloadedRows.map((row) => row.uom)).toEqual([
+			"Dozen",
+			"Unit",
+		]);
+		expect(
+			reloadedRows.map((row) => row.conversion_factor),
+		).toEqual([12, 1]);
+	});
+});
+
 describe("invoiceItemMethods.get_invoice_doc currency conversions", () => {
 	it("uses conversion_rate for base totals when PLC=SC != CC", () => {
 		const context = createInvoiceContext({
@@ -260,6 +335,27 @@ describe("invoiceItemMethods.get_invoice_doc currency conversions", () => {
 		expect(doc.plc_conversion_rate).toBeCloseTo(0.88);
 		expect(doc.base_total).toBeCloseTo(220);
 		expect(doc.base_grand_total).toBeCloseTo(220);
+	});
+
+	it("keeps base totals negative for multi-currency returns", () => {
+		const context = createInvoiceContext({
+			price_list_currency: "USD",
+			selected_currency: "USD",
+			exchange_rate: 1,
+			conversion_rate: 1.5,
+			Total: 100,
+			subtotal: 100,
+			invoiceType: "Return",
+			isReturnInvoice: true,
+			invoice_doc: { return_against: "ACC-SINV-0001" },
+		});
+
+		const doc = invoiceItemMethods.get_invoice_doc.call(context);
+
+		expect(doc.grand_total).toBeCloseTo(-100);
+		expect(doc.base_grand_total).toBeCloseTo(-150);
+		expect(doc.rounded_total).toBeCloseTo(-100);
+		expect(doc.base_rounded_total).toBeCloseTo(-150);
 	});
 });
 

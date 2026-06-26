@@ -1,13 +1,36 @@
 import { isOffline } from "../../../../offline/index";
-import {
-	getBaseCurrency,
-	getCompanyCurrency,
-	toSelectedCurrency,
-} from "../../../utils/currencyConversion.js";
+import { toSelectedCurrency } from "../../../utils/currencyConversion.js";
+import { getPlcConversionRate } from "../../../utils/erpnextCurrency";
 import { useToastStore } from "../../../stores/toastStore.js";
 
 export function useStockUtils() {
 	const toastStore = useToastStore();
+	const toNumber = (value: any) => {
+		const numeric = Number.parseFloat(String(value ?? 0));
+		return Number.isFinite(numeric) ? numeric : 0;
+	};
+	const roundCurrency = (context: any, value: number) =>
+		typeof context?.flt === "function"
+			? context.flt(value, context.currency_precision)
+			: value;
+	const syncLineAmounts = (item: any, context: any) => {
+		if (!item) return;
+		const qty = toNumber(item?.qty);
+		const rate = toNumber(item?.rate);
+		const baseRate = toNumber(item?.base_rate ?? item?.rate);
+		item.amount = roundCurrency(context, qty * rate);
+		item.base_amount = roundCurrency(context, qty * baseRate);
+	};
+	const refreshInvoiceTotals = (context: any) => {
+		const invoiceStore = context?.invoiceStore;
+		if (!invoiceStore) return;
+		if (invoiceStore.triggerUpdateTotals) {
+			invoiceStore.triggerUpdateTotals();
+		} else if (invoiceStore.recalculateTotals) {
+			invoiceStore.recalculateTotals();
+		}
+	};
+
 	// Calculate UOM conversion and update item rates
 	const calcUom = async (item: any, value: any, context: any) => {
 		if (!item || !value) return;
@@ -176,23 +199,7 @@ export function useStockUtils() {
 			item._manual_rate_set_from_uom = true;
 
 			// Determine if we need to convert from Price List Currency to Company Currency
-			const baseCurrency = getBaseCurrency(context);
-			const companyCurrency = getCompanyCurrency(context);
-			let conversionFactor = 1;
-
-			if (
-				baseCurrency &&
-				companyCurrency &&
-				baseCurrency !== companyCurrency
-			) {
-				// uomRate is in Price List Currency. We need it in Company Currency for base_ fields.
-				// exchange_rate is Price List -> Selected
-				// conversion_rate is Selected -> Company
-				// Price List -> Company = (Price List -> Selected) * (Selected -> Company)
-				const exchangeRate = context.exchange_rate || 1;
-				const conversionRate = context.conversion_rate || 1;
-				conversionFactor = exchangeRate * conversionRate;
-			}
+			const conversionFactor = getPlcConversionRate(context);
 
 			// default rates based on fetched UOM price (converted to Company Currency)
 			let base_price = uomRate * conversionFactor;
@@ -260,16 +267,14 @@ export function useStockUtils() {
 
 			// Convert to selected currency for display
 			// If selected currency != company currency, we need to convert base values (Company Currency) to Selected Currency.
-			// exchange_rate is Price List -> Selected.
-			// But we are converting from Company -> Selected.
-			// conversion_rate is Selected -> Company. So we divide by conversion_rate.
-
 			item.price_list_rate = toSelectedCurrency(context, base_price);
 			item.rate = toSelectedCurrency(context, base_rate);
 			item.discount_amount = toSelectedCurrency(context, base_discount);
+			syncLineAmounts(item, context);
 
 
 			if (context.calc_stock_qty) context.calc_stock_qty(item, item.qty);
+			refreshInvoiceTotals(context);
 			if (context.forceUpdate) context.forceUpdate();
 
 			console.log("[useStockUtils] calcUom DONE (specific price)", {
@@ -347,29 +352,12 @@ export function useStockUtils() {
 				item.base_rate = converted_rate;
 				item.base_price_list_rate = base_price;
 
-				// Convert to selected currency
-				const baseCurrency = getBaseCurrency(context);
-				if (context.selected_currency !== baseCurrency) {
-					item.rate = context.flt(
-						converted_rate / context.exchange_rate,
-						context.currency_precision,
-					);
-					item.price_list_rate = context.flt(
-						base_price / context.exchange_rate,
-						context.currency_precision,
-					);
-					item.discount_amount = context.flt(
-						(base_price - converted_rate) / context.exchange_rate,
-						context.currency_precision,
-					);
-				} else {
-					item.rate = converted_rate;
-					item.price_list_rate = base_price;
-					item.discount_amount = context.flt(
-						base_price - converted_rate,
-						context.currency_precision,
-					);
-				}
+				item.rate = toSelectedCurrency(context, converted_rate);
+				item.price_list_rate = toSelectedCurrency(context, base_price);
+				item.discount_amount = toSelectedCurrency(
+					context,
+					base_price - converted_rate,
+				);
 
 				item.base_discount_amount = context.flt(
 					base_price - converted_rate,
@@ -411,26 +399,9 @@ export function useStockUtils() {
 					context.currency_precision,
 				);
 
-				// Convert to selected currency if needed
-				const baseCurrency = getBaseCurrency(context);
-				if (context.selected_currency !== baseCurrency) {
-					item.price_list_rate = context.flt(
-						updated_base_price / context.exchange_rate,
-						context.currency_precision,
-					);
-					item.discount_amount = context.flt(
-						base_discount / context.exchange_rate,
-						context.currency_precision,
-					);
-					item.rate = context.flt(
-						item.base_rate / context.exchange_rate,
-						context.currency_precision,
-					);
-				} else {
-					item.price_list_rate = updated_base_price;
-					item.discount_amount = base_discount;
-					item.rate = item.base_rate;
-				}
+				item.price_list_rate = toSelectedCurrency(context, updated_base_price);
+				item.discount_amount = toSelectedCurrency(context, base_discount);
+				item.rate = toSelectedCurrency(context, item.base_rate);
 			}
 		} else {
 			// For regular items, use standard conversion
@@ -458,33 +429,17 @@ export function useStockUtils() {
 					originalBasePriceListRate * item.conversion_factor;
 			}
 
-			// Convert to selected currency
-			const baseCurrency = getBaseCurrency(context);
-			if (context.selected_currency !== baseCurrency) {
-				item.rate = context.flt(
-					item.base_rate / context.exchange_rate,
-					context.currency_precision,
-				);
-				item.price_list_rate = context.flt(
-					item.base_price_list_rate / context.exchange_rate,
-					context.currency_precision,
-				);
-			} else {
-				item.rate = item.base_rate;
-				item.price_list_rate = item.base_price_list_rate;
-			}
+			item.rate = toSelectedCurrency(context, item.base_rate);
+			item.price_list_rate = toSelectedCurrency(
+				context,
+				item.base_price_list_rate,
+			);
 		}
+		syncLineAmounts(item, context);
 
 		// Update item details
 		if (context.calc_stock_qty) context.calc_stock_qty(item, item.qty);
-		if (context.invoiceStore) {
-			context.invoiceStore.touch();
-			if (context.invoiceStore.triggerUpdateTotals) {
-				context.invoiceStore.triggerUpdateTotals();
-			} else if (context.invoiceStore.recalculateTotals) {
-				context.invoiceStore.recalculateTotals();
-			}
-		}
+		refreshInvoiceTotals(context);
 		if (context.forceUpdate) context.forceUpdate();
 
 	};

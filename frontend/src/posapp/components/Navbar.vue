@@ -78,6 +78,7 @@
 					@sync-invoices="syncPendingInvoices"
 					@open-employee-switch="openEmployeeSwitch"
 					@lock-pos="lockPosScreen"
+					@share-last-invoice="$emit('share-last-invoice')"
 					@open-customer-display="$emit('open-customer-display')"
 					@clear-cache="clearCache"
 					@show-about="showAboutDialog = true"
@@ -535,24 +536,24 @@ export default {
 			}
 		},
 		updateNavigationItems() {
-			const items = [...this.baseItems];
+			const items = this.baseItems.map((item) => ({ ...item, text: this.__(item.text) }));
 			if (this.posProfile?.posa_use_gift_cards) {
 				items.splice(2, 0, {
-					text: "Gift Cards",
+					text: this.__("Gift Cards"),
 					icon: "mdi-card-account-details-outline",
 					to: "/gift-cards",
 				});
 			}
 			if (this.currentCashier?.is_supervisor) {
 				items.splice(1, 0, {
-					text: "Awesome Dashboard",
+					text: this.__("Awesome Dashboard"),
 					icon: "mdi-view-dashboard-outline",
 					to: "/dashboard",
 				});
 			}
 			if (this.posProfile?.posa_enable_cash_movement) {
 				items.push({
-					text: "Cash Movement",
+					text: this.__("Cash Movement"),
 					icon: "mdi-cash-sync",
 					to: "/cash-movement",
 				});
@@ -1023,6 +1024,7 @@ export default {
 		"close-shift",
 		"sync-invoices",
 		"retry-status",
+		"share-last-invoice",
 		"open-customer-display",
 		"toggle-offline",
 		"refresh-offline-data",

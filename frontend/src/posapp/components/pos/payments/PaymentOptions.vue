@@ -69,7 +69,7 @@
 						:min-date="new Date()"
 						auto-apply
 						teleport
-						placeholder="Due Date"
+						:placeholder="__('Due Date')"
 						class="sleek-field pos-themed-input"
 						@update:model-value="$emit('update:newCreditDueDate', $event)"
 					/>
@@ -241,16 +241,6 @@ const emit = defineEmits([
 ]);
 
 const $frappe = inject("frappe", window.frappe);
-
-const hasPanelContent = computed(() => {
-	return (
-		props.isCreditSale ||
-		props.redeemCustomerCredit ||
-		props.isWriteOffChange ||
-		(props.invoiceDoc?.is_return && props.isCreditReturn) ||
-		(props.invoiceDoc?.is_return && props.isCashback)
-	);
-});
 
 const handleRedeemCustomerCreditUpdate = (val) => {
 	emit("update:redeemCustomerCredit", val);
