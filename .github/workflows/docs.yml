@@ -1,0 +1,78 @@
+name: Docs
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  docs-check:
+    name: TypeDoc check
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "yarn"
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Validate TypeDoc entry points
+        working-directory: frontend
+        # docs:check runs TypeDoc without writing output so CI stays clean.
+        # Exit code is non-zero if any entry point has TypeDoc errors.
+        run: yarn docs:check
+
+  docs-generate:
+    name: Generate & commit API reference
+    runs-on: ubuntu-22.04
+    # Only commit generated docs from protected integration branches.
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
+    needs: docs-check
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "yarn"
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Generate API docs
+        working-directory: frontend
+        run: yarn docs:generate
+
+      - name: Commit API docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/docs/api
+          if git diff --cached --quiet; then
+            echo "API docs are already up to date."
+            exit 0
+          fi
+          git commit -m "docs: update generated API reference [skip ci]"
+          git push

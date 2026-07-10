@@ -1,153 +1,118 @@
-// Include onscan.js
-frappe.pages['posapp'].on_page_load = function (wrapper) {
-	var page = frappe.ui.make_app_page({
-		parent: wrapper,
-		title: 'POS Awesome',
-		single_column: true
-	});
+const POSA_VERSION_ENDPOINT = "/assets/posawesome/dist/js/version.json";
+const POSA_LOADER_LEGACY_URL = "/assets/posawesome/dist/js/loader.js";
+const POSA_LOADER_SCRIPT_ID = "posa-loader-script";
 
-	this.page.$PosApp = new frappe.PosApp.posapp(this.page);
-
-	$('div.navbar-fixed-top').find('.container').css('padding', '0');
-
-        $("head").append("<link href='/assets/posawesome/node_modules/vuetify/dist/vuetify.min.css' rel='stylesheet'>");
-        $("head").append("<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css'>");
-        $("head").append("<link rel='preconnect' href='https://fonts.googleapis.com'>");
-        $("head").append("<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>");
-        $("head").append("<link rel='preload' href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900' as='style'>");
-        $("head").append("<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'>");
-	
-	// Listen for POS Profile registration
-	frappe.realtime.on('pos_profile_registered', () => {
-		const update_totals_based_on_tax_inclusive = () => {
-			console.log("Updating totals based on tax inclusive settings");
-			const posProfile = this.page.$PosApp.pos_profile;
-
-			if (!posProfile) {
-				console.error("POS Profile is not set.");
-				return;
-			}
-
-			frappe.call({
-				method: 'frappe.get_cached_value',
-				args: {
-					doctype: 'POS Profile',
-					name: posProfile,
-					fieldname: 'posa_tax_inclusive'
-				},
-				callback: function(response) {
-					if (response.message !== undefined) {
-						const posa_tax_inclusive = response.message;
-						const totalAmountField = document.getElementById('input-v-25');
-						const grandTotalField = document.getElementById('input-v-29');
-
-						if (totalAmountField && grandTotalField) {
-							if (posa_tax_inclusive) {
-								totalAmountField.value = grandTotalField.value;
-								console.log("Total amount copied from grand total:", grandTotalField.value);
-							} else {
-								totalAmountField.value = "";
-								console.log("Total amount cleared because checkbox is unchecked.");
-							}
-						} else {
-							console.error('Could not find total amount or grand total field by ID.');
-						}
-					} else {
-						console.error('Error fetching POS Profile or POS Profile not found.');
-					}
-				}
-			});
+const fetchPosBuildManifest = async () => {
+	try {
+		const response = await fetch(`${POSA_VERSION_ENDPOINT}?t=${Date.now()}`, {
+			cache: "no-store",
+		});
+		if (!response.ok) {
+			return null;
+		}
+		const payload = await response.json();
+		const version = payload?.version || payload?.buildVersion;
+		const assets = payload?.assets && typeof payload.assets === "object" ? payload.assets : {};
+		return {
+			version: typeof version === "string" && version.trim().length ? version.trim() : null,
+			assets,
 		};
+	} catch (error) {
+		console.warn("Unable to fetch POS build manifest", error);
+		return null;
+	}
+};
 
-		update_totals_based_on_tax_inclusive();
+const buildVersionedLoaderUrl = (version) =>
+	version ? `${POSA_LOADER_LEGACY_URL}?v=${encodeURIComponent(version)}` : POSA_LOADER_LEGACY_URL;
+
+const resolveLoaderUrl = (manifest) => {
+	// Prefer the hashed loader URL published in version.json. Falls
+	// back to the legacy un-hashed path (with `?v=`) for transitional
+	// deploys where an old build is still serving the manifest.
+	const fromAssets = manifest?.assets?.loader;
+	if (typeof fromAssets === "string" && fromAssets.trim().length) {
+		return fromAssets.trim();
+	}
+	return buildVersionedLoaderUrl(manifest?.version);
+};
+
+const ensurePosBootController = async () => {
+	const manifest = await fetchPosBuildManifest();
+	const version = manifest?.version || "";
+	const loaderUrl = resolveLoaderUrl(manifest);
+	const existingScript = document.getElementById(POSA_LOADER_SCRIPT_ID);
+
+	// `data-build-version` survives across page mounts; reuse the in-flight
+	// boot controller when the requested version + URL match.
+	if (
+		existingScript &&
+		existingScript.getAttribute("data-build-version") === version &&
+		existingScript.getAttribute("src") === loaderUrl &&
+		typeof window.startPosBoot === "function"
+	) {
+		return;
+	}
+
+	if (existingScript) {
+		existingScript.remove();
+	}
+
+	await new Promise((resolve, reject) => {
+		const script = document.createElement("script");
+		script.id = POSA_LOADER_SCRIPT_ID;
+		script.type = "module";
+		script.async = true;
+		script.src = loaderUrl;
+		script.setAttribute("data-build-version", version);
+		script.onload = () => resolve();
+		script.onerror = () =>
+			reject(new Error(`Failed to load POS boot controller (${version || "unversioned"})`));
+		document.head.appendChild(script);
 	});
 };
 
-//Only if PT as we are not being able to load from pt.csv
-if (frappe.boot.lang == "pt") {
-	$.extend(
-		frappe._messages, {
-		"Type": "Tipo",
-		"is Offer": "é Oferta",
-		"Total Qty": "Qtd Total",
-		"Customer": "Cliente",
-		"Items Group": "Grupo de Itens",
-		"Search Items": "Procurar Itens",
-		"Additional Discount": "Desconto Adicional",
-		"Items Discounts": "Descontos de Itens",
-		"HOLD": "EM PAUSA",
-		"Hold": "Em Pausa",
-		"RETURN": "DEVOLUÇÃO",
-		"Return": "Devolução",
-		"CANCEL": "CANCELAR",
-		"NEW": "NOVO",
-		"PAY": "PAGAR",
-		"Order": "Ordem",
-		"Available QTY": "QTD Disponivel",
-		"QTY": "QTD",
-		"Discount Percentage": "Percentagem de Desconto",
-		"Price list Rate": "Taxa de Lista de Preço",
-		"Group": "Grupo",
-		"Stock QTY": "QTD de Stock",
-		"Stock UOM": "UDM de Stock",
-		"Card": "Cartão",
-		"Offers": "Ofertas",
-		"Applied": "Aplicadas",
-		"There is no Customer !": "Não tem Cliente !",
-		"There is no Items !": "Não tem Itens !",
-		"The existing quantity of item {0} is not enough": "A quantidade existente do item {0} não é suficiente",
-		"Maximum discount for Item {0} is {1}%": "Desconto Maximo para o Item {0} é {1}%",
-		"Selected serial numbers of item {0} is incorrect": "Numeros de serie selecionado do item {0} é incorrecto",
-		"The existing batch quantity of item {0} is not enough": "A quantidade existente do lote para o item {0} não é suficiente",
-		"The discount should not be higher than {0}%": "O desconto não deve ser maior que {0}%",
-		"Return Invoice Total Not Correct": "Total da Devolução da Factura não está Correcto",
-		"Return Invoice Total should not be higher than {0}": "Total da Devolução da Factura não deve maior que {0}",
-		"The item {0} cannot be returned because it is not in the invoice {1}": "O item {0} não pode ser devolvido porque não está na factura {1}",
-		"The QTY of the item {0} cannot be greater than {1}": "A QTD do item {0} não pode ser maior que {1}",
-		"Selected Serial No QTY is {0} it should be {1}": "A QTD selecionada do Num. de Serie é {0} deveria ser {1}",
-		"Loyalty Point Offer Applied": "Oferta de Pontos de Lealdade Aplicada",
-		"Loyalty Points": "Pontos de Lealdade",
-		"Paid Amount": "Valor Pago",
-		"To Be Paid": "A ser Pago",
-		"Cash": "Numerário",
-		"Tax and Charges": "Taxas e Impostos",
-		"Discount Amount": "Valor de Desconto",
-		"Total Amount": "Valor Total",
-		"Totoal Amount": "Valor Total",
-		"Grand Amount": "Total Geral",
-		"Back": "Voltar",
-		"Submit Payments": "Submeter Pagamentos",
-		"Give Item": "Entregar Item",
-		"New Offer Available": "Nova Oferta Disponivel",
-		"POS Offers": "Ofertas POS",
-		"Customer contact created successfully.": "Contacto de Cliente criado com sucesso.",
-		"Customer Address created successfully.": "Endereço de Cliente criado com sucesso.",
-		"Customer contact updated successfully.": "Contacto de Cliente actualizacdo com sucesso.",
-		"Offer": "Oferta",
-		"Apply On": "Aplicar Em",
-		"Offer Applied": "Oferta Aplicada",
-		"Opening Amount": "Valor de Abertura",
-		"Closing Amount": "Valor de Fecho",
-		"Expected Amount": "Valor Esperado",
-		"Difference": "Diferença",
-		"Close": "Fechar",
-		"Submit": "Submeter",
-		"Closing POS Shift": "Fechando Turno do POS",
-		"Select Hold Invoice": "Selecionar Factura em Pausa",
-		"Customer Info": "Info do Cliente",
-		"Add New Address": "Adicionar Novo Endereço",
-		"New Customer": "Novo Cliente",
-		"Create POS Opening Shift": "Criar Turno de Abertura POS",
-		"Select Return Invoice": "Selecione a Factura para Devolução",
-		"Close Shift": "Fechar Turno",
-		"Pages": "Paginas",
-		"Customer not found": "Cliente não encontrado",
-		"Customer Name": "Nome do Cliente",
-		"Batch No Available QTY": "QTD Disponivel para o Lote",
-		"Batch No Expiry Date": "Data de Expiração do Lote",
-		"Batch No": "Num. do Lote",
-		"Use Customer Credit": "Usar Crédito Cliente",
-		"Is Credit Sale": "É Venda a Crédito",
-		"Due Date": "Data de Expiração",
+frappe.pages["posapp"].on_page_load = async function (wrapper) {
+	const page = frappe.ui.make_app_page({
+		parent: wrapper,
+		title: "POS Awesome",
+		single_column: true,
 	});
-}
+	const pageRef = (wrapper && wrapper.page) || page;
+
+	try {
+		await ensurePosBootController();
+		await window.startPosBoot({ pageRef });
+	} catch (error) {
+		console.error("Unable to start POS boot controller", error);
+		frappe.msgprint({
+			title: "POS Awesome",
+			indicator: "red",
+			message:
+				"POS app failed to start before the boot controller could run. Reload /app/posapp and try again.",
+		});
+	}
+};
+
+frappe.pages["posapp"].on_page_unload = function (wrapper) {
+	if (
+		wrapper &&
+		wrapper.page &&
+		wrapper.page._posaTaxInclusiveHandler &&
+		frappe.realtime &&
+		typeof frappe.realtime.off === "function"
+	) {
+		frappe.realtime.off("pos_profile_registered", wrapper.page._posaTaxInclusiveHandler);
+		wrapper.page._posaTaxInclusiveHandler = null;
+	}
+
+	if (
+		wrapper &&
+		wrapper.page &&
+		wrapper.page.$PosApp &&
+		typeof wrapper.page.$PosApp.unmount === "function"
+	) {
+		wrapper.page.$PosApp.unmount();
+		wrapper.page.$PosApp = null;
+	}
+};

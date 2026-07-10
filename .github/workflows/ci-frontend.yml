@@ -1,0 +1,51 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Type-check, lint, unit, smoke
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install frontend dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Type check
+        run: yarn type-check
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Unit tests
+        run: yarn test:unit
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright smoke
+        env:
+          POSA_SMOKE_BASE_URL: ${{ secrets.POSA_SMOKE_BASE_URL }}
+          POSA_SMOKE_PATH: ${{ vars.POSA_SMOKE_PATH || '/app/posapp' }}
+          POSA_SMOKE_USER: ${{ secrets.POSA_SMOKE_USER }}
+          POSA_SMOKE_PASSWORD: ${{ secrets.POSA_SMOKE_PASSWORD }}
+        run: yarn test:smoke

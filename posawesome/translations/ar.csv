@@ -1,0 +1,1832 @@
+Account,الحساب
+Account Head,رئيس الحسابات
+Accounts Manager,مدير الحسابات
+Accounts User,مستخدم الحسابات
+Additional Notes,ملاحظات إضافية
+Administrator,مدير النظام
+Allow Create Sales Order,السماح بإنشاء أمر مبيعات
+Allow Credit Sale,السماح بالبيع بالائتمان
+Allow Partial Payment,السماح بالدفع الجزئي
+Allow Return,السماح بالإرجاع
+Allow Submissions in background job,السماح بإرسال الطلبات في مهمة خلفية
+Allow User to Edit Item Discount,السماح للمستخدم بتعديل خصم الصنف
+Allow user to edit Additional Discount,السماح للمستخدم بتعديل الخصم الإضافي
+Allow user to edit Rate,السماح للمستخدم بتعديل السعر
+Amended From,معدل من
+Amount,المبلغ
+Apply Customer Discount,تطبيق خصم العميل
+Apply For,التقديم لـ
+Apply On,يطبق على
+Apply Rule On Brand,تطبيق القاعدة على العلامة التجارية
+Apply Rule On Item Code,تطبيق القاعدة على كود الصنف
+Apply Rule On Item Group,تطبيق القاعدة على مجموعة الأصناف
+Apply Type,نوع التطبيق
+Auto Apply,تطبيق تلقائي
+Auto Delete Draft Invoice,حذف الفاتورة المسودة تلقائيًا
+Allow Delete Offline Invoice,السماح بحذف الفاتورة في وضع عدم الاتصال
+Auto Set Batch,تعيين الدفعة تلقائيًا
+Allow Price List Rate Change,السماح بتغيير سعر قائمة الأسعار
+List Rate,قائمة الأسعار
+Brand,العلامة التجارية
+Cancelled,ملغاة
+Cash Mode of Payment,طريقة الدفع نقدًا
+Cashier,أمين الصندوق
+Closed,مغلقة
+Closing Amount,مبلغ الإقفال
+Company,الشركة
+Customer,العميل
+Date,التاريخ
+Default Loyalty Program,برنامج المكافآت الافتراضي
+Delivery Date,تاريخ التسليم
+Description,الوصف
+Details,التفاصيل
+Difference,الفرق
+Disable,تعطيل
+Discount %,نسبة الخصم ٪
+Discount Amount,قيمة الخصم
+Discount Percentage,نسبة الخصم
+Discount Type,نوع الخصم
+Draft,مسودة
+Expected Amount,المبلغ المتوقع
+For POS Closing Shift Payment Reconciliation,للمطابقة بين المدفوعات عند إقفال نقطة البيع
+Give Item,الصنف الممنوح
+Give Item Row ID,معرّف صف الصنف الممنوح
+Give Product,المنتج الممنوح
+Given Quantity,الكمية الممنوحة
+Grand Total,الإجمالي الكلي
+Hide Close Shift,إخفاء إقفال الوردية
+Hide Unavailable Items,إخفاء الأصناف غير المتوفرة
+Hide Variants Items,إخفاء أصناف المتغيرات
+Invalid Period,فترة غير صالحة
+Is Offer,هو عرض
+Is Offer Replace For item Row ID,هل العرض لاستبدال معرّف صف الصنف
+It is best not to use more than four numbers,يفضل عدم استخدام أكثر من أربعة أرقام
+Item Code,كود الصنف
+Items Group,مجموعة الأصناف
+Item Price,سعر الصنف
+Item Rate Should Less Then,يجب أن يكون سعر الصنف أقل من
+Items,الأصناف
+Linked Invoices,الفواتير المرتبطة
+Loyalty Point,نقطة مكافأة
+Loyalty Point Scheme,برنامج المكافآت
+Loyalty Points,نقاط المكافآت
+Max Amount,الحد الأقصى للمبلغ
+Max Discount Percentage Allowed,الحد الأقصى المسموح به لنسبة الخصم
+Max Quantity,الحد الأقصى للكمية
+Min Amount,الحد الأدنى للمبلغ
+Min Quantity,الحد الأدنى للكمية
+Mode of Payment,طريقة الدفع
+Mode of Payments,طرق الدفع
+Modes of Payment,طرق الدفع
+Net Total,صافي الإجمالي
+Offer,العرض
+Offer Applied,تم تطبيق العرض
+Offer Name,اسم العرض
+Open,مفتوحة
+Opening Amount,مبلغ الافتتاح
+Opening Balance Details,تفاصيل الرصيد الافتتاحي
+POS Awesome Advance Settings,إعدادات نقاط البيع أوسم المتقدمة
+POS Awesome Settings,إعدادات نقاط البيع أوسم
+POS Closing Shift,إقفال وردية نقطة البيع
+POS Closing Shift Detail,تفاصيل إقفال وردية نقطة البيع
+POS Closing Shift Taxes,ضرائب إقفال وردية نقطة البيع
+POS Closing Shift {} against {} between selected period,إقفال وردية نقطة البيع {} مقابل {} خلال الفترة المحددة
+POS Offer,عرض نقطة البيع
+POS Offer Detail,تفاصيل عرض نقطة البيع
+POS Offers,عروض نقطة البيع
+POS Offers Detail,تفاصيل عروض نقطة البيع
+POS Opening Shift,وردية فتح نقطة البيع
+POS Opening Shift Detail,تفاصيل وردية فتح نقطة البيع
+POS Profile,ملف تعريف نقطة البيع
+POS Profile {} does not belongs to company {},ملف تعريف نقطة البيع {} لا ينتمي إلى الشركة {}
+POS Shift,وردية نقطة البيع
+POS Transactions,معاملات نقطة البيع
+Payment Reconciliation,تسوية المدفوعات
+Period End Date,تاريخ نهاية الفترة
+Period Start Date,تاريخ بداية الفترة
+Posting Date,تاريخ النشر
+Price,السعر
+Price Discount Scheme,مخطط خصم السعر
+Printed,مطبوعة
+Product Discount Scheme,مخطط خصم المنتج
+Promo Type,نوع الترويج
+Qualifying Transaction / Item,معاملة / صنف مؤهل
+Quantity and Amount Conditions,شروط الكمية والمبلغ
+Rate,المعدل
+Replace Cheapest Item,استبدال أرخص صنف
+Replace Same Item,استبدال نفس الصنف
+Row ID,معرّف الصف
+Sales Invoice,فاتورة مبيعات
+Sales Invoice Reference,مرجع فاتورة المبيعات
+Sales Manager,مدير المبيعات
+Sales Master Manager,مدير المبيعات الرئيسي
+Sales Summary,ملخص المبيعات
+Sales User,مستخدم المبيعات
+Scale Barcode Start With,يبدأ باركود الميزان بـ
+Search by Serial Number,البحث حسب الرقم التسلسلي
+Selected POS Opening Shift should be open.,يجب أن تكون وردية فتح نقطة البيع المحددة مفتوحة
+Send invoice to submit after printing,إرسال الفاتورة للإعتماد بعد الطباعة
+Set Posting Date,تعيين تاريخ النشر
+Show Template Items,عرض أصناف القوالب
+Status,الحالة
+Status must be one of {0},يجب أن تكون الحالة واحدة من {0}
+System Manager,مدير النظام
+Taxes,الضرائب
+This invoice {0} cannot be deleted,لا يمكن حذف الفاتورة {0}
+Invoice {0} Deleted,تم حذف الفاتورة {0}
+Title,العنوان
+Total Quantity,إجمالي الكمية
+Transaction,المعاملة
+UOM,وحدة القياس
+Use Browser Local Storage,استخدام التخزين المحلي للمتصفح
+Fetch Items Directly from Server,جلب الأصناف مباشرة من الخادم
+Use Cashback,استخدام الاسترداد النقدي
+Use Customer Credit,استخدام رصيد العميل
+User {} has been disabled. Please select valid user/cashier,تم تعطيل المستخدم {}. يرجى اختيار مستخدم/أمين صندوق صالح
+Valid From,صالح من
+Valid Upto,صالح حتى
+Warehouse,المستودع
+Type,النوع
+Total Qty,إجمالي الكمية
+Available QTY,الكمية المتاحة
+Create Only Sales Order,إنشاء أوامر مبيعات فقط
+Search Items,البحث عن الأصناف
+Scan with Camera,المسح بالكاميرا
+Settings,الإعدادات
+Reload Items,إعادة تحميل الأصناف
+Hide quantity decimals,إخفاء عشريات الكمية
+Always fetch items from server,جلب الأصناف دائماً من الخادم
+Cancel,إلغاء
+Change Language,تغيير اللغة
+Close,إغلاق
+Language will be changed to,سيتم تغيير اللغة إلى
+Apply,تطبيق
+Clear,مسح
+Back,رجوع
+Select,اختيار
+Search,بحث
+Yes,Cancel sale
+Cancel Sale,إلغاء البيع
+No Item has this barcode,لا يوجد صنف بهذا الباركود
+Item not found,الصنف غير موجود
+No invoices found. Try different search criteria.,لم يتم العثور على فواتير. جرب معايير بحث مختلفة
+No camera found on this device.,لم يتم العثور على كاميرا في هذا الجهاز
+Camera access is required to scan barcodes.,مطلوب الوصول للكاميرا لمسح الباركود
+Select a customer to use coupon,اختر عميلاً لاستخدام الكوبون
+Customer Name,اسم العميل
+Customer ID,معرف العميل
+Mobile Number,رقم الهاتف المحمول
+Tax ID,الرقم الضريبي
+City,المدينة
+Country,البلد
+Email Id,البريد الإلكتروني
+Gender,النوع
+Referral Code,كود الإحالة
+Mobile No,رقم الهاتف
+Address Line 1,العنوان السطر 1
+Columns,الأعمدة
+Name,الاسم
+QTY,الكمية
+Additional Discount,خصم إضافي
+Items Discounts,خصومات الأصناف
+Total,الإجمالي
+Save & Clear,حفظ ومسح
+Load Drafts,تحميل المسودات
+PAY,دفع
+Sales Return,مرتجع مبيعات
+Paid Amount,المبلغ المدفوع
+Paid Change,الباقي المدفوع
+Credit Change,الباقي الائتماني
+Tax and Charges,الضرائب والرسوم
+Total Amount,إجمالي المبلغ
+Rounded Total,الإجمالي المدور
+Get Payments,الحصول على المدفوعات
+Request,طلب
+Submit,إرسال
+Submit & Print,إرسال وطباعة
+Cancel Payment,إلغاء الدفع
+Closing,الإقفال
+Menu,القائمة
+Actions,الإجراءات
+Close Shift,إغلاق الوردية
+Print Last Invoice,طباعة آخر فاتورة
+Sync Offline Invoices,مزامنة الفواتير غير المتصلة
+Go Online/Offline,الاتصال/عدم الاتصال
+Clear Cache,مسح التخزين المؤقت
+About,عن النظام
+Light/Dark Mode,الوضع الفاتح/الداكن
+Logout,تسجيل الخروج
+Select Language,اختيار اللغة
+Item Selector Settings,إعدادات محدد الأصناف
+Hide zero rated items,إخفاء الأصناف ذات السعر صفر
+Custom items per page,عدد مخصص من الأصناف لكل صفحة
+Always fetch items from server (ignore local cache),جلب الأصناف دائماً من الخادم (تجاهل التخزين المحلي)
+POS Awesome,نقاط البيع
+Select S.O,اختر أمر البيع
+Offers,عروض
+Coupons,كوبونات
+ms,مللي ثانية
+MB,ميجابايت
+Connected to Server,متصل بالخادم
+To Sync,بانتظار المزامنة
+Synced,تمت المزامنة
+POS,نقاط البيع
+Awesome,الرائع
+No items found,لم يتم العثور على أصناف
+No items in cart,لا توجد أصناف في السلة
+Customers not found,لم يتم العثور على عملاء
+Charges not found,لم يتم العثور على رسوم
+Address not found,لم يتم العثور على عنوان
+Sales Person not found,لم يتم العثور على مندوب المبيعات
+Group not found,لم يتم العثور على مجموعة
+Territory not found,لم يتم العثور على منطقة
+Total Outstanding,إجمالي المستحق
+Total Unallocated,إجمالي غير المخصص
+Action,إجراء
+Add New Address,إضافة عنوان جديد
+Add/Edit Coupon Conditions,إضافة/تعديل شروط القسيمة
+All Caught Up!,أنت على اطلاع كامل!
+All Synced,تمت المزامنة بالكامل
+App information,معلومات التطبيق
+Applied,تم التطبيق
+Apps,التطبيقات
+Are you sure you want to close? All entered data will be lost.,هل أنت متأكد أنك تريد الإغلاق؟ سيتم فقدان جميع البيانات المدخلة.
+Available,المتوفر
+Balance will be updated when connection is restored,سيتم تحديث الرصيد عند استعادة الاتصال
+Basic Information,المعلومات الأساسية
+Batch Information,معلومات الدفعة
+Breakdown,تفصيل
+Built with Frappe,تم تطويره باستخدام Frappe
+CPU Cores,عدد أنوية المعالج
+CPU Load,استخدام المعالج
+Cache Usage,استخدام الذاكرة المخبأة
+Cache cleared successfully,تم مسح الذاكرة المخبأة بنجاح
+Calculating,جارٍ الحساب
+Camera Access Required,يتطلب الوصول إلى الكاميرا
+Camera access aborted.,تم إلغاء الوصول إلى الكاميرا.
+Camera permission denied. Please allow camera access in your browser settings.,تم رفض إذن الكاميرا. يرجى السماح بالوصول إلى الكاميرا من إعدادات المتصفح.
+Cannot Save Offline Invoice,لا يمكن حفظ الفاتورة في وضع عدم الاتصال
+Cannot Save Offline Payment,لا يمكن حفظ الدفع في وضع عدم الاتصال
+Cannot clear cache while offline,لا يمكن مسح الذاكرة المخبأة في وضع عدم الاتصال
+Card,كبطاقات
+Change Price,تغيير السعر
+Change interface language,تغيير لغة الواجهة
+Choose your preferred language for the POS interface,اختر لغتك المفضلة لواجهة نقاط البيع
+Click to refresh,انقر للتحديث
+Client CPU Lag,تأخير المعالج لدى العميل
+Client Memory Usage,استخدام ذاكرة العميل
+Client Metrics,إحصائيات العميل
+Close Scanner,إغلاق الماسح
+Closing POS Shift,إغلاق وردية نقاط البيع
+Code,الرمز
+Code scanned successfully,تم مسح الرمز بنجاح
+Confirm Close,تأكيد الإغلاق
+Confirm Mobile Number,تأكيد رقم الجوال
+Connections,الاتصالات
+Continue Editing,متابعة التعديل
+Could not fetch latest balance from server,تعذر جلب الرصيد الأخير من الخادم
+Coupon,قسيمة
+Create Customer,إنشاء عميل
+Create POS Opening Shift,إنشاء وردية فتح نقاط البيع
+Current Event Loop Lag,تأخير دورة الأحداث الحالية
+Custom Due Days,أيام استحقاق مخصصة
+Customer Balance,رصيد العميل
+Customer Name is required,اسم العميل مطلوب
+Customer balance unavailable offline,رصيد العميل غير متاح في وضع عدم الاتصال
+Customer created successfully.,تم إنشاء العميل بنجاح.
+Customer creation failed.,فشل إنشاء العميل.
+Customer group is required,مجموعة العملاء مطلوبة
+Customer saved offline,تم حفظ العميل في وضع عدم الاتصال
+Customer territory is required,منطقة العميل مطلوبة
+Customer updated successfully.,تم تحديث العميل بنجاح.
+Dark Mode,الوضع الداكن
+Database Health,صحة قاعدة البيانات
+Database Info,معلومات قاعدة البيانات
+Database health affects overall system speed and reliability.,صحة قاعدة البيانات تؤثر على سرعة النظام وموثوقيته.
+Decrease,إنقاص
+Delete Invoice,حذف الفاتورة
+Delivery Information,معلومات التسليم
+Detecting formats,جارٍ اكتشاف التنسيقات
+Device Memory,ذاكرة الجهاز
+Disable offline mode,تعطيل وضع عدم الاتصال
+Due Date,تاريخ الاستحقاق
+End current session,إنهاء الجلسة الحالية
+Error Loading Data,خطأ في تحميل البيانات
+Error accessing camera,خطأ في الوصول إلى الكاميرا
+Error adding offer to items,خطأ في إضافة العرض إلى العناصر
+Error calculating prices,خطأ في حساب الأسعار
+Error deleting offer from items,خطأ في حذف العرض من العناصر
+Error fetching customer balance,خطأ في جلب رصيد العميل
+Error loading currencies,خطأ في تحميل العملات
+Error processing payment,خطأ في معالجة الدفع
+Error removing price offer,خطأ في إزالة عرض السعر
+Error searching invoices,خطأ في البحث عن الفواتير
+Error submitting invoice,خطأ في إرسال الفاتورة
+Error submitting invoice No response from server,خطأ في إرسال الفاتورة لا يوجد استجابة من الخادم
+Error toggling item details,خطأ في تبديل تفاصيل العنصر
+Error updating item details,خطأ في تحديث تفاصيل العنصر
+Event-loop lag measures how busy your browser is. Lower is better.,يقيس تأخر حلقة الأحداث مدى انشغال متصفحك. أقل هو أفضل.
+Failed to clear cache,فشل في مسح الذاكرة المخبأة
+Failed to load items. Please try again.,فشل تحميل العناصر. يرجى المحاولة مرة أخرى.
+Fixing payment amounts for return invoice,تصحيح مبالغ الدفع لفاتورة الإرجاع
+Flash Off,إيقاف الفلاش
+Flash On,تشغيل الفلاش
+Full Name,الاسم الكامل
+Go Offline,الانتقال إلى وضع عدم الاتصال
+Go Online,الاتصال بالإنترنت
+Hide Non Essential Fields,إخفاء الحقول غير الأساسية
+Increase,زيادة
+IndexedDB,مفهرسةDB
+Initialize your shift with opening balances,ابدأ ورديتك بالأرصدة الافتتاحية
+Installed Applications,التطبيقات المثبتة
+Invalid closing amount,مبلغ إغلاق غير صالح
+Invoice,فاتورة
+Invoice saved offline,تم حفظ الفاتورة في وضع عدم الاتصال
+Invoices,الفواتير
+Item,عنصر
+Item order updated,تم تحديث ترتيب العناصر
+Item price updated,تم تحديث سعر العنصر
+Items per page,عدد العناصر لكل صفحة
+Language,اللغة
+Light Mode,الوضع الفاتح
+Load More Invoices,تحميل المزيد من الفواتير
+Load Sales Invoice,تحميل فاتورة المبيعات
+Load previously saved invoices,تحميل الفواتير المحفوظة مسبقًا
+Loading cache,جارٍ تحميل الذاكرة المخبأة
+Loading database stats,جارٍ تحميل إحصائيات قاعدة البيانات
+Loading server CPU/memory usage,جارٍ تحميل استخدام المعالج/الذاكرة للخادم
+Loading,جارٍ التحميل
+Loyalty Point Offer Applied,تم تطبيق عرض نقاط المكافأة
+Manage your offline transactions,إدارة معاملاتك في وضع عدم الاتصال
+Mode,الوضع
+Multiple Items Found,تم العثور على عناصر متعددة
+Negative values not allowed,القيم السالبة غير مسموح بها
+New Offer Available,عرض جديد متاح
+New Price List Rate,سعر قائمة جديد
+No invoices found,لم يتم العثور على فواتير
+No offline invoices pending synchronization,لا توجد فواتير غير متصلة بانتظار المزامنة
+Nobile Number,رقم الجوال
+Offline Invoices,الفواتير في وضع عدم الاتصال
+Order,طلب
+Outstanding,مستحق
+Paid,مدفوع
+Payment ID,معرّف الدفع
+Payment Methods,طرق الدفع
+Payment Request took too long to respond. Please try requesting for payment again,استغرق طلب الدفع وقتًا طويلاً للاستجابة. يرجى إعادة المحاولة.
+Payment name not found. Cannot open print view.,لم يتم العثور على اسم الدفع. لا يمكن فتح عرض الطباعة.
+Payment request failed,فشل طلب الدفع
+Payment saved offline,تم حفظ الدفع في وضع عدم الاتصال
+Payment submitted but print function could not be executed. Payment name not found.,تم إرسال الدفع ولكن لم يتم تنفيذ الطباعة. لم يتم العثور على اسم الدفع.
+Payments,المدفوعات
+Peak Memory,أقصى استخدام للذاكرة
+Peak Server,أقصى استخدام للخادم
+Peak,الذروة
+Pending,قيد الانتظار
+Pending Invoices,الفواتير المعلقة
+Please allow camera access to scan codes,يرجى السماح بالوصول إلى الكاميرا لمسح الرموز
+Please configure a POS Profile first,يرجى إعداد ملف تعريف نقاط البيع أولاً
+Please make a payment or select an payment,يرجى إجراء الدفع أو اختيار وسيلة دفع
+Please request phone payment or use another payment method,يرجى طلب الدفع عبر الهاتف أو استخدام طريقة دفع أخرى
+Please select a customer,يرجى اختيار عميل
+Please select a customer first,يرجى اختيار العميل أولاً
+Please select an invoice,يرجى اختيار فاتورة
+Please set the customer's mobile number,يرجى إدخال رقم جوال العميل
+Position the QR code or barcode within the scanning area,ضع رمز QR أو الباركود داخل منطقة المسح
+Pricing & Discounts,التسعير والخصومات
+Print Draft,طباعة المسودة
+Processing Payment,جارٍ معالجة الدفع
+Quick Actions,إجراءات سريعة
+Reconcile payment methods and close shift,تسوية طرق الدفع وإغلاق الوردية
+Remove,إزالة
+Remove local data and refresh,إزالة البيانات المحلية وتحديث
+Reprint previous transaction,إعادة طباعة المعاملة السابقة
+Required columns cannot be hidden,لا يمكن إخفاء الأعمدة المطلوبة
+Retry,إعادة المحاولة
+Return without Invoice,إرجاع بدون فاتورة
+Rows,الصفوف
+Scan QR Code/Barcode,مسح رمز QR/الباركود
+Search Mpesa Payments,بحث مدفوعات Mpesa
+Secure context (HTTPS) required for camera access.,يتطلب الوصول إلى الكاميرا سياق آمن (HTTPS).
+Select Columns to Display,اختر الأعمدة لعرضها
+Select Payment,اختر الدفع
+Select Return Invoice,اختر فاتورة الإرجاع
+Select Sales Orders,اختر أوامر المبيعات
+Serial Numbers,الأرقام التسلسلية
+Server CPU Usage,استخدام المعالج للخادم
+Server Health,صحة الخادم
+Server Memory Usage,استخدام ذاكرة الخادم
+Server Metrics,إحصائيات الخادم
+Server Uptime,مدة تشغيل الخادم
+Sign out of session,تسجيل الخروج من الجلسة
+Size,الحجم
+Slow Queries,الاستعلامات البطيئة
+Stock Information,معلومات المخزون
+STOCK UOM,وحدة قياس المخزون
+Successfully scanned,تم المسح بنجاح
+Switch Camera,تبديل الكاميرا
+Switch theme appearance,تبديل مظهر السمة
+Switched to,تم التبديل إلى
+Sync All,مزامنة الكل
+System Information,معلومات النظام
+Tables,الجداول
+The app stores data locally for offline use. This is called cache.,يقوم التطبيق بتخزين البيانات محليًا للاستخدام في وضع عدم الاتصال. يُعرف ذلك بالذاكرة المخبأة.
+These invoices will be synced when connection is restored,سيتم مزامنة هذه الفواتير عند استعادة الاتصال
+This coupon already used !,تم استخدام هذه القسيمة بالفعل!
+This is an item template. Please choose a variant.,هذا قالب عنصر. يرجى اختيار متغير.
+Time,الوقت
+Tip Clear cache regularly to free up space and keep the app fast.,نصيحة امسح الذاكرة المخبأة بانتظام لتوفير المساحة والحفاظ على سرعة التطبيق.
+Tip Close unused tabs or apps to reduce lag.,نصيحة أغلق علامات التبويب أو التطبيقات غير المستخدمة لتقليل التأخير.
+Tip Monitor slow queries and table size for optimal performance.,نصيحة راقب الاستعلامات البطيئة وحجم الجداول للحصول على أداء مثالي.
+Top Tables,أعلى الجداول
+Total Invoices,إجمالي الفواتير
+Total Mpesa,إجمالي Mpesa
+Total Payments,إجمالي المدفوعات
+Total Selected,الإجمالي المحدد
+Total Size,إجمالي الحجم
+UOM not found,لم يتم العثور على وحدة القياس
+Unallocated,غير مخصص
+Unknown error,خطأ غير معروف
+Update,تحديث
+Update Customer,تحديث العميل
+Updates automatically,يتم التحديث تلقائيًا
+Upload pending transactions,تحميل المعاملات المعلقة
+Usage,الاستخدام
+Usage Stats,إحصائيات الاستخدام
+Use date range to search for older invoices,استخدم نطاق التاريخ للبحث عن الفواتير القديمة
+Used,المستخدم
+Using cached customer balance,استخدام رصيد العميل من الذاكرة المخبأة
+Verify closing amounts for each payment method,تحقق من مبالغ الإغلاق لكل طريقة دفع
+Waiting for payment,في انتظار الدفع
+Warning High cache usage may affect performance.,تحذير الاستخدام العالي للذاكرة المخبأة قد يؤثر على الأداء.
+Warning High lag may indicate heavy processing or browser slowness.,تحذير التأخير العالي قد يشير إلى معالجة ثقيلة أو بطء في المتصفح.
+Work without server connection,العمل بدون اتصال بالخادم
+"Yes, Cancel sale",نعم، ألغِ البيع
+"Yes, Close",نعم، إغلاق
+add,إضافة
+localStorage,التخزين المحلي
+List,كقائمة
+Setup complete!,اكتمل الإعداد
+Ready!,جاهز
+Loading app data...,جارٍ تحميل بيانات التطبيق...
+Taking longer than expected...,يستغرق وقتًا أطول من المتوقع...
+Initializing application...,جارٍ تهيئة التطبيق...
+Loading product catalog...,جارٍ تحميل كتالوج المنتجات...
+Loading customer database...,جارٍ تحميل قاعدة بيانات العملاء...
+Cannot change language - same language selected,لا يمكن تغيير اللغة - تم تحديد نفس اللغة
+Language changed successfully! Reloading...,تم تغيير اللغة بنجاح جارٍ إعادة التحميل
+Failed to change language,فشل في تغيير اللغة
+his item,هذا الصنف
+{0} has only {1} in stock. You requested {2}. Adjust quantity or restock.,{0} لديه {1} فقط في المخزون. لقد طلبت {2}. يرجى تعديل الكمية أو إعادة التخزين.
+Stock update: {0} has {1} available. Adding {2} will bring the stock below zero.,تحديث المخزون: {0} لديه {1} متاح. إضافة {2} ستؤدي إلى رصيد سالب.
+* Required,مطلوب
+- Total Outstanding,إجمالي المستحق
+- Total Unallocated,الإجمالي غير المخصص
+Acknowledge the error to resume scanning,تأكيد الخطأ لاستئناف المسح
+Across,عبر
+Add,إضافة
+Add Payment,إضافة دفعة
+Add on New Line,إضافة في سطر جديد
+Adjustment,تعديل
+After returns,بعد المرتجعات
+Against,ضد
+Against Name,ضد الاسم
+Age Bracket,الفئة العمرية
+All,الكل
+All Profiles,جميع الملفات الشخصية
+All Synchronized,تمت مزامنة الكل
+All Warehouses,جميع المستودعات
+All invoices are synchronized,تمت مزامنة جميع الفواتير
+All pending invoices are up to date,جميع الفواتير المعلقة محدثة
+All visible invoices are fully settled.,جميع الفواتير المرئية مستوية بالكامل.
+Allocated {0} across {1} payment(s).,تم تخصيص {0} عبر {1} دفعة.
+Allocation amount for payment {0} exceeds outstanding invoices,مبلغ التخصيص للدفعة {0} يتجاوز الفواتير المستحقة
+Amount already received,المبلغ المستلم بالفعل
+Amount exceeds POS Profile cash movement max amount.,المبلغ يتجاوز الحد الأقصى لحركة النقد في ملف نقاط البيع.
+Amount exceeds profile cash movement max amount.,المبلغ يتجاوز الحد الأقصى لحركة النقد للملف الشخصي.
+Amount must be greater than zero.,المبلغ يجب أن يكون أكبر من الصفر.
+Amount received from customer,المبلغ المستلم من العميل
+Apply Offer,تطبيق العرض
+Attributes (Size/Color),السمات (الحجم/اللون)
+Auto Reconcile,المطابقة التلقائية
+Available Items,الأصناف المتوفرة
+Available:,متوفر:
+Average Basket,متوسط السلة
+Average Bill,متوسط الفاتورة
+Average Ticket,التذكرة المتوسطة
+Avg Bill,متوسط الفاتورة
+Avg Invoice,متوسط الفاتورة
+Avg Invoice Profit,ربح الفاتورة المتوسط
+Avg Invoice Value,قيمة الفاتورة المتوسطة
+Avg Purchase Frequency,متوسط تكرار الشراء
+Awesome Dashboard,لوحة أوسم
+Awesome Dashboard is disabled in POS Settings.,لوحة أوسم معطلة في إعدادات نقاط البيع.
+Awesome Dashboard is disabled in global settings or for the selected scope.,لوحة أوسم معطلة في الإعدادات العالمية أو للنطاق المحدد.
+Back Office Cash Account,حساب النقد الخلفي
+Back Office Cash Account (Optional Override),حساب النقد الخلفي (تجاوز اختياري)
+Back Office Cash Account is fixed by POS Profile and cannot be overridden.,حساب النقد الخلفي محدد بملف نقاط البيع ولا يمكن تجاوزه.
+Back Office Cash Account is required for cash deposit.,حساب النقد الخلفي مطلوب لإيداع النقد.
+Back Office Cash Account must be a Cash account.,حساب النقد الخلفي يجب أن يكون حساب نقدي.
+Back office cash account is required.,حساب النقد الخلفي مطلوب.
+Background Submission Failed,فشل الإرسال في الخلفية
+Background sync interval (seconds),فترة المزامنة الخلفية (ثواني)
+Balances still pending,الرصيد لا يزال معلقاً
+Barcode,الباركود
+Barcode Label Printing,طباعة ملصقات الباركود
+Barcode {0} already exists.,الباركود {0} موجود بالفعل.
+Batch,دفعة
+Before any return workflow,قبل أي عملية إرجاع
+Before returns,قبل المرتجعات
+Best Day,أفضل يوم
+Best Seller,الأكثر مبيعاً
+Book expense or deposit from active shift.,تسجيل مصروف أو إيداع من الوردية النشطة.
+Branch / Location-wise Report,تقرير حسب الفرع/الموقع
+Branches,الفروع
+Brand-wise,حسب العلامة التجارية
+Build Time:,وقت البناء:
+Bundle,حزمة
+Buying Price,سعر الشراء
+COGS,تكلفة البضاعة المباعة
+CPU Cores:,أنوية المعالج:
+Calculating...,جارٍ الحساب...
+Camera access was aborted. Please try again.,تم إلغاء الوصول إلى الكاميرا. يرجى المحاولة مرة أخرى.
+Cancel Sale ?,إلغاء البيع؟
+Cancelling submitted cash movements is disabled for this POS Profile.,إلغاء حركات النقد المقدمة معطل لملف نقاط البيع هذا.
+Cannot Save Offline Invoice:,لا يمكن حفظ الفاتورة في وضع عدم الاتصال:
+Cannot Save Offline Payment:,لا يمكن حفظ الدفع في وضع عدم الاتصال:
+Cannot redeem customer credit more than invoice total,لا يمكن استرداد رصيد العميل أكثر من إجمالي الفاتورة
+Card / Online,بطاقة / عبر الإنترنت
+Cards,البطاقات
+Cash,نقدي
+Cash Collections,التحصيلات النقدية
+Cash Deposit is disabled for this POS Profile.,إيداع النقد معطل لملف نقاط البيع هذا.
+Cash Drawer Snapshot,لقطة درج النقد
+Cash In Hand,النقد في اليد
+Cash Movement,حركة النقد
+Cash Movement is disabled for this POS Profile.,حركة النقد معطلة لملف نقاط البيع هذا.
+Cash Movement is disabled in current POS Profile.,حركة النقد معطلة في ملف نقاط البيع الحالي.
+Cash Movements,حركات النقد
+Cash back to customers,النقد المردود للعملاء
+Cash movement cancelled,تم إلغاء حركة النقد
+Cash movement deduction applied,تم تطبيق خصم حركة النقد
+Cash movement deleted,تم حذف حركة النقد
+Cash movement is disabled for this POS Profile.,حركة النقد معطلة لملف نقاط البيع هذا.
+Cash movement saved offline,تم حفظ حركة النقد في وضع عدم الاتصال
+Cash movement submitted,تم تقديم حركة النقد
+Cash returned after payment,النقد المردود بعد الدفع
+Cashier-wise,حسب أمين الصندوق
+Cashiers,أمينة الصندوق
+Category,الفئة
+Category / Brand / Variant Report,تقرير الفئة/العلامة/المتغير
+Category-wise,حسب الفئة
+Category-wise Margin,هامش حسب الفئة
+Certificate,شهادة
+Certificate is missing or not trusted. QZ may show confirmation dialogs.,الشهادة مفقودة أو غير موثوقة. قد تظهر مربعات تأكيد في QZ.
+Certificate is trusted. Silent QZ printing is active.,الشهادة موثوقة. طباعة QZ الصامتة نشطة.
+Change,تغيير
+Change Return,تغيير الإرجاع
+Change Returned,تم تغيير الإرجاع
+Charge Heads,رؤساء الرسوم
+Charges,الرسوم
+Check cache and performance,فحص ذاكرة التخزين المؤقت والأداء
+Check for Updates,التحقق من التحديثات
+Check for new commits,التحقق من عمليات الإيداع الجديدة
+Clear All,مسح الكل
+Clear Search,مسح البحث
+Clearing local cache...,جارٍ مسح ذاكرة التخزين المحلية...
+Client CPU Lag:,تأخير معالج العميل:
+Client Memory Usage:,استخدام ذاكرة العميل:
+Close Dialog,إغلاق مربع الحوار
+Close Settings,إغلاق الإعدادات
+Closing Snapshot Available,لقطة الإقفال متاحة
+Collected,تم التحصيل
+Cols,أعمدة
+Company is required,الشركة مطلوبة
+Company is required.,الشركة مطلوبة.
+Company must match the selected POS Opening Shift company.,يجب أن تتطابق الشركة مع شركة وردية فتح نقاط البيع المحددة.
+Company must match the selected POS Profile company.,يجب أن تتطابق الشركة مع شركة ملف نقاط البيع المحددة.
+Completed and active sales in this range,المبيعات المكتملة والنشطة في هذا النطاق
+Completed returns will appear here.,ستظهر المرتجعات المكتملة هنا.
+Connect,اتصال
+Connect printer and manage certificate,توصيل الطابعة وإدارة الشهادة
+Connecting,جارٍ الاتصال
+Connecting to QZ Tray...,جارٍ الاتصال بـ QZ Tray...
+Connections:,الاتصالات:
+Context is required,السياق مطلوب
+Cost Center is required,مركز التكلفة مطلوب
+Count,عدد
+Cover,تغطية
+Create,إنشاء
+Create Bill,إنشاء فاتورة
+Create New Item,إنشاء صنف جديد
+Create Purchase Order,إنشاء أمر شراء
+Create Return,إنشاء إرجاع
+Create Supplier,إنشاء مورد
+Create items,إنشاء أصناف
+Create suppliers,إنشاء موردين
+Credit Note,إشعار دائن
+Credit Note {0} has no remaining balance to allocate.,إشعار دائن {0} ليس لديه رصيد متبقي للتخصيص.
+Credit Outstanding,الائتمان المستحق
+Credit and Output,الائتمان والمخرجات
+Credit note {0} is already fully allocated,إشعار دائن {0} مخصص بالكامل بالفعل
+Credit note {0} still has an unapplied balance of {1},إشعار دائن {0} لا يزال لديه رصيد غير مطبق {1}
+Credit sales remaining to be collected,المبيعات الائتمانية المتبقية للتحصيل
+Critical,حرج
+Currency,العملة
+Currency is required,العملة مطلوبة
+Current,الحالي
+Current Event Loop Lag:,تأخير حلقة الأحداث الحالية:
+Current Month,الشهر الحالي
+Current Profile,الملف الشخصي الحالي
+Current User,المستخدم الحالي
+Customer Details,تفاصيل العميل
+Customer Report,تقرير العميل
+Customer Screen,شاشة العميل
+Customer already exists,العميل موجود بالفعل
+Customer already selected,العميل محدد بالفعل
+Customer display channel is missing,قناة شاشة العميل مفقودة
+Customer is required,العميل مطلوب
+Customer is required to add payment,العميل مطلوب لإضافة الدفع
+Customer not selected,العميل غير محدد
+Customers,العملاء
+Daily Sales,المبيعات اليومية
+Daily Sales Summary,ملخص المبيعات اليومية
+Data loaded in form. Review and submit.,تم تحميل البيانات في النموذج. المراجعة والإرسال.
+Day Δ,يوم Δ
+Day-wise (MTD),يومياً (منذ بداية الشهر)
+Day-wise Movement,الحركة اليومية
+Dead Stock,المخزون الميت
+Dead Stock Items,أصناف المخزون الميت
+Decrease quantity,تقليل الكمية
+Default,افتراضي
+Default Rate is required,السعر الافتراضي مطلوب
+Delete,حذف
+Delete Draft,حذف المسودة
+Deleting cancelled cash movements is disabled for this POS Profile.,حذف حركات النقد الملغاة معطل لملف نقاط البيع هذا.
+Delivery Charges,رسوم التسليم
+Deposit,إيداع
+Detailed Supplier Breakdown,تفصيل المورد المفصل
+Detecting formats:,جارٍ اكتشاف التنسيقات:
+Device Memory:,ذاكرة الجهاز:
+Difference (In Company Currency),الفرق (بعملة الشركة)
+Difference:,الفرق:
+Disconnect,قطع الاتصال
+Discount,خصم
+Discount / Void / Return Report,تقرير الخصم/الإلغاء/الإرجاع
+Discount limited by POS Profile,الخصم محدود بملف نقاط البيع
+Discounted Invoices,الفواتير المخصومة
+Discounts,الخصومات
+Dismiss,رفض
+Download Certificate,تحميل الشهادة
+Draft invoice deleted,تم حذف الفاتورة المسودة
+Drafts,المسودات
+Duplicate,تكرار
+Edit discount amount,تعديل مبلغ الخصم
+Edit discount percentage,تعديل نسبة الخصم
+Edit item name,تعديل اسم الصنف
+Edit quantity,تعديل الكمية
+Edit rate,تعديل السعر
+Edit unit of measure,تعديل وحدة القياس
+Edited,تم التعديل
+Enable Customer Display in POS Profile first.,تفعيل شاشة العميل في ملف نقاط البيع أولاً.
+Enable background sync,تفعيل المزامنة في الخلفية
+Enter Quantity,إدخال الكمية
+Enter a valid grams value,إدخال قيمة جرام صالحة
+Enter new price list rate,إدخال سعر قائمة الأسعار الجديد
+Enter valid grams for scale barcode,إدخال جرام صالحة لباركود الميزان
+Entries,إدخالات
+Error accessing camera:,خطأ في الوصول إلى الكاميرا:
+Error in change calculations!,خطأ في حسابات التغيير!
+Error loading invoice details,خطأ في تحميل تفاصيل الفاتورة
+Error processing invoice,خطأ في معالجة الفاتورة
+Error submitting invoice:,خطأ في إرسال الفاتورة:
+Error updating currency,خطأ في تحديث العملة
+Est. Purchase,تقدير الشراء
+Est. Value,القيمة المقدرة
+Every,كل
+Exchange Rate,سعر الصرف
+Expected Amount (In Company Currency),المبلغ المتوقع (بعملة الشركة)
+Expected Cash,النقد المتوقع
+Expected cash on hand grouped by currency,النقد المتوقع في اليد مجمعاً حسب العملة
+Expected vs Actual,المتوقع مقابل الفعلي
+Expense,مصروف
+Expense Account (Optional Override),حساب المصروفات (تجاوز اختياري)
+Expense Account is required for expense entries.,حساب المصروفات مطلوب لإدخالات المصروفات.
+Expense account is required for POS Expense.,حساب المصروفات مطلوب لمصروفات نقاط البيع.
+Expense account is required.,حساب المصروفات مطلوب.
+Expense target account must match Expense Account.,حساب المصروفات المستهدف يجب أن يتطابق مع حساب المصروفات.
+Expenses and deposits posted during this shift,المصروفات والإيداعات المنشورة خلال هذه الوردية
+Expired,منتهي الصلاحية
+Failed to auto reconcile payments.,فشل في مطابقة المدفوعات تلقائياً.
+Failed to cancel cash movement,فشل في إلغاء حركة النقد
+Failed to create item,فشل في إنشاء الصنف
+Failed to create supplier,فشل في إنشاء المورد
+Failed to delete cash movement,فشل في حذف حركة النقد
+Failed to generate scale barcode. Using item barcode only.,فشل في إنشاء باركود الميزان. استخدام باركود الصنف فقط.
+Failed to load cash movement context.,فشل في تحميل سياق حركة النقد.
+Failed to load dashboard data.,فشل في تحميل بيانات لوحة المعلومات.
+Failed to reconcile Credit Note {0}: {1},فشل في مطابقة إشعار دائن {0}: {1}
+Failed to reconcile Journal Entry {0}: {1},فشل في مطابقة القيد اليومي {0}: {1}
+Failed to reconcile Payment Entry {0}: {1},فشل في مطابقة قيد الدفع {0}: {1}
+Failed to reload invoice from server,فشل في إعادة تحميل الفاتورة من الخادم
+Failed to submit cash movement,فشل في تقديم حركة النقد
+Failed to sync offline cash movements,فشل في مزامنة حركات النقد في وضع عدم الاتصال
+Fast Moving Items,أصناف سريعة الحركة
+Fees,الرسوم
+Finance,المالية
+Fixing payment amounts for return invoice...,جارٍ تصحيح مبالغ الدفع لفاتورة الإرجاع...
+Free,مجاني
+Free Qty,الكمية المجانية
+Frequency,التكرار
+From Date,من تاريخ
+Fulfillment Details,تفاصيل التنفيذ
+Generate Certificate,إنشاء شهادة
+Go to Frappe Desk,الذهاب إلى سطح مكتب Frappe
+Gross Margin,هامش إجمالي
+Gross Profit,ربح إجمالي
+Gross Sales,المبيعات الإجمالية
+Grouped totals for each payment method and currency,المجاميع المجمعة لكل طريقة دفع والعملة
+High,عالي
+History,السجل
+Hourly (Today),كل ساعة (اليوم)
+Import the certificate into QZ Tray and restart QZ Tray on each POS machine.,استيراد الشهادة إلى QZ Tray وإعادة تشغيل QZ Tray على كل جهاز نقاط بيع.
+In,داخل
+Include Batch / Serial,تضمن الدفعة/الرقم التسلسلي
+Include Price,تضمن السعر
+Increase quantity,زيادة الكمية
+Invalid Opening Entry,إدخال فتح غير صالح
+Invalid POS Opening Shift data provided.,بيانات وردية فتح نقاط البيع المقدمة غير صالحة.
+Invalid movement type for journal entry.,نوع الحركة غير صالح للقيد اليومي.
+Invalid movement type.,نوع الحركة غير صالح.
+Invalid payload for cash movement.,الحمولة غير صالحة لحركة النقد.
+Invalid posting date.,تاريخ النشر غير صالح.
+Invalid rate,سعر غير صالح
+Invalid {0} filter,عامل تصفية {0} غير صالح
+Inventory,المخزون
+Inventory Status Report,تقرير حالة المخزون
+Invoice Adjustments,تعديلات الفاتورة
+Invoice Change,تغيير الفاتورة
+Invoice Details,تفاصيل الفاتورة
+Invoice Items,أصناف الفاتورة
+Invoice Management,إدارة الفاتورة
+Invoice Mgmt,إدارة الفاتورة
+Invoice Submission Failed,فشل إرسال الفاتورة
+Invoice Submitted,تم إرسال الفاتورة
+Invoice is still in draft after background submission.,الفاتورة لا تزال في مسودة بعد الإرسال في الخلفية.
+Invoice submission failed,فشل إرسال الفاتورة
+Invoice {0} does not exist,الفاتورة {0} غير موجودة
+Invoices already past due date,الفواتير التي تجاوزت تاريخ الاستحقاق
+Invoices saved as POS Invoices,الفواتير المحفوظة كفواتير نقاط البيع
+Invoices still carrying balances,الفواتير التي لا تزال تحمل أرصدة
+Item / Product Sales Report,تقرير مبيعات الصنف/المنتج
+Item Code and Price List are required,كود الصنف وسعر قائمة الأسعار مطلوبان
+Item Name,اسم الصنف
+Item Price has been added or updated,تم إضافة أو تحديث سعر الصنف
+Item Search,بحث الصنف
+Item Selector,محدد الأصناف
+Item code is required.,كود الصنف مطلوب.
+Item created successfully,تم إنشاء الصنف بنجاح
+Item is out of stock,الصنف غير متوفر في المخزون
+Item-wise Profitability,ربحية حسب الصنف
+Items Sold,الأصناف المباعة
+Items added in POS will appear here automatically.,ستظهر الأصناف المضافة في نقاط البيع هنا تلقائياً.
+Items added to invoice,الأصناف المضافة إلى الفاتورة
+Items/Invoice,أصناف/فاتورة
+Journal Entry,القيد اليومي
+Journal Entry {0} has no unallocated amount remaining.,القيد اليومي {0} لا لديه مبلغ غير متبقي.
+Labels,التسميات
+Last,الأخير
+Last 14 Days (Paid vs Pending),آخر 14 يوماً (مدفوع مقابل معلق)
+Last 14 Days Activity,نشاط آخر 14 يوماً
+Last 14 Days Gross Profit,إجمالي الربح آخر 14 يوماً
+Last 14 Days Purchases,المشتريات آخر 14 يوماً
+Last 14 Days Tax/Charges,الضرائب/الرسوم آخر 14 يوماً
+Last sync:,آخر مزامنة:
+Latest entries for current shift,أحدث إدخالات للوردية الحالية
+Lead Time,وقت التسليم
+Limited,محدود
+Live Snapshot,لقطة مباشرة
+Load Draft,تحميل المسودة
+Loading customers...,جارٍ تحميل العملاء...
+Loading database stats...,جارٍ تحميل إحصائيات قاعدة البيانات...
+Loading details...,جارٍ تحميل التفاصيل...
+Loading drafts...,جارٍ تحميل المسودات...
+Loading invoice history...,جارٍ تحميل سجل الفاتورة...
+Loading items...,جارٍ تحميل الأصناف...
+Loading return invoices...,جارٍ تحميل فواتير الإرجاع...
+Loading server CPU/memory usage...,جارٍ تحميل استخدام المعالج/ذاكرة الخادم...
+Loading suppliers...,جارٍ تحميل الموردين...
+Loading unpaid invoices...,جارٍ تحميل الفواتير غير المدفوعة...
+Loading...,جارٍ التحميل...
+Location Performance,أداء الموقع
+Locations,المواقع
+Low,منخفض
+Low Stock,مخزون منخفض
+Low Stock Alerts,تنبيهات المخزون المنخفض
+Low Stock Items,أصناف المخزون المنخفض
+Low Stock Threshold,حد المخزون المنخفض
+Low Stock Total,إجمالي المخزون المنخفض
+Lowest Margin,أقل هامش
+Manage and synchronize your offline transactions,إدارة ومزامنة معاملاتك في وضع عدم الاتصال
+Margin,الهامش
+Medium,متوسط
+Method-wise Collections,التحصيلات حسب الطريقة
+Minimum Qty,الحد الأدنى للكمية
+Missing Dependency,التبعيات المفقودة
+Mode of Payment is required,طريقة الدفع مطلوبة
+Month,الشهر
+Month Δ,شهر Δ
+Monthly Profit,الربح الشهري
+Monthly Sales,المبيعات الشهرية
+Monthly Sales Summary,ملخص المبيعات الشهرية
+Most Active Cashiers,أمينة الصندوق الأكثر نشاطاً
+Movement Type,نوع الحركة
+Movement Type must be Expense or Deposit.,نوع الحركة يجب أن يكون مصروفاً أو إيداعاً.
+Movements,الحركات
+Multi Currency,متعدد العملات
+Multiple Warehouses,مستودعات متعددة
+N/A,غ/م
+Negative Stock,مخزون سالب
+Negative Stock Items,أصناف المخزون السالب
+Net,صافي
+Net Qty,الكمية الصافية
+Net Sales,المبيعات الصافية
+Net Value,القيمة الصافية
+Never,أبداً
+New Item,صنف جديد
+New changes are ready to load,التغييرات الجديدة جاهزة للتحميل
+New rate,سعر جديد
+Next unit of measure,وحدة القياس التالية
+No Barcode,لا يوجد باركود
+No Print Formats Found,لم يتم العثور على تنسيقات طباعة
+No active POS Profile found for current user.,لم يتم العثور على ملف نقاط بيع نشط للمستخدم الحالي.
+No allocation made for credit note {0},لم يتم إجراء تخصيص لإشعار دائن {0}
+No allocation made for payment {0},لم يتم إجراء تخصيص للدفعة {0}
+No allocation was recorded for Credit Note {0}.,لم يتم تسجيل تخصيص لإشعار دائن {0}.
+No allocation was recorded for Journal Entry {0}.,لم يتم تسجيل تخصيص للقيد اليومي {0}.
+No allocation was recorded for Payment Entry {0}.,لم يتم تسجيل تخصيص لإدخال الدفع {0}.
+No allocations were made.,لم يتم إجراء أي تخصيصات.
+No attribute data found.,لم يتم العثور على بيانات السمات.
+No batches available in {0} for {1}.,لا توجد دفعات متوفرة في {0} لـ {1}.
+No branch/location data found.,لم يتم العثور على بيانات الفرع/الموقع.
+No brand data found.,لم يتم العثور على بيانات العلامة التجارية.
+No cash expected for this shift.,لا يوجد نقد متوقع لهذه الوردية.
+No cash mode configured,لا توجد طريقة دفع نقدي مكونة
+No cash movement type is allowed for this POS Profile.,لا يُسمح بنوع حركة النقد لملف نقاط البيع هذا.
+No cashier-wise discount/void/return activity.,لا يوجد نشاط خصم/إلغاء/إرجاع حسب أمين الصندوق.
+No category data found.,لم يتم العثور على بيانات الفئة.
+No category profitability data found.,لم يتم العثور على بيانات ربحية الفئة.
+No change returned recorded for this shift.,لا يوجد تغيير مردود مسجل لهذه الوردية.
+No charge head breakdown found.,لم يتم العثور على تفصيل رئيسي للرسوم.
+No customer sales data found.,لم يتم العثور على بيانات مبيعات العميل.
+No day-wise discount/void/return trend.,لا يوجد اتجاه خصم/إلغاء/إرجاع يومي.
+No day-wise payment data found.,لم يتم العثور على بيانات الدفع اليومية.
+No day-wise profitability trend found.,لا يوجد اتجاه ربحية يومي.
+No day-wise purchase data found.,لم يتم العثور على بيانات الشراء اليومية.
+No day-wise sales trend found.,لا يوجد اتجاه مبيعات يومي.
+No day-wise tax/charges trend found.,لا يوجد اتجاه ضرائب/رسوم يومي.
+No drafts found,لم يتم العثور على مسودات
+No due date,لا يوجد تاريخ استحقاق
+No hourly sales trend found for today.,لم يتم العثور على اتجاه مبيعات كل ساعة لهذا اليوم.
+No invoice activity found.,لم يتم العثور على نشاط فاتورة.
+No invoices recorded for this shift.,لم يتم تسجيل فواتير لهذه الوردية.
+No item profitability data found.,لم يتم العثور على بيانات ربحية الصنف.
+No item sales data found for this period.,لم يتم العثور على بيانات مبيعات الصنف لهذه الفترة.
+No items to invoice. Please ensure there are items on the Purchase Order.,لا توجد أصناف للفوترة. يرجى التأكد من وجود أصناف في أمر الشراء.
+No items to receive. Please enter received quantities.,لا توجد أصناف للاستلام. يرجى إدخال الكميات المستلمة.
+No items with barcodes to print,لا توجد أصناف باركود للطباعة
+No location-wise top item data found.,لم يتم العثور على بيانات أفضل صنف حسب الموقع.
+No low stock alerts right now.,لا توجد تنبيهات مخزون منخفض الآن.
+No low stock items.,لا توجد أصناف مخزون منخفض.
+No month-wise sales trend found.,لم يتم العثور على اتجاه مبيعات شهري.
+No negative stock items.,لا توجد أصناف مخزون سالب.
+No notifications yet,لا توجد إشعارات حتى الآن
+No offline cash movement synced.,لم يتم مزامنة حركة النقد في وضع عدم الاتصال.
+No out-of-stock items.,لا توجد أصناف غير متوفرة.
+No outstanding credit invoices for this shift.,لا توجد فواتير ائتمان مستحقة لهذه الوردية.
+No outstanding invoices available for allocation of credit note {0},لا توجد فواتير مستحقة للتخصيص لإشعار دائن {0}
+No outstanding invoices available for allocation of payment {0},لا توجد فواتير مستحقة للتخصيص للدفعة {0}
+No outstanding invoices were available to reconcile Credit Note {0}.,لم تكن هناك فواتير مستحقة لمطابقة إشعار دائن {0}.
+No outstanding invoices were available to reconcile Journal Entry {0}.,لم تكن هناك فواتير مستحقة لمطابقة القيد اليومي {0}.
+No outstanding invoices were available to reconcile Payment Entry {0}.,لم تكن هناك فواتير مستحقة لمطابقة قيد الدفع {0}.
+No outstanding invoices were found for {0}.,لم يتم العثور على فواتير مستحقة لـ {0}.
+No payment collection data found.,لم يتم العثور على بيانات تحصيل الدفع.
+No payment rows available on this invoice.,لا توجد صفوف دفع متوفرة على هذه الفاتورة.
+No payments registered for this shift.,لا توجد مدفوعات مسجلة لهذه الوردية.
+No pending balances in this period.,لا توجد أرصدة معلقة في هذه الفترة.
+No pending offline invoices,لا توجد فواتير معلقة في وضع عدم الاتصال
+No profiles found for selected scope. Falling back to current profile failed.,لم يتم العثور على ملفات شخصية للنطاق المحدد. فشل العودة إلى الملف الشخصي الحالي.
+No recent customer activity found.,لم يتم العثور على نشاط حديث للعميل.
+No recent stock entries found.,لم يتم العثور على إدخالات مخزون حديثة.
+No reorder suggestions right now.,لا توجد اقتراحات إعادة طلب الآن.
+No repeat customers in this period.,لا يوجد عملاء متكررون في هذه الفترة.
+No response from server,لا توجد استجابة من الخادم
+No return invoices found,لم يتم العثور على فواتير إرجاع
+No return item trend found.,لم يتم العثور على اتجاه صنف الإرجاع.
+No returnable items found for this invoice,لم يتم العثور على أصناف قابلة للإرجاع لهذه الفاتورة
+No returns were processed in this shift.,لم تتم معالجة إرجاعات في هذه الوردية.
+No risk activity found.,لم يتم العثور على نشاط مخاطر.
+No sales activity found for this period.,لم يتم العثور على نشاط مبيعات لهذه الفترة.
+No slow moving items.,لا توجد أصناف بطيئة الحركة.
+No staff sales activity found.,لم يتم العثور على نشاط مبيعات الموظفين.
+No stock movement for this period.,لا يوجد حركة مخزون لهذه الفترة.
+No submitted cash movements in this shift.,لا توجد حركات نقد مقدم في هذه الوردية.
+No supplier purchases found in this month.,لم يتم العثور على مشتريات مورد لهذا الشهر.
+No suppliers found for this period.,لم يتم العثور على موردين لهذه الفترة.
+No tax head breakdown found.,لم يتم العثور على تفصيل رئيسي الضرائب.
+No top items found for this location.,لم يتم العثور على أفضل أصناف لهذا الموقع.
+No unallocated payments were available for reconciliation.,لم تكن هناك مدفوعات غير مخصصة للمطابقة.
+No unpaid invoices,لا توجد فواتير غير مدفوعة
+No valid batches available in {0} for {1}.,لا توجد دفعات صالحة متوفرة في {0} لـ {1}.
+No variant data found.,لم يتم العثور على بيانات المتغير.
+No week-wise sales trend found.,لم يتم العثور على اتجاه مبيعات أسبوعي.
+No.,رقم
+Not Set,غير محدد
+Notifications,الإشعارات
+OK,موافق
+Offer Item,صنف العرض
+Offer Removed,تم إزالة العرض
+Offer UOM cannot be changed,لا يمكن تغيير وحدة قياس العرض
+Offer criteria exceeded,تم تجاوز معايير العرض
+Offer item unavailable,صنف العرض غير متوفر
+Offer?,عرض؟
+Offline,غير متصل
+Offline invoices status,حالة الفواتير في وضع عدم الاتصال
+Offline invoices synced,تمت مزامنة الفواتير في وضع عدم الاتصال
+Online,متصل
+Only cancelled POS Cash Movement records can be deleted.,يمكن حذف فقط سجلات حركة النقد الملغاة.
+Only cancelled cash movements can be deleted.,يمكن حذف فقط حركات النقد الملغاة.
+Only submitted cash movements can be cancelled.,يمكن إلغاء فقط حركات النقد المقدمة.
+Only submitted or cancelled cash movements can be duplicated.,يمكن تكرار فقط حركات النقد المقدمة أو الملغاة.
+Only the shift owner can create cash movement entries.,يمكن فقط لمالك الوردية إنشاء إدخالات حركة النقد.
+Open Customer Display,فتح شاشة العميل
+Open Payments?,فتح المدفوعات؟
+Open balance to collect,الرصيد المفتوح للتحصيل
+Open invoices,فواتير مفتوحة
+Open this screen from POS Menu -> Open Customer Display.,افتح هذه الشاشة من قائمة نقاط البيع -> فتح شاشة العميل.
+OpenCV Off,OpenCV معطل
+OpenCV On,OpenCV نشط
+OpenCV image processing enabled - Enhanced barcode detection,معالجة صورة OpenCV مفعلة - كشف الباركود المحسن
+OpenCV image processing unavailable on this device,معالجة صورة OpenCV غير متوفرة على هذا الجهاز
+OpenCV processing disabled,معالجة OpenCV معطلة
+Opening Cash,النقد الافتتاحي
+Original,الأصلي
+Other,أخرى
+Out,خارج
+Out of Stock,غير متوفر
+Out of Stock Items,أصناف غير متوفرة
+Outstanding Credit by Currency,الائتمان المستحق بالعملة
+Overdue,متأخر
+Overpayment Change,تغيير الدفع الزائد
+PDF,قوات الدفاع الشعبي
+POS Awesome Payments is not enabled for this POS Profile,مدفوعات POS Awesome غير مفعلة لهذا الملف الشخصي
+POS Awesome credit redemption for Sales Invoice {0},استرداد ائتمان POS Awesome لفاتورة المبيعات {0}
+POS Cash Movement,حركة النقد
+POS Expense is disabled for this POS Profile.,مصروفات نقاط البيع معطلة لهذا الملف الشخصي.
+POS Offer is disable.,العرض معطل.
+POS Opening Shift is required,وردية فتح نقاط البيع مطلوبة
+POS Opening Shift is required to compute the overview.,وردية فتح نقاط البيع مطلوبة لحساب النظرة العامة.
+POS Opening Shift is required.,وردية فتح نقاط البيع مطلوبة.
+POS Opening Shift must be submitted and open.,وردية فتح نقاط البيع يجب أن تكون مقدمة ومفتوحة.
+POS Opening Shift not found.,لم يتم العثور على وردية فتح نقاط البيع.
+POS Opening Shift {0} is not for the same POS Profile,وردية فتح نقاط البيع {0} ليست لنفس الملف الشخصي
+POS Opening Shift {0} is not for the same company,وردية فتح نقاط البيع {0} ليست لنفس الشركة
+POS Profile company must match active POS Opening Shift company.,شركة ملف نقاط البيع يجب أن تتطابق مع شركة وردية فتح نقاط البيع النشطة.
+POS Profile is required,ملف نقاط البيع مطلوب
+POS Profile is required to create purchase documents.,ملف نقاط البيع مطلوب لإنشاء وثائق الشراء.
+POS Profile is required.,ملف نقاط البيع مطلوب.
+POS Profile must match the active POS Opening Shift profile.,ملف نقاط البيع يجب أن يتطابق مع ملف الوردية المفتوحة.
+POS Profile must match the selected POS Opening Shift profile.,ملف نقاط البيع يجب أن يتطابق مع ملف وردية الفتح المحددة.
+POS Profile {0} does not belong to company {1}.,ملف نقاط البيع {0} لا ينتمي إلى الشركة {1}.
+POS Profile {0} does not exist.,ملف نقاط البيع {0} غير موجود.
+POS Shift {0} is not open,وردية نقاط البيع {0} ليست مفتوحة
+POS lock is not available yet,قفل نقاط البيع غير متوفر بعد
+POS profile data is missing or invalid.,بيانات ملف نقاط البيع مفقودة أو غير صالحة.
+Packing List,قائمة التعبئة
+Page Format,تنسيق الصفحة
+Paid change cannot be greater than total change!,لا يمكن أن يكون التغيير المدفوع أكبر من التغيير الإجمالي!
+Parent Item,الصنف الأب
+Partial,جزئي
+Partly Paid,مدفوع جزئياً
+Pay,دفع
+Payment,الدفع
+Payment Entry is already created or payment account is not matched,إدخال الدفع موجود بالفعل أو حساب الدفع غير متطابق
+Payment Entry {0} has no unallocated amount remaining.,إدخال الدفع {0} لا لديه مبلغ غير متبقي.
+Payment Gateway Account not found,لم يتم العثور على حساب بوابة الدفع
+Payment History,سجل الدفع
+Payment Method Report,تقرير طريقة الدفع
+Payment Progress,تقدم الدفع
+Payment Request for {0},طلب الدفع لـ {0}
+Payment State,حالة الدفع
+Payment Status,حالة الدفع
+Payment Summary,ملخص الدفع
+Payment amount cannot be less than or equal to 0,مبلغ الدفع لا يمكن أن يكون أقل من أو يساوي 0
+Payment {0} is already fully allocated,الدفعة {0} مخصصة بالكامل بالفعل
+Payments are not open. Do you want to open payments and submit?,المدفوعات غير مفتوحة. هل تريد فتح المدفوعات والإرسال؟
+Payments by Mode of Payment,المدفوعات حسب طريقة الدفع
+Peak Hour,ساعة الذروة
+Peak Memory:,الذروة:
+Peak Server:,الخادم:
+Peak:,الذروة:
+Pending Amount,المبلغ المعلق
+Pending Exposure,التعرض المعلق
+Pending Ratio,النسبة المعلقة
+Pending Sync,معلق للمزامنة
+Per Page,لكل صفحة
+Please add at least one item.,يرجى إضافة صنف واحد على الأقل.
+Please enter payment amount,يرجى إدخال مبلغ الدفع
+Please enter the phone number first,يرجى إدخال رقم الهاتف أولاً
+Please fill all required fields,يرجى ملء جميع الحقول المطلوبة
+Please select Coupon Code Based POS Offer.,يرجى تحديد عرض نقاط البيع القائم على رمز الكوبون.
+Please select a customer before reconciling.,يرجى تحديد عميل قبل المطابقة.
+Please select a valid movement type.,يرجى تحديد نوع حركة صالح.
+Please select company before reconciling.,يرجى تحديد شركة قبل المطابقة.
+Please select the correct POS Offer with the same company.,يرجى تحديد عرض نقاط البيع الصحيح بنفس الشركة.
+Please select the customer.,يرجى تحديد العميل.
+Please set Default Payable Account in Company {0},يرجى تعيين الحساب الدافع الافتراضي في الشركة {0}
+Please set default account for Mode of Payment {0} in company {1},يرجى تعيين الحساب الافتراضي لطريقة الدفع {0} في الشركة {1}
+Please try again or enter the item manually.,يرجى المحاولة مرة أخرى أو إدخال الصنف يدوياً.
+Popup blocked. Please allow popups.,تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة.
+Posting,النشر
+Posting and Price List,النشر وقائمة الأسعار
+Previous unit of measure,وحدة القياس السابقة
+Price List Rate,سعر قائمة الأسعار
+Price List is required,قائمة الأسعار مطلوبة
+Pricing Rule,قاعدة التسعير
+Print,طباعة
+Print Format (Invoice),تنسيق الطباعة (الفاتورة)
+Print Format (Order),تنسيق الطباعة (الطلب)
+Printer,الطابعة
+Processed returns impacting the shift totals,المرتجعات المعالجة التي تؤثر على إجماليات الوردية
+Procurement,المشتريات
+Products,المنتجات
+Profile,الملف الشخصي
+Profile switching is not available yet,تبديل الملف الشخصي غير متوفر بعد
+Profiles,الملفات الشخصية
+Profit,الربح
+Profit: Invoice Item Estimate,الربح: تقدير صنف الفاتورة
+Profit: Stock Ledger (COGS),الربح: سجل المخزون (تكلفة البضاعة المباعة)
+Profitability Report,تقرير الربحية
+Prorated return discount,خصم الإرجاع النسبي
+Purchase Amount,مبلغ الشراء
+Purchase Invoices,فواتير الشراء
+Purchase Order created,تم إنشاء أمر الشراء
+Purchase Order {0} has been saved as Draft. Error: {1},تم حفظ أمر الشراء {0} كمسودة. خطأ: {1}
+Purchase order requires at least one item with quantity.,أمر الشراء يتطلب صنف واحد على الأقل بكمية.
+Purchase order requires at least one item.,أمر الشراء يتطلب صنف واحد على الأقل.
+Purchase orders,أوامر الشراء
+QZ Certificate Missing,شهادة QZ مفقودة
+QZ Certificate Ready,شهادة QZ جاهزة
+QZ Tray Setup,إعداد QZ Tray
+QZ Tray certificate not found. Ask an administrator to run Setup QZ Certificate.,لم يتم العثور على شهادة QZ Tray. اطلب من المسؤول تشغيل إعداد شهادة QZ.
+QZ Tray connected.,QZ Tray متصل.
+QZ Tray is not connected.,QZ Tray غير متصل.
+QZ certificate already exists.,شهادة QZ موجودة بالفعل.
+QZ certificate generated successfully.,تم إنشاء شهادة QZ بنجاح.
+Qty,الكمية
+Qualified,مؤهل
+Quantity,الكمية
+Quantity exceeds available stock,الكمية تتجاوز المخزون المتوفر
+Rate adjusted to maximum allowed discount,تم تعديل السعر إلى الحد الأقصى للخصم المسموح
+Ready,جاهز
+Real-time POS insights for retail operations.,رؤى نقاط البيع في الوقت الفعلي لعمليات التجزئة.
+Receive now,استلام الآن
+Receive stock,استلام المخزون
+Received,تم الاستلام
+Recent Movement Entries,إدخالات الحركة الأخيرة
+Recently Active Customers,العملاء النشطون مؤخراً
+Reconciling Payments,جارٍ مطابقة المدفوعات
+Redeemed credit cannot be greater than its total.,لا يمكن أن يكون الائتمان المسترد أكبر من إجماليه.
+Redemption and Totals,الاسترداد والإجماليات
+Reference,المرجع
+Referral Code is required,كود الإحالة مطلوب
+Referral Code {0} is disabled,كود الإحالة {0} معطل
+Referral Code {0} is not exists,كود الإحالة {0} غير موجود
+Refresh,تحديث
+Refresh Exchange Rate,تحديث سعر الصرف
+Refresh Printers,تحديث الطابعات
+Reload Now,إعادة التحميل الآن
+Reload to apply the latest changes. Your current session will be refreshed.,إعادة التحميل لتطبيق أحدث التغييرات. سيتم تحديث جلستك الحالية.
+Remaining outstanding: {0} across {1} invoice(s).,المستحق المتبقي: {0} عبر {1} فاتورة.
+Remarks,ملاحظات
+Remarks are required for cash movement in this POS Profile.,ملاحظات مطلوبة لحركة النقد في ملف نقاط البيع هذا.
+Remarks are required.,ملاحظات مطلوبة.
+Remove Offer,إزالة العرض
+Remove item,إزالة الصنف
+Reorder / Purchase Suggestions,اقتراحات إعادة الطلب/الشراء
+Repeat Customers,العملاء المتكررون
+Repeat Rate,معدل التكرار
+Request Payment,طلب الدفع
+Reset,إعادة تعيين
+Reset item name,إعادة تعيين اسم الصنف
+Return,إرجاع
+Return Amount,مبلغ الإرجاع
+Return Count,عدد الإرجاع
+Return Valid Until,الإرجاع صالح حتى
+Return count,عدد الإرجاع
+Return window passed,انتهت فترة الإرجاع
+Returns,المرتجعات
+Returns / Voids / Discounts,المرتجعات/الإلغاءات/الخصومات
+Returns are only allowed until {0},السماح بالإرجاع فقط حتى {0}
+Returns by Currency,المرتجعات حسب العملة
+Revenue,الإيرادات
+Review shift totals before submitting the closing entry,مراجعة إجماليات الوردية قبل إرسال الإقفال
+Round Off,تقريب
+Rows:,صفوف:
+Rule,القاعدة
+Sale,بيع
+Sales,المبيعات
+Sales Person and Print,مندوب المبيعات والطباعة
+Sales Trend Report,تقرير اتجاه المبيعات
+Sales processed,المبيعات المعالجة
+Save,حفظ
+Save Settings,حفظ الإعدادات
+Saved draft invoices will appear here.,ستظهر فواتير المسودة المحفوظة هنا.
+Scale barcode detected. Quantity here is the number of labels to print.,تم اكتشاف باركود الميزان. الكمية هنا هي عدد الملصقات للطباعة.
+Scan Error,خطأ المسح
+Scanned Code:,الكود الممسوح:
+Scanning items,جارٍ مسح الأصناف
+Scope,النطاق
+Scope: All Profiles,النطاق: جميع الملفات الشخصية
+Scope: Current Profile,النطاق: الملف الشخصي الحالي
+Scope: Specific Profile,نطاق محدد
+Search customer,بحث عميل
+Search drafts or customers,بحث مسودات أو عملاء
+Search invoices or customers,بحث فواتير أو عملاء
+Search item,بحث صنف
+Search item / code,بحث صنف/كود
+Search items or barcode,بحث أصناف أو باركود
+Search return invoices or customers,بحث فواتير إرجاع أو عملاء
+Search supplier,بحث مورد
+Search unpaid invoices or customers,بحث فواتير غير مدفوعة أو عملاء
+Select Batch,تحديد الدفعة
+Select a printer to use QZ silent printing.,حدد طابعة لاستخدام طباعة QZ الصامتة.
+Select printer,تحديد الطابعة
+Selected expense account is not allowed for this POS Profile.,حساب المصروفات المحدد غير مسموح به لهذا الملف الشخصي.
+Selected movement type is not allowed by POS Profile.,نوع الحركة المحدد غير مسموح به في ملف نقاط البيع.
+Selected source account is not allowed for this POS Profile.,حساب المصدر المحدد غير مسموح به لهذا الملف الشخصي.
+Serial,تسلسلي
+Server CPU Usage:,استخدام المعالج للخادم:
+Server Memory Usage:,استخدام ذاكرة الخادم:
+Server Uptime:,وقت تشغيل الخادم:
+Service Charges,رسوم الخدمة
+Share,مشاركة
+Shift Closed Snapshot,لقطة الوردية المغلقة
+Shift Overview,نظرة عامة على الوردية
+Show cart on customer-facing screen,عرض السلة على شاشة العميل
+Show last invoice rate,عرض سعر آخر فاتورة
+Showing 0 of 0,عرض 0 من 0
+Shows the distribution of invoices per currency,يوضح توزيع الفواتير لكل عملة
+Size:,الحجم:
+Skipped Payments,المدفوعات المتخطاة
+Skipping items without barcodes,تخطي الأصناف بدون باركود
+Slow Moving,بطيء الحركة
+Slow Moving Items,أصناف بطيئة الحركة
+Slow Queries:,الاستعلامات البطيئة:
+Sold,تم البيع
+Sorry,{0} have used this coupon before
+Source,المصدر
+Source Cash Account (Optional Override),حساب النقد المصدر (تجاوز اختياري)
+Source account,حساب المصدر
+Source account must be a Cash account.,حساب المصدر يجب أن يكون حساب نقدي.
+Source account must belong to the selected company.,حساب المصدر يجب أن ينتمي للشركة المحددة.
+Source account override is disabled for this POS Profile.,تجاوز حساب المصدر معطل لهذا الملف الشخصي.
+Source and target accounts are required.,حسابا المصدر والهدف مطلوبان.
+Source and target accounts cannot be the same for cash deposit.,لا يمكن أن يكون حسابا المصدر والهدف متماثلين لإيداع النقد.
+Specific Profile,ملف شخصي محدد
+Split Invoices,تقسيم الفواتير
+Staff,الموظفين
+Staff / Cashier Performance Report,تقرير أداء الموظفين/أمين الصندوق
+Stock,المخزون
+Stock Movement Report,تقرير حركة المخزون
+Stock UOM is required.,وحدة قياس المخزون مطلوبة.
+Submit Deposit,إرسال الإيداع
+Submit Expense,إرسال المصروف
+Submitted,مقدم
+Submitted Cash Movements,حركات النقد المقدمة
+Submitted entries,إدخالات مقدمه
+Successfully scanned:,تم المسح بنجاح:
+Suggested,مقترح
+Suggested Qty,الكمية المقترحة
+Supplier,المورد
+Supplier Purchase Summary,ملخص مشتريات المورد
+Supplier and dates are required.,المورد والتاريخ مطلوبان.
+Supplier is required.,المورد مطلوب.
+Supplier name is required,اسم المورد مطلوب
+Supplier name is required.,اسم المورد مطلوب.
+Supplier {0} was not found.,لم يتم العثور على المورد {0}.
+Suppliers,الموردون
+Suppliers not found,لم يتم العثور على موردين
+Switched to:,تم التبديل إلى:
+Sync All Invoices,مزامنة جميع الفواتير
+Syncing offline catalog...,جارٍ مزامنة الكتالوج في وضع عدم الاتصال...
+System Status,حالة النظام
+Tables:,الجداول:
+Target,الهدف
+Target account,حساب الهدف
+Target account must belong to the selected company.,حساب الهدف يجب أن ينتمي للشركة المحددة.
+Tax,الضريبة
+Tax / Charges Report,تقرير الضرائب/الرسوم
+Tax Heads,رؤساء الضرائب
+Taxable Amount,المبلغ الخاضع للضريبة
+Tendered,مقدم
+The amount paid is not complete,المبلغ المدفوع غير كامل
+The invoice stayed in draft. Please review and submit it manually.,الفاتورة ظلت في مسودة. يرجى مراجعتها وإرسالها يدوياً.
+The maximum discount allowed is,الحد الأقصى للخصم المسموح به هو
+This Referral Code {0} not exists,كود الإحالة هذا {0} غير موجود
+Threshold,الحد
+Tip: Clear cache regularly to free up space and keep the app fast.,نصيحة: امسح ذاكرة التخزين المؤقت بانتظام لتوفير مساحة والحفاظ على سرعة التطبيق.
+Tip: Close unused tabs or apps to reduce lag.,نصيحة: أغلق علامات التبويب أو التطبيقات غير المستخدمة لتقليل التأخير.
+Tip: Monitor slow queries and table size for optimal performance.,نصيحة: راقب الاستعلامات البطيئة وحجم الجداول للحصول على أداء مثالي.
+To Be Paid,المطلوب دفعه
+To Date,حتى تاريخ
+Today,اليوم
+Today Profit,ربح اليوم
+Today Sales,مبيعات اليوم
+Toggle navigation drawer,تبديل درج التنقل
+Top Brand,أفضل علامة تجارية
+Top Category,أفضل فئة
+Top Charge Head,أفضل رئيس رسوم
+Top Customers,أفضل العملاء
+Top Discount,أفضل خصم
+Top Items by Location,أفضل أصناف حسب الموقع
+Top Margin,أفضل هامش
+Top Pending,أفضل معلق
+Top Profit Item,أفضل صنف ربح
+Top Return Items,أفضل أصناف مرتجعة
+Top Sales by Cashier,أفضل مبيعات حسب أمين الصندوق
+Top Supplier,أفضل مورد
+Top Suppliers by Spend,أفضل الموردين حسب الإنفاق
+Top Tax Head,أفضل رئيس ضرائب
+Top Variant,أفضل متغير
+Total Change,إجمالي التغيير
+Total Charges,إجمالي الرسوم
+Total In,الإجمالي الداخل
+Total Invoices:,إجمالي الفواتير:
+Total Items,إجمالي الأصناف
+Total Mpesa:,إجمالي Mpesa:
+Total Out,الإجمالي الخارج
+Total Payments:,إجمالي المدفوعات:
+Total Purchase,إجمالي الشراء
+Total Selected :,الإجمالي المحدد:
+Total Stock Qty,إجمالي كمية المخزون
+Totals by Invoice Currency,الإجماليات حسب عملة الفاتورة
+Track how much cash was handed back to customers,تتبع مقدار النقد المردود للعملاء
+Track recent sales,collect unpaid balances
+Trans Amount is required,المبلغ مطلوب
+Transfer,تحويل
+Try adjusting your search or filters,حاول تعديل بحثك أو عوامل التصفية
+Try changing the date range or status filter.,حاول تغيير نطاق التاريخ أو تصفية الحالة.
+Unable to add offer item. Please refresh and try again.,تعذر إضافة صنف العرض. يرجى التحديث والمحاولة مرة أخرى.
+Unable to add scanned item.,تعذر إضافة الصنف الممسوح.
+Unable to create Journal Entry for customer credit.,تعذر إنشاء قيد يومي لائتمان العميل.
+Unable to create purchase order,تعذر إنشاء أمر الشراء
+Unable to delete draft invoice,تعذر حذف الفاتورة المسودة
+Unable to determine cash account for change payment entry.,تعذر تحديد حساب النقد لإدخال دفع التغيير.
+Unable to determine customer receivable account for change payment entry.,تعذر تحديد حساب الذمم المدينة للعميل لإدخال دفع التغيير.
+Unable to fetch M-Pesa payments,تعذر جلب مدفوعات M-Pesa
+Unable to fetch draft invoices,تعذر جلب فواتير المسودة
+Unable to fetch draft orders,تعذر جلب أوامر المسودة
+Unable to fetch invoice history,تعذر جلب سجل الفاتورة
+Unable to fetch sales orders,تعذر جلب أوامر المبيعات
+Unable to fetch unpaid invoices,تعذر جلب الفواتير غير المدفوعة
+Unable to generate scale barcode,تعذر إنشاء باركود الميزان
+Unable to load Credit Note {0}: {1},تعذر تحميل إشعار دائن {0}: {1}
+Unable to load Payment Entry {0}: {1},تعذر تحميل قيد الدفع {0}: {1}
+Unable to load draft invoice,تعذر تحميل الفاتورة المسودة
+Unable to load invoice details,تعذر تحميل تفاصيل الفاتورة
+Unable to load the selected sales order,تعذر تحميل أمر المبيعات المحدد
+Unable to prepare return invoice,تعذر إعداد فاتورة الإرجاع
+Unable to print draft invoice,تعذر طباعة الفاتورة المسودة
+Unable to resolve POS Opening Shift.,تعذر حل وردية فتح نقاط البيع.
+Unable to resolve POS cash account from POS Profile cash mode of payment.,تعذر حل حساب النقد من طريقة دفع ملف نقاط البيع.
+Unable to submit the selected payment,تعذر تقديم الدفعة المحددة
+Unbranded,بدون علامة تجارية
+Uncategorized,غير مصنف
+Unknown,غير معروف
+Unknown Item,صنف غير معروف
+Unknown Warehouse,مستودع غير معروف
+Unlabeled Charge,رسوم بدون تسمية
+Unpaid,غير مدفوع
+Update Price List Rate,تحديث سعر قائمة الأسعار
+Update available,تحديث متاح
+Updated,محدث
+Used:,المستخدم:
+User must match the selected POS Opening Shift user.,المستخدم يجب أن يتطابق مع مستخدم وردية فتح نقاط البيع المحدد.
+Using basic camera settings due to device limitations,استخدام إعدادات الكاميرا الأساسية بسبب قيود الجهاز
+Variance %,نسبة الانحراف
+Variant-wise,حسب المتغير
+Variants,المتغيرات
+View Details,عرض التفاصيل
+View notifications,عرض الإشعارات
+View offline invoices,عرض الفواتير في وضع عدم الاتصال
+Void Amount,مبلغ الإلغاء
+Void Count,عدد الإلغاء
+Voids,الإلغاءات
+Waiting for cart items,في انتظار عناصر السلة
+Waiting for payment...,في انتظار الدفع...
+Walk-in Customer,عميل بدون موعد
+Warning: High cache usage may affect performance.,تحذير: الاستخدام العالي للذاكرة المؤقتة قد يؤثر على الأداء.
+Warning: High lag may indicate heavy processing or browser slowness.,تحذير: التأخير العالي قد يشير إلى معالجة ثقيلة أو بطء المتصفح.
+Week Δ,أسبوع Δ
+Week-wise,أسبوعياً
+Weight (g),الوزن (جم)
+Weight (grams),الوزن (جرام)
+You are not allowed to access this shift.,لا يُسمح لك بالوصول إلى هذه الوردية.
+You are not allowed to manage this cash movement record.,لا يُسمح لك بإدارة سجل حركة النقد هذا.
+You are not allowed to print draft invoices,لا يُسمح لك بطباعة فواتير المسودة
+You are not permitted to access POS Profile {0}.,لا يُسمح لك بالوصول إلى ملف نقاط البيع {0}.
+You are not permitted to view dashboard data for POS Profile {0}.,لا يُسمح لك بعرض بيانات لوحة المعلومات لملف نقاط البيع {0}.
+You are offline. Add Payment will work again when the connection is restored.,أنت غير متصل. إضافة الدفع ستعمل مرة أخرى عند استعادة الاتصال.
+You are trying to return more quantity for item {0} than was sold.,أنت تحاول إرجاع كمية أكبر للصنف {0} مما تم بيعه.
+You have no notifications right now,ليس لديك إشعارات الآن
+Your Cart,سلة التسوق
+actual_qty,الفعلي_الكمية
+cache used,ذاكرة التخزين المؤقت مستخدمة
+commits,إيداعات
+days,أيام
+modified_after must be a valid ISO datetime,modified_after يجب أن يكون تاريخ ISO صالحاً
+sales,المبيعات
+this item,هذا الصنف
+{0} Coupon used are {1}. Allowed quantity is exhausted,كوبون {0} المستخدم هو {1}. الكمية المسموح بها مستنفدة
+{0} is disabled for this POS Profile.,{0} معطل لملف نقاط البيع هذا.
+{0} is invalid.,{0} غير صالح.
+{0} must belong to company {1}.,{0} يجب أن ينتمي إلى الشركة {1}.
+{0} payment(s) were skipped.,تم تخطي {0} دفعة.
+{0} {1} must be submitted before creating change payment entries.,{0} {1} يجب تقديمها قبل إنشاء إدخالات دفع التغيير.
+Cost Center is not set in pos profile {},مركز التكلفة غير محدد في ملف نقاط البيع {}
+Month-wise,شهرياً
+No dead stock items.,لا توجد أصناف مخزون ميت.
+Print Purchase Invoice instead of PO,طباعة فاتورة شراء بدلاً من أمر الشراء
+Recent updates about your invoices,التحديثات الأخيرة حول فواتيرك
+Use Western numerals,استخدام الأرقام الغربية
+Total:,الإجمالي:
+Cannot Save Offline Invoice:,لا يمكن حفظ الفاتورة في وضع عدم الاتصال
+Cannot Save Offline Payment:,لا يمكن حفظ الدفع في وضع عدم الاتصال
+Error submitting invoice:,خطأ في إرسال الفاتورة
+Switched to:,تم التبديل إلى
+"Sorry, this coupon code cannot be used by this company",عذراً، لا يمكن استخدام رمز الكوبون بهذه الشركة
+"Sorry, this coupon code cannot be used by this customer",عذراً، لا يمكن استخدام رمز الكوبون بهذا العميل
+"Sorry, this coupon code is no longer valid",عذراً، رمز الكوبون لم يعد صالحاً
+"Sorry, this coupon code not exists",عذراً، رمز الكوبون غير موجود
+"Sorry, {0} have used this coupon before",عذراً، {0} استخدم هذا الكوبون من قبل
+"Track recent sales, collect unpaid balances, and reopen saved work",تتبع المبيعات الأخيرة، تحصيل الأرصدة غير المدفوعة وإعادة فتح العمل المحفوظ
+Credit Sale?,بيع بالائتمان؟
+Write Off Difference Amount,مبلغ الفرق المرتبط
+Cashback?,استرداد نقدي؟
+Credit Return?,إرجاع ائتمان؟
+Days until due,الأيام حتى الاستحقاق
+Write Off Amount,مبلغ الكتابة
+This amount will be written off on submission.,سيتم كتابة هذا المبلغ عند الإرسال.
+Customer Credit Enabled,تم تفعيل رصيد العميل
+Credit redemption details are shown below in this section.,تفاصيل استرداد الائتمان موضحة أدناه في هذا القسم.
+Credit Return Active,الإرجاع الائتماني نشط
+This return will be settled as customer credit instead of cashback.,سيتم تسوية هذا الإرجاع كائتمان العميل بدلاً من الاسترداد النقدي.
+Cashback Active,الاسترداد النقدي نشط
+Return value will be settled back through payment methods.,سيتم تسوية قيمة الإرجاع مرة أخرى عبر طرق الدفع.
+Select an option on the left to view its settings.,اختر خيارًا على اليمين لعرض إعداداته.
+Edit,تعديل
+Address,العنوان
+Authorization Code,رمز التفويض
+Sales Person,مندوب المبيعات
+Print Format,تنسيق الطباعة
+Redeem Loyalty Points,استرداد نقاط المكافأة
+You can redeem up to,يمكنك استرداد حتى
+Redeemed Customer Credit,الائتمان المسترد للعميل
+You can redeem credit up to,يمكنك استرداد الائتمان حتى
+Available Credit,الائتمان المتوفر
+Redeem Credit,استرداد الائتمان
+Purchase Order,أمر الشراء
+Purchase Order Date,تاريخ أمر الشراء
+Days,أيام
+LOAD SALE,تحميل البيع
+{0} (Qty: {1}),{0} (الكمية: {1})
+{0} actions,{0} إجراءات
+{0} offline invoice{1} pending,{0}فاتورة غير متصلة بالإنترنت{1} معلقة
+{0} offline invoice{1} saved as draft,تم حفظ {0} الفاتورة دون اتصال بالإنترنت{1} كمسودة
+{0} offline invoice{1} synced,تمت مزامنة {0} الفاتورة غير المتصلة بالإنترنت{1}.
+{0}: {1} {2},{0}: {1} {2}
+{0}d ago,{0}قبل يوم
+{0}h ago,{0}قبل ساعة
+{0}m ago,{0}قبل دقيقة
+A POS supervisor is required for this action.,مطلوب مشرف POS لهذا الإجراء.
+Access,وصول
+Account is overdrawn,الحساب مكشوف
+Acknowledge the error to resume scanning.,اعترف بالخطأ لاستئناف المسح.
+Active sale,بيع نشط
+Add items from the selector to start building this sale.,أضف عناصر من المحدد لبدء إنشاء هذا البيع.
+Add more value to an existing gift card,أضف المزيد من القيمة إلى بطاقة الهدايا الموجودة
+Add new customer,إضافة عميل جديد
+Add payment to invoice,إضافة الدفع إلى الفاتورة
+Additional Discount %,خصم إضافي %
+Adjust the quantity or enable negative stock to continue.,اضبط الكمية أو قم بتمكين المخزون السلبي من الاستمرار.
+Allowed UOM is {0},وحدة القياس المسموح بها هي {0}
+Appearance and user-level preferences for the current session.,المظهر والتفضيلات على مستوى المستخدم للجلسة الحالية.
+Apply Gift Card,تطبيق بطاقة الهدايا
+Apply only the amount you want to redeem on this invoice. The remaining balance stays on the card.,قم بتطبيق المبلغ الذي تريد استرداده فقط على هذه الفاتورة. يبقى الرصيد المتبقي على البطاقة.
+Apply Redemption,تطبيق الفداء
+Applying,التقديم
+Auto Allocate Payment Amount,تخصيص مبلغ الدفع تلقائيًا
+Auto reconciliation completed after payment submit.,اكتملت التسوية التلقائية بعد إرسال الدفع.
+Auto reconciliation completed. Allocated: {0}{1}. Remaining outstanding: {0}{2}.,اكتملت التسوية التلقائية. المخصص: {0}{1}. المتبقي المعلق: {0}{2}.
+Available Actions,الإجراءات المتاحة
+Awesome Dashboard is disabled for the selected POS Profile.,تم تعطيل Awesome Dashboard لملف تعريف نقطة البيع المحدد.
+Awesome Dashboard is unavailable for the selected scope.,لوحة المعلومات الرائعة غير متاحة للنطاق المحدد.
+Awesome Dashboard is visible only to POS supervisors.,لوحة المعلومات الرائعة مرئية فقط لمشرفي نقاط البيع.
+Back to {0},العودة إلى {0}
+Background processing did not finish in time.,لم تنتهي معالجة الخلفية في الوقت المناسب.
+Background processing failed for Invoice {0}: {1},فشلت المعالجة الخلفية للفاتورة {0}: {1}
+Balance,توازن
+Barcode / QR Ready,الباركود / QR جاهز
+Base Paid:,القاعدة المدفوعة:
+Base Recv:,قاعدة التسجيل:
+Base:,قاعدة:
+Browse,تصفح
+Camera constraints not supported by your device. Trying fallback settings...,قيود الكاميرا غير مدعومة من قبل جهازك. جارٍ تجربة الإعدادات الاحتياطية...
+Camera is busy or blocked by another app/tab. Close other camera apps and try again.,الكاميرا مشغولة أو محظورة بواسطة تطبيق/علامة تبويب أخرى. أغلق تطبيقات الكاميرا الأخرى وحاول مرة أخرى.
+Camera permission denied. Please allow camera access in your browser settings and refresh the page.,تم رفض إذن الكاميرا. يرجى السماح بالوصول إلى الكاميرا في إعدادات المتصفح لديك وتحديث الصفحة.
+Camera scanner is locked until the current error is acknowledged,يتم قفل الماسح الضوئي للكاميرا حتى يتم التعرف على الخطأ الحالي
+Camera started but the video stream did not load in time. Please try again.,بدأت الكاميرا ولكن لم يتم تحميل دفق الفيديو في الوقت المناسب. يرجى المحاولة مرة أخرى.
+Cancel cash movement {0}?,هل تريد إلغاء الحركة النقدية {0}؟
+Cannot add an item with zero or negative quantity.,لا يمكن إضافة عنصر بكمية صفرية أو سالبة.
+Cannot redeem gift cards more than invoice total,لا يمكن استرداد بطاقات الهدايا بأكثر من إجمالي الفاتورة
+Card health after the last live lookup,صحة البطاقة بعد آخر بحث مباشر
+Cart,عربة
+Cash payment cannot be less than invoice total when partial payment is not allowed,لا يمكن أن يكون الدفع نقدًا أقل من إجمالي الفاتورة عندما لا يُسمح بالدفع الجزئي
+Cashier Access,وصول أمين الصندوق
+Cashier identity and appearance preferences.,هوية أمين الصندوق وتفضيلات المظهر.
+Cashier PIN,رقم التعريف الشخصي لأمين الصندوق
+Cashier PIN saved successfully.,تم حفظ رقم التعريف الشخصي لأمين الصندوق بنجاح.
+Categories,فئات
+Change allocation repaired,تم إصلاح تغيير التخصيص
+Change terminal cashier,تغيير أمين الصندوق الطرفي
+Check Balance,التحقق من الرصيد
+Check balance for any card. Supervisors can issue and top up cards here.,التحقق من الرصيد لأي بطاقة. يمكن للمشرفين إصدار وتعبئة البطاقات هنا.
+Check balance only,التحقق من الرصيد فقط
+Check live balance before applying redemption,تحقق من الرصيد المباشر قبل تطبيق الاسترداد
+Check live balance before redemption,التحقق من الرصيد المباشر قبل الاسترداد
+Checking...,جارٍ التحقق...
+Cheque/Reference Date,تاريخ الشيك/المرجع
+Cheque/Reference No,رقم الشيك/المرجع
+Choose the cashier currently operating this terminal.,اختر أمين الصندوق الذي يقوم حاليًا بتشغيل هذه المحطة.
+Clear all barcode items,مسح جميع عناصر الباركود
+Clear all purchase order items,مسح كافة بنود أمر الشراء
+Close about dialog,إغلاق حول الحوار
+Close cashier switcher,إغلاق تبديل أمين الصندوق
+Close closing shift dialog,إغلاق مربع حوار التحول
+Close column selector,إغلاق محدد العمود
+Close drafts dialog,إغلاق مربع حوار المسودات
+Close invoice details dialog,إغلاق مربع حوار تفاصيل الفاتورة
+Close invoice management,إغلاق إدارة الفاتورة
+Close offline invoices dialog,إغلاق مربع حوار الفواتير دون اتصال بالإنترنت
+Close packing list dialog,إغلاق مربع حوار قائمة التعبئة
+Close returns dialog,إغلاق مربع حوار الإرجاعات
+Close sales orders dialog,إغلاق مربع حوار أوامر المبيعات
+Close scanner dialog,إغلاق مربع حوار الماسح الضوئي
+Collapse item details,طي تفاصيل العنصر
+Confirm,يتأكد
+Confirm PIN,تأكيد رقم التعريف الشخصي
+Connection problem while submitting invoice,مشكلة في الاتصال أثناء تقديم الفاتورة
+Connectivity and cached prerequisite status were rechecked.,تمت إعادة فحص حالة المتطلبات الأساسية الخاصة بالاتصال والتخزين المؤقت.
+Create and load a new prepaid card,إنشاء وتحميل بطاقة مسبقة الدفع جديدة
+Create and preload a new gift card,قم بإنشاء وتحميل بطاقة هدايا جديدة مسبقًا
+Create or change your PIN,قم بإنشاء أو تغيير رقم التعريف الشخصي الخاص بك
+Create PIN,إنشاء رقم التعريف الشخصي
+Create return from invoice,إنشاء عائد من الفاتورة
+Current PIN,رقم التعريف الشخصي الحالي
+Current redeemable value on the gift card,القيمة الحالية القابلة للاسترداد على بطاقة الهدايا
+Custom,مخصص
+Customer display was blocked. Please allow pop-ups for this site.,تم حظر عرض العميل. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.
+Customer-facing tools and printer setup.,أدوات التعامل مع العملاء وإعداد الطابعة.
+Daily cashier actions without scrolling.,إجراءات أمين الصندوق اليومية دون التمرير.
+Day ?,يوم ؟
+Default:,تقصير:
+Delete cancelled cash movement {0}?,هل تريد حذف الحركة النقدية الملغاة {0}؟
+Delete draft invoice,حذف مسودة الفاتورة
+Delete draft invoice {0}?,هل تريد حذف مسودة الفاتورة {0}؟
+Delete offline invoice,حذف الفاتورة دون اتصال
+Delivered,تم التوصيل
+Delivery Note {0} created,تم إنشاء مذكرة التسليم {0}.
+Delivery note created,تم إنشاء مذكرة التسليم
+Deployed Bundle:,الحزمة المنشورة:
+Disable offline mode first to recheck live connectivity.,قم بتعطيل وضع عدم الاتصال أولاً لإعادة التحقق من الاتصال المباشر.
+discount,تخفيض
+Draft source,مصدر المسودة
+Due {0},مستحق {0}
+Edit customer,تحرير العميل
+Edit Gift Application,تعديل تطبيق الهدية
+Employee,موظف
+Enter a PIN.,أدخل رقم التعريف الشخصي.
+Enter the cashier PIN to continue.,أدخل رقم التعريف الشخصي لأمين الصندوق للمتابعة.
+Enter the current PIN first.,أدخل رقم التعريف الشخصي الحالي أولاً.
+"Enter the current PIN, then choose a new one.",أدخل رقم التعريف الشخصي الحالي، ثم اختر رقمًا جديدًا.
+Error submitting invoice: {0},خطأ في إرسال الفاتورة: {0}
+Error submitting invoice: No response from server,خطأ في إرسال الفاتورة: لا يوجد رد من الخادم
+Expand item details,قم بتوسيع تفاصيل العنصر
+Fast cashier actions for active shifts.,إجراءات أمين الصندوق سريعة للتحولات النشطة.
+Fetch the latest offline prerequisite updates,جلب آخر التحديثات المطلوبة دون اتصال بالإنترنت
+Find a sales order quickly and load it into the current sale.,ابحث عن أمر المبيعات بسرعة وقم بتحميله في عملية البيع الحالية.
+"For 'Product Bundle' items, Warehouse, Serial No and Batch No will be considered from the 'Packing List' table. If Warehouse and Batch No are same for all packing items for any 'Product Bundle' item, those values can be entered in the main Item table; values will be copied to 'Packing List' table.","بالنسبة لعناصر ""حزمة المنتج""، سيتم أخذ المستودع والرقم التسلسلي ورقم الدفعة في الاعتبار من جدول ""قائمة التعبئة"". إذا كان المستودع ورقم الدفعة متماثلين بالنسبة لجميع عناصر التعبئة لأي عنصر من عناصر ""حزمة المنتج""، فيمكن إدخال هذه القيم في جدول العناصر الرئيسي؛ سيتم نسخ القيم إلى جدول ""قائمة التعبئة""."
+from,من
+Gain,يكسب
+Generate a fresh prepaid card and start it with an opening balance.,أنشئ بطاقة مسبقة الدفع جديدة وابدأ تشغيلها برصيد افتتاحي.
+Generate and install the certificate to allow fully silent printing without trust prompts.,قم بإنشاء الشهادة وتثبيتها للسماح بالطباعة الصامتة تمامًا دون مطالبات الثقة.
+Generated scale barcode: {0},الرمز الشريطي للمقياس الذي تم إنشاؤه: {0}
+Gift Card,بطاقة هدية
+Gift card amount must be greater than zero.,يجب أن يكون مبلغ بطاقة الهدايا أكبر من الصفر.
+Gift Card Code,رمز بطاقة الهدايا
+Gift card code is required for redemption,رمز بطاقة الهدايا مطلوب لاسترداد القيمة
+Gift card code is required.,رمز بطاقة الهدايا مطلوب.
+Gift card issued successfully.,تم إصدار بطاقة الهدايا بنجاح.
+Gift card loaded successfully.,تم تحميل بطاقة الهدايا بنجاح.
+Gift Card Management,إدارة بطاقات الهدايا
+Gift card payment,الدفع ببطاقة الهدايا
+Gift card redemption requires an online connection,يتطلب استرداد بطاقة الهدايا اتصالاً عبر الإنترنت
+Gift card topped up successfully.,تمت تعبئة بطاقة الهدايا بنجاح.
+Gift Cards,بطاقات الهدايا
+"Grouped controls for terminal, UI, and session settings.",عناصر تحكم مجمعة لإعدادات المحطة وواجهة المستخدم والجلسة.
+Hide,يخفي
+Hide Gift Card,إخفاء بطاقة الهدايا
+Hide search tools,إخفاء أدوات البحث
+How this section works,كيف يعمل هذا القسم
+"If stale data remains, open Settings > Offline & Sync and run Rebuild Offline Data again while online.",إذا ظلت البيانات قديمة، فافتح الإعدادات > دون اتصال والمزامنة وقم بتشغيل إعادة إنشاء البيانات دون اتصال مرة أخرى أثناء الاتصال بالإنترنت.
+"If the warning persists, open Settings > Offline & Sync, then run Refresh Offline Data or Rebuild Offline Data.",إذا استمر التحذير، فافتح الإعدادات > دون اتصال والمزامنة، ثم قم بتشغيل تحديث البيانات دون اتصال أو إعادة إنشاء البيانات دون اتصال.
+In stock: {0},متوفر في المخزون: {0}
+Initial Amount,المبلغ الأولي
+"Inspect cache, sync, and prerequisite status",فحص ذاكرة التخزين المؤقت والمزامنة وحالة المتطلبات الأساسية
+Insufficient stock:\n{0},المخزون غير كافٍ:\n{0}
+Invoice {0} is Submitted,تم إرسال الفاتورة {0}.
+Invoice {0} processed successfully,تمت معالجة الفاتورة {0} بنجاح
+Invoice {0} submission failed,فشل إرسال الفاتورة {0}.
+Invoice {0} was already submitted,تم إرسال الفاتورة {0} بالفعل
+"Invoice value settled by loyalty points, not cash collection",قيمة الفاتورة تتم تسويتها عن طريق نقاط الولاء، وليس التحصيل النقدي
+Issue Mode,وضع الإصدار
+Issue New Card,إصدار بطاقة جديدة
+Issue Workflow,إصدار سير العمل
+"Issue, top up, and check",إصدار، تعبئة، والتحقق
+Item {0} added to invoice,تمت إضافة العنصر {0} إلى الفاتورة
+Item '{0}' has no barcode,لا يحتوي العنصر '{0}' على رمز شريطي
+json,json
+Just now,الآن
+Keep offline prerequisites healthy and recover stale data safely.,حافظ على سلامة المتطلبات الأساسية دون الاتصال بالإنترنت واستعد البيانات القديمة بأمان.
+"Language, theme, terminal tools, and session controls.",اللغة والموضوع والأدوات الطرفية وعناصر التحكم في الجلسة.
+Last sync: {0} | ok: {1} | failed: {2} | skipped: {3},آخر مزامنة: {0} | طيب: {1} | فشل: {2} | تم تخطي: {3}
+lines,خطوط
+Load a POS profile and cashier first.,قم بتحميل ملف تعريف نقطة البيع وأمين الصندوق أولاً.
+Load Sale,تحميل بيع
+Loading view...,جارٍ تحميل العرض...
+Local storage is unavailable. Switching to online-only mode.,التخزين المحلي غير متوفر. التبديل إلى وضع الاتصال بالإنترنت فقط.
+Lock Screen,قفل الشاشة
+Lookup Workflow,بحث سير العمل
+Loss,خسارة
+Low-frequency maintenance and system details.,صيانة التردد المنخفض وتفاصيل النظام.
+Loyalty Redeemed,تم استرداد الولاء
+Loyalty Redemption,فداء الولاء
+Make New Payment,إجراء دفعة جديدة
+Manage all,إدارة الكل
+Manage Cashier PIN,إدارة رقم التعريف الشخصي لأمين الصندوق
+"Manage offline tools, terminal controls, and maintenance from one workspace.",إدارة الأدوات غير المتصلة بالإنترنت وعناصر التحكم الطرفية والصيانة من مساحة عمل واحدة.
+manual,يدوي
+"Manual codes, barcode scans, and QR scans work in the same field",تعمل الرموز اليدوية ومسح الباركود ومسح QR في نفس المجال
+Manual offline mode is enabled,تم تمكين وضع عدم الاتصال اليدوي
+Maximum available quantity is {0}. Quantity adjusted to match stock.,الحد الأقصى للكمية المتاحة هو {0}. تم تعديل الكمية لتتناسب مع المخزون.
+Maximum discount amount for this offer item is {0}.,الحد الأقصى لمبلغ الخصم لعنصر العرض هذا هو {0}.
+Maximum discount percentage for this offer item is {0}%.,الحد الأقصى لنسبة الخصم لعنصر العرض هذا هو {0}%.
+Maximum offer quantity is {0}. Quantity adjusted to allowed limit.,الحد الأقصى لكمية العرض هو {0}. تم تعديل الكمية إلى الحد المسموح به.
+Minimum allowed rate for this offer item is {0}.,الحد الأدنى للسعر المسموح به لعنصر العرض هذا هو {0}.
+Month ?,شهر ؟
+New PIN,رقم التعريف الشخصي الجديد
+No barcode found for UOM '{0}',لم يتم العثور على رمز شريطي لوحدة UOM '{0}'
+No cached gift card balance is available offline.,لا يتوفر رصيد بطاقة الهدايا المخزنة مؤقتًا في وضع عدم الاتصال.
+No camera found on this device. Please ensure your device has a working camera.,لم يتم العثور على كاميرا على هذا الجهاز. يرجى التأكد من أن جهازك يحتوي على كاميرا صالحة للعمل.
+No capability warnings recorded yet.,لم يتم تسجيل أي تحذيرات بشأن القدرة حتى الآن.
+No cashier PIN is set yet. Create one now.,لم يتم تعيين رقم التعريف الشخصي لأمين الصندوق حتى الآن. قم بإنشاء واحدة الآن.
+No cashier profiles are available for this POS profile yet.,لا توجد ملفات تعريف أمين الصندوق متاحة لملف تعريف نقطة البيع هذا حتى الآن.
+No change-allocation invoices match the current filters.,لا توجد فواتير تغيير التخصيص تتطابق مع عوامل التصفية الحالية.
+No Company Selected,لم يتم تحديد أي شركة
+No exact repair match found for this invoice,لم يتم العثور على تطابق إصلاح تام لهذه الفاتورة
+No matching items in cart,لا توجد عناصر مطابقة في سلة التسوق
+No offline sync issues recorded yet.,لم يتم تسجيل أي مشكلات في المزامنة في وضع عدم الاتصال حتى الآن.
+No records found,لم يتم العثور على سجلات
+No sync trigger has run yet in this session.,لم يتم تشغيل أي مشغل مزامنة حتى الآن في هذه الجلسة.
+Not available,غير متوفر
+Not checked,لم يتم التحقق منها
+Not selected,لم يتم التحديد
+Offline & Sync,غير متصل والمزامنة
+Offline Capabilities,قدرات دون اتصال
+Offline data status refreshed,تم تحديث حالة البيانات دون اتصال
+Offline diagnostics,التشخيص دون اتصال
+Offline Queue: {0},قائمة الانتظار غير المتصلة: {0}
+Offline rebuild guidance,إرشادات إعادة البناء دون اتصال بالإنترنت
+Offline restore is unavailable for this session.,الاستعادة دون اتصال غير متاحة لهذه الجلسة.
+Offline selling is available with degraded capabilities.,البيع دون اتصال بالإنترنت متاح بقدرات متدهورة.
+Offline snapshot does not match the current POS state.,لا تتطابق اللقطة دون اتصال مع حالة نقطة البيع الحالية.
+Offline Status,حالة غير متصل بالشبكة
+"Offline, terminal, and system controls",أدوات التحكم في وضع عدم الاتصال والمحطة الطرفية والنظام
+Open actions menu,فتح قائمة الإجراءات
+Open drawer,درج مفتوح
+Open POS home,افتح نقطة البيع الرئيسية
+options,خيارات
+Overpayment change deducted: {0},تم خصم تغيير الدفع الزائد: {0}
+Page unavailable offline,الصفحة غير متاحة بلا إنترنت
+Paid (orig):,المدفوعة (الأصل):
+Paid:,مدفوع:
+Party Account,حساب الحزب
+Party Type,نوع الحفلة
+Pause terminal until next cashier,قم بإيقاف المحطة مؤقتًا حتى أمين الصندوق التالي
+Payment Account,حساب الدفع
+Payment entries processed for Invoice {0},تمت معالجة إدخالات الدفع للفاتورة {0}
+Payment Entry Type,نوع إدخال الدفع
+Payment of {0} received successfully.,تم استلام دفعة {0} بنجاح.
+Payment request status could not be retrieved. Please try again,لا يمكن استرداد حالة طلب الدفع. يرجى المحاولة مرة أخرى
+Payment submitted.,تم الدفع.
+Pending count updated from {0} to {1},تم تحديث العدد المعلق من {0} إلى {1}
+Pending Sales,المبيعات المعلقة
+Pending sales: {0} | Cache usage: {1}%,المبيعات المعلقة: {0} | استخدام ذاكرة التخزين المؤقت: {1}%
+Pending: {0},في انتظار المراجعة: {0}
+Pending: {0} | Synced: {1} | Draft: {2},معلق: {0} | تمت المزامنة: {1} | مسودة: {2}
+Personal,شخصي
+Personal preferences adjust the current cashier experience without changing the active POS route.,تقوم التفضيلات الشخصية بضبط تجربة أمين الصندوق الحالية دون تغيير مسار نقطة البيع النشطة.
+PIN confirmation does not match.,تأكيد رقم التعريف الشخصي غير متطابق.
+PIN must be 4 to 8 digits.,يجب أن يتكون رقم التعريف الشخصي من 4 إلى 8 أرقام.
+Please make a payment or select a payment,الرجاء إجراء الدفع أو تحديد الدفع
+Please select a party,الرجاء اختيار الطرف
+Please select a party before reconciling.,يرجى تحديد طرف قبل المصالحة.
+Please verify the barcode or check the item's availability.,يرجى التحقق من الرمز الشريطي أو التحقق من توفر العنصر.
+Points,نقاط
+POS controls and maintenance,ضوابط نقاط البيع والصيانة
+POS is running with limited offline prerequisites.,يتم تشغيل نقطة البيع بمتطلبات محدودة دون الاتصال بالإنترنت.
+Preparing background sync,جارٍ تحضير مزامنة الخلفية
+"Press OK to continue offline with a warning, or Cancel to retry.","اضغط على ""موافق"" للمتابعة دون الاتصال بالإنترنت مع ظهور تحذير، أو ""إلغاء الأمر"" لإعادة المحاولة."
+Price List,قائمة الأسعار
+Price list rate updated locally only,يتم تحديث سعر قائمة الأسعار محليًا فقط
+Print invoice,طباعة الفاتورة
+Processing payment entries for Invoice {0},معالجة إدخالات الدفع للفاتورة {0}
+Quotation {0} is Submitted,تم إرسال عرض الأسعار {0}.
+Quotation submitted,تم تقديم الاقتباس
+QZ Tray is manually disconnected. Press Connect to enable it again.,"تم فصل درج QZ يدويًا. اضغط على ""اتصال"" لتمكينه مرة أخرى."
+Ready to resume,جاهز للاستئناف
+Rebuild Offline Data,إعادة بناء البيانات دون اتصال
+Receive,يستلم
+Received:,تلقى:
+Rechecking connection,إعادة فحص الاتصال
+"Reconnect and open this page once while online, then offline refreshes will be able to restore it.",أعد الاتصال بهذه الصفحة وافتحها مرة واحدة أثناء الاتصال بالإنترنت، وبعد ذلك ستتمكن عمليات التحديث دون الاتصال بالإنترنت من استعادتها.
+Reconnect online to refresh cached offline data from the server.,أعد الاتصال عبر الإنترنت لتحديث البيانات غير المتصلة المخزنة مؤقتًا من الخادم.
+Recreate local offline prerequisites from scratch,إعادة إنشاء المتطلبات الأساسية المحلية دون اتصال من البداية
+Recv:,ريكف:
+Redeem,يسترد
+Redeem / Scan,تخليص / مسح
+Redeem Amount,استرداد المبلغ
+Redeem Mode,وضع الاسترداد
+Redeemed Amount,المبلغ المسترد
+Refresh Offline Data,تحديث البيانات دون اتصال
+Refund,استرداد
+Release Notes,ملاحظات الإصدار
+Reload,إعادة تحميل
+Reload customers,إعادة تحميل العملاء
+Reload Workflow,إعادة تحميل سير العمل
+Remove barcode item,إزالة عنصر الباركود
+Remove cached data and reload the POS app,قم بإزالة البيانات المخزنة مؤقتًا وأعد تحميل تطبيق نقطة البيع
+Repair Candidate,مرشح الإصلاح
+Repair Change Allocation,إصلاح تخصيص التغيير
+Repair requires an online connection,يتطلب الإصلاح الاتصال بالإنترنت
+Repaired,تم إصلاحه
+Repairing change allocation,إصلاح تخصيص التغيير
+Request ID: {0},معرف الطلب: {0}
+Requested route: {0},المسار المطلوب: {0}
+Reset to Default,إعادة التعيين إلى الافتراضي
+Resource Health,صحة الموارد
+Restricted,مقيد
+Restricted operational controls for supervisors only.,الضوابط التشغيلية المقيدة للمشرفين فقط.
+Retry route,أعد محاولة المسار
+Return items must have negative quantities,يجب أن تحتوي العناصر المرتجعة على كميات سالبة
+Return total must be negative,يجب أن يكون إجمالي الإرجاع سالبًا
+Sales Order {0} is Submitted,تم إرسال أمر المبيعات {0}.
+Save as POS Profile Default,حفظ كملف تعريف POS الافتراضي
+Save the selected printer as the POS Profile default so it shows automatically on this setup.,احفظ الطابعة المحددة باعتبارها الإعداد الافتراضي لملف تعريف نقطة البيع حتى تظهر تلقائيًا في هذا الإعداد.
+Saved as draft because: {0},تم الحفظ كمسودة للأسباب التالية: {0}
+Saving...,توفير...
+Scale barcode settings are not configured. Using item barcode only.,لم يتم تكوين إعدادات الرمز الشريطي للمقياس. استخدام الباركود الخاص بالصنف فقط.
+Scale template barcode is missing for this item/UOM. Using item barcode only.,الرمز الشريطي لقالب المقياس مفقود لهذا العنصر/وحدة القياس. استخدام الباركود الخاص بالصنف فقط.
+Scan an existing card and top it up without leaving the payment flow.,قم بمسح البطاقة الموجودة ضوئيًا وقم بملئها دون مغادرة تدفق الدفع.
+Scan or enter a gift card code to check balance or redeem.,امسح رمز بطاقة الهدايا ضوئيًا أو أدخله للتحقق من الرصيد أو الاسترداد.
+Scan or paste the card code below.,قم بمسح أو لصق رمز البطاقة أدناه.
+Scan with camera,المسح بالكاميرا
+Scan-First Flow,مسح التدفق الأول
+Scanning for: {0},البحث عن: {0}
+Scan-Ready,جاهز للمسح الضوئي
+Search Account,بحث في الحساب
+Search an invoice and continue the return flow without extra steps.,ابحث في الفاتورة وتابع عملية الإرجاع دون خطوات إضافية.
+Secure context (HTTPS or localhost) is required for camera access.,مطلوب سياق آمن (HTTPS أو مضيف محلي) للوصول إلى الكاميرا.
+Secure context (HTTPS) required for camera access. Please use HTTPS to access the camera.,السياق الآمن (HTTPS) مطلوب للوصول إلى الكاميرا. الرجاء استخدام HTTPS للوصول إلى الكاميرا.
+Select a cashier first.,اختر أمين الصندوق أولا.
+Select a customer,حدد عميلاً
+Select items to sell,حدد العناصر للبيع
+Select Payment Account,حدد حساب الدفع
+Select the cashier who is taking over this terminal.,حدد أمين الصندوق الذي يتولى هذه المحطة.
+Selected,مختارة
+Selected Payments,المدفوعات المختارة
+Sensitive actions kept away from quick taps.,تم تجنب الإجراءات الحساسة من النقرات السريعة.
+Session,حصة
+Set each cashier PIN in the User form and keep terminal members assigned in POS Profile User.,قم بتعيين رقم التعريف الشخصي لكل أمين صندوق في نموذج المستخدم واحتفظ بأعضاء الجهاز الطرفي المعينين في مستخدم ملف تعريف نقطة البيع.
+Settings in this section update the POS workspace without changing the current route.,تعمل الإعدادات الموجودة في هذا القسم على تحديث مساحة عمل نقطة البيع دون تغيير المسار الحالي.
+Shared terminal,محطة مشتركة
+Show,يعرض
+Show rate info,عرض معلومات السعر
+Show Repair Candidates,عرض مرشحي الإصلاح
+Show search tools,إظهار أدوات البحث
+Show the active cart on a customer-facing screen,اعرض سلة التسوق النشطة على الشاشة التي تواجه العميل
+Showing {0}-{1} of {2},عرض {0}-{1} من {2}
+Sign out of the current POS session,قم بتسجيل الخروج من جلسة POS الحالية
+Source Ex. Rate:,المصدر السابق. معدل:
+Source Rate:,معدل المصدر:
+Stock is lower than requested,المخزون أقل من المطلوب
+Stock is lower than requested:\n{0},المخزون أقل من المطلوب:\n{0}
+Supervisor Access,وصول المشرف
+Supervisor permissions unlock issuance and reloads,أذونات المشرف تفتح الإصدار وإعادة التحميل
+Supervisor Tools,أدوات المشرف
+Supplier Invoices,فواتير الموردين
+Supplier Payments,مدفوعات الموردين
+Switch Cashier,تبديل أمين الصندوق
+Switch the POS appearance theme,قم بتبديل مظهر مظهر نقطة البيع
+Sync Offline Cash Movements ({0}),مزامنة الحركات النقدية دون اتصال ({0})
+Sync Offline Sales,مزامنة المبيعات دون اتصال
+Synced {0} offline cash movement(s).,تمت مزامنة {0} حركة (حركات) نقدية دون اتصال بالإنترنت.
+Syncing items in background,مزامنة العناصر في الخلفية
+System / Diagnostics,النظام / التشخيص
+"System actions are low-frequency maintenance controls such as app info, support diagnostics, and session controls.",إجراءات النظام عبارة عن عناصر تحكم صيانة منخفضة التردد مثل معلومات التطبيق وتشخيصات الدعم وعناصر التحكم في الجلسة.
+Tap the button below to redeem a gift card during checkout.,اضغط على الزر أدناه لاسترداد بطاقة الهدايا أثناء الخروج.
+Target Ex. Rate:,الهدف السابق. معدل:
+Target Rate:,المعدل المستهدف:
+Terminal,صالة
+Terminal & Devices,المحطة والأجهزة
+Terminal locked,المحطة مغلقة
+"Terminal tools affect this checkout station, customer-facing displays, and future printer/device controls.",تؤثر الأدوات الطرفية على محطة الدفع هذه، وشاشات العرض التي تواجه العملاء، وعناصر التحكم في الطابعة/الجهاز المستقبلية.
+The quantity for {0} has been adjusted to the maximum available stock.,تم تعديل كمية {0} إلى الحد الأقصى للمخزون المتاح.
+The system could not retrieve the item details. Please try again.,لم يتمكن النظام من استرداد تفاصيل العنصر. يرجى المحاولة مرة أخرى.
+This action now opens inside the settings workspace.,يفتح هذا الإجراء الآن داخل مساحة عمل الإعدادات.
+This invoice does not need change-allocation repair,لا تحتاج هذه الفاتورة إلى إصلاح تغيير التخصيص
+This invoice is already repaired,تم إصلاح هذه الفاتورة بالفعل
+This POS page could not be opened offline because its code was not cached on this terminal yet.,تعذر فتح صفحة نقطة البيع هذه في وضع عدم الاتصال لأنه لم يتم تخزين الكود الخاص بها مؤقتًا على هذه الوحدة الطرفية حتى الآن.
+This Serial Number {0} has already been added!,تمت إضافة هذا الرقم التسلسلي {0} بالفعل!
+Toggle Theme,تبديل الموضوع
+Tools,أدوات
+Tools for customer-facing screens and terminal-specific actions.,أدوات للشاشات التي تواجه العملاء والإجراءات الخاصة بالمحطة.
+Top Up Amount,تعبئة المبلغ
+Top Up Card,بطاقة تعبئة الرصيد
+Top Up Mode,وضع تعبئة الرصيد
+Transaction ID,معرف المعاملة
+Try a different search term or clear the cart search.,جرّب مصطلح بحث مختلفًا أو امسح بحث سلة التسوق.
+Try another source or refresh the list.,جرب مصدرًا آخر أو قم بتحديث القائمة.
+Unable to access camera even with basic settings. Please check your camera permissions and device compatibility.,غير قادر على الوصول إلى الكاميرا حتى مع الإعدادات الأساسية. يرجى التحقق من أذونات الكاميرا وتوافق الجهاز.
+Unable to add offer item {0}. Please refresh and try again.,غير قادر على إضافة عنصر العرض {0}. يرجى التحديث والمحاولة مرة أخرى.
+Unable to fetch documents,غير قادر على جلب المستندات
+Unable to issue gift card.,غير قادر على إصدار بطاقة الهدايا.
+Unable to load cashier PIN status.,غير قادر على تحميل حالة رقم التعريف الشخصي لأمين الصندوق.
+Unable to load document,غير قادر على تحميل المستند
+Unable to load gift card balance.,غير قادر على تحميل رصيد بطاقة الهدايا.
+Unable to load parked order,غير قادر على تحميل الطلب المتوقف
+Unable to prepare document,غير قادر على إعداد الوثيقة
+Unable to print submitted invoice,غير قادر على طباعة الفاتورة المقدمة
+Unable to process document action,غير قادر على معالجة إجراء المستند
+Unable to repair change allocation,غير قادر على إصلاح تخصيص التغيير
+Unable to save cashier PIN.,غير قادر على حفظ رقم التعريف الشخصي لأمين الصندوق.
+Unable to save the rate to the backend price list,غير قادر على حفظ السعر في قائمة الأسعار الخلفية
+Unable to submit invoice,غير قادر على تقديم الفاتورة
+Unable to top up gift card.,غير قادر على تعبئة بطاقة الهدايا.
+Unable to verify cashier PIN.,غير قادر على التحقق من رقم التعريف الشخصي لأمين الصندوق.
+Unallocated:,غير مخصصة:
+Unavailable,غير متاح
+Unlock POS,فتح نقاط البيع
+"Unselected payments stay unallocated first, then auto reconcile after submit.",تظل الدفعات غير المحددة غير مخصصة أولاً، ثم تتم التسوية التلقائية بعد الإرسال.
+Update PIN,تحديث رقم التعريف الشخصي
+Updates and app info that stay out of the cashier flow.,التحديثات ومعلومات التطبيق التي تبقى خارج تدفق أمين الصندوق.
+Use a 4 to 8 digit PIN for cashier switching and terminal unlock.,استخدم رقم التعريف الشخصي (PIN) المكون من 4 إلى 8 أرقام للتبديل بين أمين الصندوق وفتح الجهاز.
+Use Cashier,استخدم أمين الصندوق
+"Use one field for manual code entry, barcode scans, or QR scans.",استخدم حقلاً واحدًا لإدخال الرمز يدويًا، أو مسح الرمز الشريطي، أو مسح QR.
+"Use one workflow for balance checks, new issuance, and top ups without leaving POS.",استخدم سير عمل واحد للتحقق من الرصيد والإصدار الجديد وعمليات التعبئة دون مغادرة نقطة البيع.
+"Use this section when cached prerequisite data needs a refresh, rebuild, or diagnostics review.",استخدم هذا القسم عندما تحتاج بيانات المتطلبات الأساسية المخزنة مؤقتًا إلى تحديث أو إعادة بناء أو مراجعة تشخيص.
+Valid until,صالحة حتى
+View all,عرض الكل
+View app information and current build details,عرض معلومات التطبيق وتفاصيل البناء الحالية
+View Data Diagnostics,عرض تشخيصات البيانات
+View invoice details,عرض تفاصيل الفاتورة
+View restricted POS insights,عرض رؤى نقاط البيع المقيدة
+Week ?,أسبوع ؟
+We'll let you know if an invoice fails to submit,سنخبرك في حالة فشل إرسال الفاتورة
+Workflow,سير العمل
+Write off amount cannot exceed the POS profile maximum of {0},لا يمكن أن يتجاوز مبلغ الشطب الحد الأقصى لملف تعريف نقطة البيع وهو {0}
+Write off amount exceeds the allowed limit ({0}). Please add payment for the remaining amount.,المبلغ المشطوب يتجاوز الحد المسموح به ({0}). الرجاء إضافة دفعة للمبلغ المتبقي.
+Select Item,اختر صنفاً
+sales persons found,مندوب مبيعات موجود
+No sales persons found,لم يتم العثور على مندوبي مبيعات
+ID,المعرف
+TAX ID,الرقم الضريبي
+Email,البريد الإلكتروني
+Primary Address,العنوان الرئيسي
+Customer Address created successfully.,تم إنشاء عنوان العميل بنجاح.
+State,المحافظة
+Barcode Printing,طباعة الباركود
+No limit,بلا حد
+Filter Invoices by POS Profile,تصفية الفواتير حسب ملف نقاط البيع
+Search by Mobile,البحث برقم الهاتف
+Add new supplier,إضافة مورد جديد

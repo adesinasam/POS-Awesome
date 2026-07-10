@@ -1,0 +1,1362 @@
+POS Awesome,POS Awesome
+Fetch Items Directly from Server,Fetch Items Directly from Server
+Menu,Menu
+Actions,Actions
+Close Shift,Close Shift
+End current session,End current session
+Print Last Invoice,Print Last Invoice
+Reprint previous transaction,Reprint previous transaction
+Sync Offline Invoices,Sync Offline Invoices
+Upload pending transactions,Upload pending transactions
+Go Online,Go Online
+Go Offline,Go Offline
+Disable offline mode,Disable offline mode
+Work without server connection,Work without server connection
+Clear Cache,Clear Cache
+Remove local data and refresh,Remove local data and refresh
+About,About
+App information,App information
+Language,Language
+Change interface language,Change interface language
+Light Mode,Light Mode
+Dark Mode,Dark Mode
+Switch theme appearance,Switch theme appearance
+Logout,Logout
+Sign out of session,Sign out of session
+Select Language,Select Language
+Choose your preferred language for the POS interface,Choose your preferred language for the POS interface
+Language will be changed to,Language will be changed to
+Cancel,Cancel
+Change Language,Change Language
+Close,Close
+Cannot change language - same language selected,Cannot change language - same language selected
+Language changed successfully! Reloading...,Language changed successfully! Reloading...
+Failed to change language,Failed to change language
+Unknown error,Unknown error
+- Total Unallocated,- Total Unallocated
+* Required,* Required
+{0} (Qty: {1}),{0} (Qty: {1})
+{0} actions,{0} actions
+{0} has only {1} in stock. You requested {2}. Adjust quantity or restock.,{0} has only {1} in stock. You requested {2}. Adjust quantity or restock.
+{0} offline invoice{1} pending,{0} offline invoice{1} pending
+{0} offline invoice{1} saved as draft,{0} offline invoice{1} saved as draft
+{0} offline invoice{1} synced,{0} offline invoice{1} synced
+{0}: {1} {2},{0}: {1} {2}
+{0}d ago,{0}d ago
+{0}h ago,{0}h ago
+{0}m ago,{0}m ago
+A POS supervisor is required for this action.,A POS supervisor is required for this action.
+Access,Access
+Account,Account
+Account is overdrawn,Account is overdrawn
+Acknowledge the error to resume scanning,Acknowledge the error to resume scanning
+Acknowledge the error to resume scanning.,Acknowledge the error to resume scanning.
+Across,Across
+Action,Action
+Active sale,Active sale
+add,add
+Add items from the selector to start building this sale.,Add items from the selector to start building this sale.
+Add more value to an existing gift card,Add more value to an existing gift card
+Add New Address,Add New Address
+Add new customer,Add new customer
+Add on New Line,Add on New Line
+Add Payment,Add Payment
+Add payment to invoice,Add payment to invoice
+Add/Edit Coupon Conditions,Add/Edit Coupon Conditions
+Additional Discount,Additional Discount
+Additional Discount %,Additional Discount %
+Address Line 1,Address Line 1
+Address not found,Address not found
+Adjust the quantity or enable negative stock to continue.,Adjust the quantity or enable negative stock to continue.
+Adjustment,Adjustment
+After returns,After returns
+Against,Against
+Against Name,Against Name
+Age Bracket,Age Bracket
+All,All
+All Caught Up!,All Caught Up!
+All invoices are synchronized,All invoices are synchronized
+All pending invoices are up to date,All pending invoices are up to date
+All Profiles,All Profiles
+All Synchronized,All Synchronized
+All visible invoices are fully settled.,All visible invoices are fully settled.
+All Warehouses,All Warehouses
+Allowed UOM is {0},Allowed UOM is {0}
+Always fetch items from server (ignore local cache),Always fetch items from server (ignore local cache)
+Amount,Amount
+Amount already received,Amount already received
+Amount exceeds profile cash movement max amount.,Amount exceeds profile cash movement max amount.
+Amount must be greater than zero.,Amount must be greater than zero.
+Amount received from customer,Amount received from customer
+Appearance and user-level preferences for the current session.,Appearance and user-level preferences for the current session.
+Applied,Applied
+Apply,Apply
+Apply Gift Card,Apply Gift Card
+Apply Offer,Apply Offer
+Apply On,Apply On
+Apply only the amount you want to redeem on this invoice. The remaining balance stays on the card.,Apply only the amount you want to redeem on this invoice. The remaining balance stays on the card.
+Apply Redemption,Apply Redemption
+Applying,Applying
+Apps,Apps
+Are you sure you want to close? All entered data will be lost.,Are you sure you want to close? All entered data will be lost.
+Attributes (Size/Color),Attributes (Size/Color)
+Auto Allocate Payment Amount,Auto Allocate Payment Amount
+Auto Reconcile,Auto Reconcile
+Auto reconciliation completed after payment submit.,Auto reconciliation completed after payment submit.
+Auto reconciliation completed. Allocated: {0}{1}. Remaining outstanding: {0}{2}.,Auto reconciliation completed. Allocated: {0}{1}. Remaining outstanding: {0}{2}.
+Available Actions,Available Actions
+Available QTY,Available QTY
+Available:,Available:
+Average Basket,Average Basket
+Average Bill,Average Bill
+Average Ticket,Average Ticket
+Avg Bill,Avg Bill
+Avg Invoice,Avg Invoice
+Avg Invoice Profit,Avg Invoice Profit
+Avg Invoice Value,Avg Invoice Value
+Avg Purchase Frequency,Avg Purchase Frequency
+Awesome,Awesome
+Awesome Dashboard,Awesome Dashboard
+Awesome Dashboard is disabled for the selected POS Profile.,Awesome Dashboard is disabled for the selected POS Profile.
+Awesome Dashboard is unavailable for the selected scope.,Awesome Dashboard is unavailable for the selected scope.
+Awesome Dashboard is visible only to POS supervisors.,Awesome Dashboard is visible only to POS supervisors.
+Back,Back
+Back Office Cash Account,Back Office Cash Account
+Back Office Cash Account (Optional Override),Back Office Cash Account (Optional Override)
+Back office cash account is required.,Back office cash account is required.
+Back to {0},Back to {0}
+Background processing did not finish in time.,Background processing did not finish in time.
+Background processing failed for Invoice {0}: {1},Background processing failed for Invoice {0}: {1}
+Background Submission Failed,Background Submission Failed
+Background sync interval (seconds),Background sync interval (seconds)
+Balance,Balance
+Balance will be updated when connection is restored,Balance will be updated when connection is restored
+Balances still pending,Balances still pending
+Barcode,Barcode
+Barcode / QR Ready,Barcode / QR Ready
+Barcode Label Printing,Barcode Label Printing
+Base Paid:,Base Paid:
+Base Recv:,Base Recv:
+Base:,Base:
+Basic Information,Basic Information
+Batch,Batch
+Batch Information,Batch Information
+Before any return workflow,Before any return workflow
+Before returns,Before returns
+Best Day,Best Day
+Best Seller,Best Seller
+Book expense or deposit from active shift.,Book expense or deposit from active shift.
+Branch / Location-wise Report,Branch / Location-wise Report
+Brand-wise,Brand-wise
+Breakdown,Breakdown
+Browse,Browse
+Build Time:,Build Time:
+Built with Frappe,Built with Frappe
+Bundle,Bundle
+Buying Price,Buying Price
+Cache cleared successfully,Cache cleared successfully
+Cache Usage,Cache Usage
+cache used,cache used
+Calculating...,Calculating...
+Camera Access Required,Camera Access Required
+Camera access was aborted. Please try again.,Camera access was aborted. Please try again.
+Camera constraints not supported by your device. Trying fallback settings...,Camera constraints not supported by your device. Trying fallback settings...
+Camera is busy or blocked by another app/tab. Close other camera apps and try again.,Camera is busy or blocked by another app/tab. Close other camera apps and try again.
+Camera permission denied. Please allow camera access in your browser settings and refresh the page.,Camera permission denied. Please allow camera access in your browser settings and refresh the page.
+Camera scanner is locked until the current error is acknowledged,Camera scanner is locked until the current error is acknowledged
+Camera started but the video stream did not load in time. Please try again.,Camera started but the video stream did not load in time. Please try again.
+Cancel cash movement {0}?,Cancel cash movement {0}?
+Cancel Payment,Cancel Payment
+Cancel Sale,Cancel Sale
+Cancel Sale ?,Cancel Sale ?
+Cancelled,Cancelled
+Cannot add an item with zero or negative quantity.,Cannot add an item with zero or negative quantity.
+Cannot clear cache while offline,Cannot clear cache while offline
+Cannot redeem customer credit more than invoice total,Cannot redeem customer credit more than invoice total
+Cannot redeem gift cards more than invoice total,Cannot redeem gift cards more than invoice total
+Cannot Save Offline Invoice:,Cannot Save Offline Invoice:
+Cannot Save Offline Payment:,Cannot Save Offline Payment:
+Card,Card
+Card / Online,Card / Online
+Card health after the last live lookup,Card health after the last live lookup
+Cards,Cards
+Cart,Cart
+Cash,Cash
+Cash back to customers,Cash back to customers
+Cash Collections,Cash Collections
+Cash Deposit is disabled for this POS Profile.,Cash Deposit is disabled for this POS Profile.
+Cash Drawer Snapshot,Cash Drawer Snapshot
+Cash In Hand,Cash In Hand
+Cash Movement,Cash Movement
+Cash movement cancelled,Cash movement cancelled
+Cash movement deduction applied,Cash movement deduction applied
+Cash movement deleted,Cash movement deleted
+Cash movement is disabled for this POS Profile.,Cash movement is disabled for this POS Profile.
+Cash Movement is disabled in current POS Profile.,Cash Movement is disabled in current POS Profile.
+Cash movement saved offline,Cash movement saved offline
+Cash movement submitted,Cash movement submitted
+Cash Movements,Cash Movements
+Cash payment cannot be less than invoice total when partial payment is not allowed,Cash payment cannot be less than invoice total when partial payment is not allowed
+Cash returned after payment,Cash returned after payment
+Cashier,Cashier
+Cashier Access,Cashier Access
+Cashier identity and appearance preferences.,Cashier identity and appearance preferences.
+Cashier PIN,Cashier PIN
+Cashier PIN saved successfully.,Cashier PIN saved successfully.
+Cashiers,Cashiers
+Cashier-wise,Cashier-wise
+Categories,Categories
+Category,Category
+Category / Brand / Variant Report,Category / Brand / Variant Report
+Category-wise,Category-wise
+Category-wise Margin,Category-wise Margin
+Certificate,Certificate
+Certificate is missing or not trusted. QZ may show confirmation dialogs.,Certificate is missing or not trusted. QZ may show confirmation dialogs.
+Certificate is trusted. Silent QZ printing is active.,Certificate is trusted. Silent QZ printing is active.
+Change,Change
+Change allocation repaired,Change allocation repaired
+Change Price,Change Price
+Change Return,Change Return
+Change Returned,Change Returned
+Change terminal cashier,Change terminal cashier
+Charge Heads,Charge Heads
+Charges,Charges
+Charges not found,Charges not found
+Check Balance,Check Balance
+Check balance for any card. Supervisors can issue and top up cards here.,Check balance for any card. Supervisors can issue and top up cards here.
+Check balance only,Check balance only
+Check for new commits,Check for new commits
+Check for Updates,Check for Updates
+Check live balance before applying redemption,Check live balance before applying redemption
+Check live balance before redemption,Check live balance before redemption
+Checking...,Checking...
+Cheque/Reference Date,Cheque/Reference Date
+Cheque/Reference No,Cheque/Reference No
+Choose the cashier currently operating this terminal.,Choose the cashier currently operating this terminal.
+City,City
+Clear,Clear
+Clear All,Clear All
+Clear all barcode items,Clear all barcode items
+Clear all purchase order items,Clear all purchase order items
+Clear Search,Clear Search
+Clearing local cache...,Clearing local cache...
+Click to refresh,Click to refresh
+Client CPU Lag:,Client CPU Lag:
+Client Memory Usage:,Client Memory Usage:
+Client Metrics,Client Metrics
+Close about dialog,Close about dialog
+Close cashier switcher,Close cashier switcher
+Close closing shift dialog,Close closing shift dialog
+Close column selector,Close column selector
+Close Dialog,Close Dialog
+Close drafts dialog,Close drafts dialog
+Close invoice details dialog,Close invoice details dialog
+Close invoice management,Close invoice management
+Close offline invoices dialog,Close offline invoices dialog
+Close packing list dialog,Close packing list dialog
+Close returns dialog,Close returns dialog
+Close sales orders dialog,Close sales orders dialog
+Close Scanner,Close Scanner
+Close scanner dialog,Close scanner dialog
+Close Settings,Close Settings
+Closing Amount,Closing Amount
+Closing POS Shift,Closing POS Shift
+Closing Snapshot Available,Closing Snapshot Available
+Code,Code
+Code scanned successfully,Code scanned successfully
+COGS,COGS
+Collapse item details,Collapse item details
+Collected,Collected
+Cols,Cols
+Columns,Columns
+commits,commits
+Completed and active sales in this range,Completed and active sales in this range
+Completed returns will appear here.,Completed returns will appear here.
+Confirm,Confirm
+Confirm Close,Confirm Close
+Confirm Mobile Number,Confirm Mobile Number
+Confirm PIN,Confirm PIN
+Connect,Connect
+Connect printer and manage certificate,Connect printer and manage certificate
+Connecting to QZ Tray...,Connecting to QZ Tray...
+Connection problem while submitting invoice,Connection problem while submitting invoice
+Connections:,Connections:
+Connectivity and cached prerequisite status were rechecked.,Connectivity and cached prerequisite status were rechecked.
+Continue Editing,Continue Editing
+Could not fetch latest balance from server,Could not fetch latest balance from server
+Count,Count
+Country,Country
+Coupon,Coupon
+Coupons,Coupons
+Cover,Cover
+CPU Cores:,CPU Cores:
+Create,Create
+Create and load a new prepaid card,Create and load a new prepaid card
+Create and preload a new gift card,Create and preload a new gift card
+Create Bill,Create Bill
+Create Customer,Create Customer
+Create New Item,Create New Item
+Create or change your PIN,Create or change your PIN
+Create PIN,Create PIN
+Create POS Opening Shift,Create POS Opening Shift
+Create Purchase Order,Create Purchase Order
+Create Return,Create Return
+Create return from invoice,Create return from invoice
+Create Supplier,Create Supplier
+Credit and Output,Credit and Output
+Credit Note,Credit Note
+Credit Outstanding,Credit Outstanding
+Credit sales remaining to be collected,Credit sales remaining to be collected
+Critical,Critical
+Currency,Currency
+Current,Current
+Current Event Loop Lag:,Current Event Loop Lag:
+Current Month,Current Month
+Current PIN,Current PIN
+Current Profile,Current Profile
+Current redeemable value on the gift card,Current redeemable value on the gift card
+Current User,Current User
+Custom,Custom
+Custom Due Days,Custom Due Days
+Custom items per page,Custom items per page
+Customer,Customer
+Customer already selected,Customer already selected
+Customer Balance,Customer Balance
+Customer balance unavailable offline,Customer balance unavailable offline
+Customer created successfully.,Customer created successfully.
+Customer creation failed.,Customer creation failed.
+Customer Details,Customer Details
+Customer display channel is missing,Customer display channel is missing
+Customer display was blocked. Please allow pop-ups for this site.,Customer display was blocked. Please allow pop-ups for this site.
+Customer group is required,Customer group is required
+Customer is required to add payment,Customer is required to add payment
+Customer Name is required,Customer Name is required
+Customer not selected,Customer not selected
+Customer Report,Customer Report
+Customer saved offline,Customer saved offline
+Customer Screen,Customer Screen
+Customer territory is required,Customer territory is required
+Customer updated successfully.,Customer updated successfully.
+Customer-facing tools and printer setup.,Customer-facing tools and printer setup.
+Customers,Customers
+Customers not found,Customers not found
+Daily cashier actions without scrolling.,Daily cashier actions without scrolling.
+Daily Sales,Daily Sales
+Daily Sales Summary,Daily Sales Summary
+Data loaded in form. Review and submit.,Data loaded in form. Review and submit.
+Database Health,Database Health
+Database health affects overall system speed and reliability.,Database health affects overall system speed and reliability.
+Database Info,Database Info
+Date,Date
+Day ?,Day ?
+days,days
+Day-wise (MTD),Day-wise (MTD)
+Day-wise Movement,Day-wise Movement
+Dead Stock,Dead Stock
+Dead Stock Items,Dead Stock Items
+Decrease quantity,Decrease quantity
+Default,Default
+Default:,Default:
+Delete,Delete
+Delete cancelled cash movement {0}?,Delete cancelled cash movement {0}?
+Delete Draft,Delete Draft
+Delete draft invoice,Delete draft invoice
+Delete draft invoice {0}?,Delete draft invoice {0}?
+Delete Invoice,Delete Invoice
+Delete offline invoice,Delete offline invoice
+Delivered,Delivered
+Delivery Charges,Delivery Charges
+Delivery Information,Delivery Information
+Delivery Note {0} created,Delivery Note {0} created
+Delivery note created,Delivery note created
+Deployed Bundle:,Deployed Bundle:
+Deposit,Deposit
+Description,Description
+Detailed Supplier Breakdown,Detailed Supplier Breakdown
+Detecting formats:,Detecting formats:
+Device Memory:,Device Memory:
+Difference,Difference
+Difference (In Company Currency),Difference (In Company Currency)
+Disable offline mode first to recheck live connectivity.,Disable offline mode first to recheck live connectivity.
+Disconnect,Disconnect
+discount,discount
+Discount %,Discount %
+Discount / Void / Return Report,Discount / Void / Return Report
+Discount Amount,Discount Amount
+Discount limited by POS Profile,Discount limited by POS Profile
+Discounted Invoices,Discounted Invoices
+Discounts,Discounts
+Dismiss,Dismiss
+Download Certificate,Download Certificate
+Draft,Draft
+Draft invoice deleted,Draft invoice deleted
+Draft source,Draft source
+Drafts,Drafts
+Due {0},Due {0}
+Due Date,Due Date
+Duplicate,Duplicate
+Edit customer,Edit customer
+Edit discount amount,Edit discount amount
+Edit discount percentage,Edit discount percentage
+Edit Gift Application,Edit Gift Application
+Edit item name,Edit item name
+Edit quantity,Edit quantity
+Edit rate,Edit rate
+Edit unit of measure,Edit unit of measure
+Edited,Edited
+Employee,Employee
+Enable background sync,Enable background sync
+Enable Customer Display in POS Profile first.,Enable Customer Display in POS Profile first.
+Enter a PIN.,Enter a PIN.
+Enter a valid grams value,Enter a valid grams value
+Enter new price list rate,Enter new price list rate
+Enter Quantity,Enter Quantity
+Enter the cashier PIN to continue.,Enter the cashier PIN to continue.
+Enter the current PIN first.,Enter the current PIN first.
+"Enter the current PIN, then choose a new one.","Enter the current PIN, then choose a new one."
+Enter valid grams for scale barcode,Enter valid grams for scale barcode
+Entries,Entries
+Error accessing camera:,Error accessing camera:
+Error calculating prices,Error calculating prices
+Error fetching customer balance,Error fetching customer balance
+Error in change calculations!,Error in change calculations!
+Error Loading Data,Error Loading Data
+Error loading invoice details,Error loading invoice details
+Error processing invoice,Error processing invoice
+Error processing payment,Error processing payment
+Error searching invoices,Error searching invoices
+Error submitting invoice:,Error submitting invoice:
+Error submitting invoice: {0},Error submitting invoice: {0}
+Error submitting invoice: No response from server,Error submitting invoice: No response from server
+Error updating currency,Error updating currency
+Error updating item details,Error updating item details
+Est. Purchase,Est. Purchase
+Est. Value,Est. Value
+Event-loop lag measures how busy your browser is. Lower is better.,Event-loop lag measures how busy your browser is. Lower is better.
+Every,Every
+Exchange Rate,Exchange Rate
+Expand item details,Expand item details
+Expected Amount (In Company Currency),Expected Amount (In Company Currency)
+Expected Cash,Expected Cash
+Expected cash on hand grouped by currency,Expected cash on hand grouped by currency
+Expected vs Actual,Expected vs Actual
+Expense,Expense
+Expense Account (Optional Override),Expense Account (Optional Override)
+Expense account is required.,Expense account is required.
+Expenses and deposits posted during this shift,Expenses and deposits posted during this shift
+Expired,Expired
+Failed to auto reconcile payments.,Failed to auto reconcile payments.
+Failed to cancel cash movement,Failed to cancel cash movement
+Failed to clear cache,Failed to clear cache
+Failed to create item,Failed to create item
+Failed to create supplier,Failed to create supplier
+Failed to delete cash movement,Failed to delete cash movement
+Failed to generate scale barcode. Using item barcode only.,Failed to generate scale barcode. Using item barcode only.
+Failed to load cash movement context.,Failed to load cash movement context.
+Failed to load dashboard data.,Failed to load dashboard data.
+Failed to reload invoice from server,Failed to reload invoice from server
+Failed to submit cash movement,Failed to submit cash movement
+Failed to sync offline cash movements,Failed to sync offline cash movements
+Fast cashier actions for active shifts.,Fast cashier actions for active shifts.
+Fast Moving Items,Fast Moving Items
+Fees,Fees
+Fetch the latest offline prerequisite updates,Fetch the latest offline prerequisite updates
+Find a sales order quickly and load it into the current sale.,Find a sales order quickly and load it into the current sale.
+Fixing payment amounts for return invoice...,Fixing payment amounts for return invoice...
+Flash Off,Flash Off
+Flash On,Flash On
+"For 'Product Bundle' items, Warehouse, Serial No and Batch No will be considered from the 'Packing List' table. If Warehouse and Batch No are same for all packing items for any 'Product Bundle' item, those values can be entered in the main Item table; values will be copied to 'Packing List' table.","For 'Product Bundle' items, Warehouse, Serial No and Batch No will be considered from the 'Packing List' table. If Warehouse and Batch No are same for all packing items for any 'Product Bundle' item, those values can be entered in the main Item table; values will be copied to 'Packing List' table."
+Free,Free
+Free Qty,Free Qty
+Frequency,Frequency
+from,from
+From Date,From Date
+Fulfillment Details,Fulfillment Details
+Full Name,Full Name
+Gain,Gain
+Generate a fresh prepaid card and start it with an opening balance.,Generate a fresh prepaid card and start it with an opening balance.
+Generate and install the certificate to allow fully silent printing without trust prompts.,Generate and install the certificate to allow fully silent printing without trust prompts.
+Generate Certificate,Generate Certificate
+Generated scale barcode: {0},Generated scale barcode: {0}
+Get Payments,Get Payments
+Gift Card,Gift Card
+Gift card amount must be greater than zero.,Gift card amount must be greater than zero.
+Gift Card Code,Gift Card Code
+Gift card code is required for redemption,Gift card code is required for redemption
+Gift card code is required.,Gift card code is required.
+Gift card issued successfully.,Gift card issued successfully.
+Gift card loaded successfully.,Gift card loaded successfully.
+Gift Card Management,Gift Card Management
+Gift card payment,Gift card payment
+Gift card redemption requires an online connection,Gift card redemption requires an online connection
+Gift card topped up successfully.,Gift card topped up successfully.
+Gift Cards,Gift Cards
+Go to Frappe Desk,Go to Frappe Desk
+Grand Total,Grand Total
+Gross Margin,Gross Margin
+Gross Profit,Gross Profit
+Gross Sales,Gross Sales
+Group not found,Group not found
+"Grouped controls for terminal, UI, and session settings.","Grouped controls for terminal, UI, and session settings."
+Grouped totals for each payment method and currency,Grouped totals for each payment method and currency
+Hide,Hide
+Hide Gift Card,Hide Gift Card
+Hide Non Essential Fields,Hide Non Essential Fields
+Hide quantity decimals,Hide quantity decimals
+Hide search tools,Hide search tools
+Hide zero rated items,Hide zero rated items
+High,High
+History,History
+Hourly (Today),Hourly (Today)
+How this section works,How this section works
+"If stale data remains, open Settings > Offline & Sync and run Rebuild Offline Data again while online.","If stale data remains, open Settings > Offline & Sync and run Rebuild Offline Data again while online."
+"If the warning persists, open Settings > Offline & Sync, then run Refresh Offline Data or Rebuild Offline Data.","If the warning persists, open Settings > Offline & Sync, then run Refresh Offline Data or Rebuild Offline Data."
+Import the certificate into QZ Tray and restart QZ Tray on each POS machine.,Import the certificate into QZ Tray and restart QZ Tray on each POS machine.
+In,In
+In stock: {0},In stock: {0}
+Include Batch / Serial,Include Batch / Serial
+Include Price,Include Price
+Increase quantity,Increase quantity
+IndexedDB,IndexedDB
+Initial Amount,Initial Amount
+Initialize your shift with opening balances,Initialize your shift with opening balances
+Initializing application...,Initializing application...
+"Inspect cache, sync, and prerequisite status","Inspect cache, sync, and prerequisite status"
+Installed Applications,Installed Applications
+Insufficient stock:\n{0},Insufficient stock:\n{0}
+Invalid rate,Invalid rate
+Inventory Status Report,Inventory Status Report
+Invoice,Invoice
+Invoice {0} is Submitted,Invoice {0} is Submitted
+Invoice {0} processed successfully,Invoice {0} processed successfully
+Invoice {0} submission failed,Invoice {0} submission failed
+Invoice {0} was already submitted,Invoice {0} was already submitted
+Invoice Adjustments,Invoice Adjustments
+Invoice Change,Invoice Change
+Invoice Details,Invoice Details
+Invoice is still in draft after background submission.,Invoice is still in draft after background submission.
+Invoice Items,Invoice Items
+Invoice Management,Invoice Management
+Invoice Mgmt,Invoice Mgmt
+Invoice saved offline,Invoice saved offline
+Invoice submission failed,Invoice submission failed
+Invoice Submitted,Invoice Submitted
+"Invoice value settled by loyalty points, not cash collection","Invoice value settled by loyalty points, not cash collection"
+Invoices,Invoices
+Invoices already past due date,Invoices already past due date
+Invoices saved as POS Invoices,Invoices saved as POS Invoices
+Invoices still carrying balances,Invoices still carrying balances
+Issue Mode,Issue Mode
+Issue New Card,Issue New Card
+Issue Workflow,Issue Workflow
+"Issue, top up, and check","Issue, top up, and check"
+Item,Item
+Item / Product Sales Report,Item / Product Sales Report
+Item {0} added to invoice,Item {0} added to invoice
+Item '{0}' has no barcode,Item '{0}' has no barcode
+Item Code,Item Code
+Item created successfully,Item created successfully
+Item is out of stock,Item is out of stock
+Item Name,Item Name
+Item not found,Item not found
+Item order updated,Item order updated
+Item Selector Settings,Item Selector Settings
+Items,Items
+Items added in POS will appear here automatically.,Items added in POS will appear here automatically.
+Items added to invoice,Items added to invoice
+Items per page,Items per page
+Items Sold,Items Sold
+Items/Invoice,Items/Invoice
+Item-wise Profitability,Item-wise Profitability
+Journal Entry,Journal Entry
+json,json
+Just now,Just now
+Keep offline prerequisites healthy and recover stale data safely.,Keep offline prerequisites healthy and recover stale data safely.
+Labels,Labels
+"Language, theme, terminal tools, and session controls.","Language, theme, terminal tools, and session controls."
+Last,Last
+Last 14 Days (Paid vs Pending),Last 14 Days (Paid vs Pending)
+Last 14 Days Activity,Last 14 Days Activity
+Last 14 Days Gross Profit,Last 14 Days Gross Profit
+Last 14 Days Purchases,Last 14 Days Purchases
+Last 14 Days Tax/Charges,Last 14 Days Tax/Charges
+Last sync:,Last sync:
+Last sync: {0} | ok: {1} | failed: {2} | skipped: {3},Last sync: {0} | ok: {1} | failed: {2} | skipped: {3}
+Latest entries for current shift,Latest entries for current shift
+Lead Time,Lead Time
+Limited,Limited
+lines,lines
+List,List
+Live Snapshot,Live Snapshot
+Load a POS profile and cashier first.,Load a POS profile and cashier first.
+Load More Invoices,Load More Invoices
+Load previously saved invoices,Load previously saved invoices
+Load Sale,Load Sale
+Load Sales Invoice,Load Sales Invoice
+Loading app data...,Loading app data...
+Loading customer database...,Loading customer database...
+Loading customers...,Loading customers...
+Loading database stats...,Loading database stats...
+Loading details...,Loading details...
+Loading invoice history...,Loading invoice history...
+Loading items...,Loading items...
+Loading product catalog...,Loading product catalog...
+Loading return invoices...,Loading return invoices...
+Loading server CPU/memory usage...,Loading server CPU/memory usage...
+Loading suppliers...,Loading suppliers...
+Loading unpaid invoices...,Loading unpaid invoices...
+Loading view...,Loading view...
+Loading...,Loading...
+Local storage is unavailable. Switching to online-only mode.,Local storage is unavailable. Switching to online-only mode.
+localStorage,localStorage
+Location Performance,Location Performance
+Locations,Locations
+Lock Screen,Lock Screen
+Lookup Workflow,Lookup Workflow
+Loss,Loss
+Low,Low
+Low Stock,Low Stock
+Low Stock Alerts,Low Stock Alerts
+Low Stock Items,Low Stock Items
+Low Stock Threshold,Low Stock Threshold
+Low Stock Total,Low Stock Total
+Lowest Margin,Lowest Margin
+Low-frequency maintenance and system details.,Low-frequency maintenance and system details.
+Loyalty Redeemed,Loyalty Redeemed
+Loyalty Redemption,Loyalty Redemption
+Make New Payment,Make New Payment
+Manage all,Manage all
+Manage and synchronize your offline transactions,Manage and synchronize your offline transactions
+Manage Cashier PIN,Manage Cashier PIN
+"Manage offline tools, terminal controls, and maintenance from one workspace.","Manage offline tools, terminal controls, and maintenance from one workspace."
+manual,manual
+"Manual codes, barcode scans, and QR scans work in the same field","Manual codes, barcode scans, and QR scans work in the same field"
+Manual offline mode is enabled,Manual offline mode is enabled
+Margin,Margin
+Maximum available quantity is {0}. Quantity adjusted to match stock.,Maximum available quantity is {0}. Quantity adjusted to match stock.
+Maximum discount amount for this offer item is {0}.,Maximum discount amount for this offer item is {0}.
+Maximum discount percentage for this offer item is {0}%.,Maximum discount percentage for this offer item is {0}%.
+Maximum offer quantity is {0}. Quantity adjusted to allowed limit.,Maximum offer quantity is {0}. Quantity adjusted to allowed limit.
+Medium,Medium
+Method-wise Collections,Method-wise Collections
+Minimum allowed rate for this offer item is {0}.,Minimum allowed rate for this offer item is {0}.
+Minimum Qty,Minimum Qty
+Mobile No,Mobile No
+Mode,Mode
+Mode of Payment,Mode of Payment
+Month,Month
+Month ?,Month ?
+Monthly Profit,Monthly Profit
+Monthly Sales,Monthly Sales
+Monthly Sales Summary,Monthly Sales Summary
+Month-wise,Month-wise
+Most Active Cashiers,Most Active Cashiers
+Movement Type,Movement Type
+Movements,Movements
+Multi Currency,Multi Currency
+N/A,N/A
+Name,Name
+Negative Stock,Negative Stock
+Negative Stock Items,Negative Stock Items
+Negative values not allowed,Negative values not allowed
+Net,Net
+Net Qty,Net Qty
+Net Sales,Net Sales
+Net Value,Net Value
+Never,Never
+New changes are ready to load,New changes are ready to load
+New Item,New Item
+New Offer Available,New Offer Available
+New PIN,New PIN
+New rate,New rate
+Next unit of measure,Next unit of measure
+No attribute data found.,No attribute data found.
+No Barcode,No Barcode
+No barcode found for UOM '{0}',No barcode found for UOM '{0}'
+No branch/location data found.,No branch/location data found.
+No brand data found.,No brand data found.
+No cached gift card balance is available offline.,No cached gift card balance is available offline.
+No camera found on this device. Please ensure your device has a working camera.,No camera found on this device. Please ensure your device has a working camera.
+No capability warnings recorded yet.,No capability warnings recorded yet.
+No cash expected for this shift.,No cash expected for this shift.
+No cash mode configured,No cash mode configured
+No cash movement type is allowed for this POS Profile.,No cash movement type is allowed for this POS Profile.
+No cashier PIN is set yet. Create one now.,No cashier PIN is set yet. Create one now.
+No cashier profiles are available for this POS profile yet.,No cashier profiles are available for this POS profile yet.
+No cashier-wise discount/void/return activity.,No cashier-wise discount/void/return activity.
+No category data found.,No category data found.
+No category profitability data found.,No category profitability data found.
+No change returned recorded for this shift.,No change returned recorded for this shift.
+No change-allocation invoices match the current filters.,No change-allocation invoices match the current filters.
+No charge head breakdown found.,No charge head breakdown found.
+No Company Selected,No Company Selected
+No customer sales data found.,No customer sales data found.
+No day-wise discount/void/return trend.,No day-wise discount/void/return trend.
+No day-wise payment data found.,No day-wise payment data found.
+No day-wise profitability trend found.,No day-wise profitability trend found.
+No day-wise purchase data found.,No day-wise purchase data found.
+No day-wise sales trend found.,No day-wise sales trend found.
+No day-wise tax/charges trend found.,No day-wise tax/charges trend found.
+No dead stock items.,No dead stock items.
+No due date,No due date
+No exact repair match found for this invoice,No exact repair match found for this invoice
+No hourly sales trend found for today.,No hourly sales trend found for today.
+No invoice activity found.,No invoice activity found.
+No invoices found,No invoices found
+No invoices found. Try different search criteria.,No invoices found. Try different search criteria.
+No invoices recorded for this shift.,No invoices recorded for this shift.
+No item profitability data found.,No item profitability data found.
+No item sales data found for this period.,No item sales data found for this period.
+No items found,No items found
+No items in cart,No items in cart
+No items with barcodes to print,No items with barcodes to print
+No location-wise top item data found.,No location-wise top item data found.
+No low stock alerts right now.,No low stock alerts right now.
+No low stock items.,No low stock items.
+No matching items in cart,No matching items in cart
+No month-wise sales trend found.,No month-wise sales trend found.
+No negative stock items.,No negative stock items.
+No notifications yet,No notifications yet
+No offline cash movement synced.,No offline cash movement synced.
+No offline invoices pending synchronization,No offline invoices pending synchronization
+No offline sync issues recorded yet.,No offline sync issues recorded yet.
+No out-of-stock items.,No out-of-stock items.
+No outstanding credit invoices for this shift.,No outstanding credit invoices for this shift.
+No payment collection data found.,No payment collection data found.
+No payment rows available on this invoice.,No payment rows available on this invoice.
+No payments registered for this shift.,No payments registered for this shift.
+No pending balances in this period.,No pending balances in this period.
+No pending offline invoices,No pending offline invoices
+No Print Formats Found,No Print Formats Found
+No profiles found for selected scope. Falling back to current profile failed.,No profiles found for selected scope. Falling back to current profile failed.
+No recent customer activity found.,No recent customer activity found.
+No recent stock entries found.,No recent stock entries found.
+No records found,No records found
+No reorder suggestions right now.,No reorder suggestions right now.
+No repeat customers in this period.,No repeat customers in this period.
+No response from server,No response from server
+No return invoices found,No return invoices found
+No return item trend found.,No return item trend found.
+No returnable items found for this invoice,No returnable items found for this invoice
+No returns were processed in this shift.,No returns were processed in this shift.
+No risk activity found.,No risk activity found.
+No sales activity found for this period.,No sales activity found for this period.
+No slow moving items.,No slow moving items.
+No staff sales activity found.,No staff sales activity found.
+No stock movement for this period.,No stock movement for this period.
+No submitted cash movements in this shift.,No submitted cash movements in this shift.
+No supplier purchases found in this month.,No supplier purchases found in this month.
+No suppliers found for this period.,No suppliers found for this period.
+No sync trigger has run yet in this session.,No sync trigger has run yet in this session.
+No tax head breakdown found.,No tax head breakdown found.
+No top items found for this location.,No top items found for this location.
+No unpaid invoices,No unpaid invoices
+No variant data found.,No variant data found.
+No week-wise sales trend found.,No week-wise sales trend found.
+No.,No.
+Nobile Number,Nobile Number
+Not available,Not available
+Not checked,Not checked
+Not selected,Not selected
+Not Set,Not Set
+Notifications,Notifications
+Offer,Offer
+Offer Applied,Offer Applied
+Offer criteria exceeded,Offer criteria exceeded
+Offer Item,Offer Item
+Offer item unavailable,Offer item unavailable
+Offer Removed,Offer Removed
+Offer UOM cannot be changed,Offer UOM cannot be changed
+Offer?,Offer?
+Offers,Offers
+Offline,Offline
+Offline & Sync,Offline & Sync
+Offline Capabilities,Offline Capabilities
+Offline data status refreshed,Offline data status refreshed
+Offline diagnostics,Offline diagnostics
+Offline Invoices,Offline Invoices
+Offline invoices status,Offline invoices status
+Offline invoices synced,Offline invoices synced
+Offline Queue: {0},Offline Queue: {0}
+Offline rebuild guidance,Offline rebuild guidance
+Offline restore is unavailable for this session.,Offline restore is unavailable for this session.
+Offline selling is available with degraded capabilities.,Offline selling is available with degraded capabilities.
+Offline snapshot does not match the current POS state.,Offline snapshot does not match the current POS state.
+Offline Status,Offline Status
+"Offline, terminal, and system controls","Offline, terminal, and system controls"
+OK,OK
+Online,Online
+Open actions menu,Open actions menu
+Open balance to collect,Open balance to collect
+Open Customer Display,Open Customer Display
+Open drawer,Open drawer
+Open invoices,Open invoices
+Open Payments?,Open Payments?
+Open POS home,Open POS home
+Open this screen from POS Menu -> Open Customer Display.,Open this screen from POS Menu -> Open Customer Display.
+OpenCV image processing enabled - Enhanced barcode detection,OpenCV image processing enabled - Enhanced barcode detection
+OpenCV image processing unavailable on this device,OpenCV image processing unavailable on this device
+OpenCV Off,OpenCV Off
+OpenCV On,OpenCV On
+OpenCV processing disabled,OpenCV processing disabled
+Opening Amount,Opening Amount
+Opening Cash,Opening Cash
+options,options
+Order,Order
+Original,Original
+Other,Other
+Out,Out
+Out of Stock,Out of Stock
+Out of Stock Items,Out of Stock Items
+Outstanding,Outstanding
+Outstanding Credit by Currency,Outstanding Credit by Currency
+Overdue,Overdue
+Overpayment Change,Overpayment Change
+Overpayment change deducted: {0},Overpayment change deducted: {0}
+Packing List,Packing List
+Page Format,Page Format
+Page unavailable offline,Page unavailable offline
+Paid,Paid
+Paid (orig):,Paid (orig):
+Paid Amount,Paid Amount
+Paid change cannot be greater than total change!,Paid change cannot be greater than total change!
+Paid:,Paid:
+Parent Item,Parent Item
+Partial,Partial
+Partly Paid,Partly Paid
+Party Account,Party Account
+Party Type,Party Type
+Pause terminal until next cashier,Pause terminal until next cashier
+PAY,PAY
+Payment,Payment
+Payment Account,Payment Account
+Payment entries processed for Invoice {0},Payment entries processed for Invoice {0}
+Payment Entry Type,Payment Entry Type
+Payment History,Payment History
+Payment ID,Payment ID
+Payment Method Report,Payment Method Report
+Payment Methods,Payment Methods
+Payment of {0} received successfully.,Payment of {0} received successfully.
+Payment Progress,Payment Progress
+Payment Reconciliation,Payment Reconciliation
+Payment request status could not be retrieved. Please try again,Payment request status could not be retrieved. Please try again
+Payment Request took too long to respond. Please try requesting for payment again,Payment Request took too long to respond. Please try requesting for payment again
+Payment saved offline,Payment saved offline
+Payment State,Payment State
+Payment Status,Payment Status
+Payment submitted but print function could not be executed. Payment name not found.,Payment submitted but print function could not be executed. Payment name not found.
+Payment submitted.,Payment submitted.
+Payment Summary,Payment Summary
+Payments,Payments
+Payments are not open. Do you want to open payments and submit?,Payments are not open. Do you want to open payments and submit?
+Payments by Mode of Payment,Payments by Mode of Payment
+PDF,PDF
+Peak Hour,Peak Hour
+Peak Memory:,Peak Memory:
+Peak Server:,Peak Server:
+Peak:,Peak:
+Pending,Pending
+Pending Amount,Pending Amount
+Pending count updated from {0} to {1},Pending count updated from {0} to {1}
+Pending Exposure,Pending Exposure
+Pending Invoices,Pending Invoices
+Pending Ratio,Pending Ratio
+Pending Sales,Pending Sales
+Pending sales: {0} | Cache usage: {1}%,Pending sales: {0} | Cache usage: {1}%
+Pending Sync,Pending Sync
+Pending: {0},Pending: {0}
+Pending: {0} | Synced: {1} | Draft: {2},Pending: {0} | Synced: {1} | Draft: {2}
+Per Page,Per Page
+Personal,Personal
+Personal preferences adjust the current cashier experience without changing the active POS route.,Personal preferences adjust the current cashier experience without changing the active POS route.
+PIN confirmation does not match.,PIN confirmation does not match.
+PIN must be 4 to 8 digits.,PIN must be 4 to 8 digits.
+Please add at least one item.,Please add at least one item.
+Please allow camera access to scan codes,Please allow camera access to scan codes
+Please enter payment amount,Please enter payment amount
+Please fill all required fields,Please fill all required fields
+Please make a payment or select a payment,Please make a payment or select a payment
+Please request phone payment or use another payment method,Please request phone payment or use another payment method
+Please select a customer first,Please select a customer first
+Please select a party,Please select a party
+Please select a party before reconciling.,Please select a party before reconciling.
+Please select a valid movement type.,Please select a valid movement type.
+Please select an invoice,Please select an invoice
+Please select company before reconciling.,Please select company before reconciling.
+Please set the customer's mobile number,Please set the customer's mobile number
+Please try again or enter the item manually.,Please try again or enter the item manually.
+Please verify the barcode or check the item's availability.,Please verify the barcode or check the item's availability.
+Points,Points
+Popup blocked. Please allow popups.,Popup blocked. Please allow popups.
+POS,POS
+POS controls and maintenance,POS controls and maintenance
+POS Expense is disabled for this POS Profile.,POS Expense is disabled for this POS Profile.
+POS is running with limited offline prerequisites.,POS is running with limited offline prerequisites.
+POS Profile,POS Profile
+Position the QR code or barcode within the scanning area,Position the QR code or barcode within the scanning area
+Posting,Posting
+Posting and Price List,Posting and Price List
+Posting Date,Posting Date
+Preparing background sync,Preparing background sync
+"Press OK to continue offline with a warning, or Cancel to retry.","Press OK to continue offline with a warning, or Cancel to retry."
+Previous unit of measure,Previous unit of measure
+Price List,Price List
+Price List Rate,Price List Rate
+Price list rate updated locally only,Price list rate updated locally only
+Pricing & Discounts,Pricing & Discounts
+Pricing Rule,Pricing Rule
+Print,Print
+Print Draft,Print Draft
+Print Format (Invoice),Print Format (Invoice)
+Print Format (Order),Print Format (Order)
+Print invoice,Print invoice
+Print Purchase Invoice instead of PO,Print Purchase Invoice instead of PO
+Printer,Printer
+Processed returns impacting the shift totals,Processed returns impacting the shift totals
+Processing Payment,Processing Payment
+Processing payment entries for Invoice {0},Processing payment entries for Invoice {0}
+Profile,Profile
+Profiles,Profiles
+Profit,Profit
+Profit: Invoice Item Estimate,Profit: Invoice Item Estimate
+Profit: Stock Ledger (COGS),Profit: Stock Ledger (COGS)
+Profitability Report,Profitability Report
+Prorated return discount,Prorated return discount
+Purchase Amount,Purchase Amount
+Purchase Invoices,Purchase Invoices
+Purchase Order created,Purchase Order created
+Qty,Qty
+Qualified,Qualified
+Quantity,Quantity
+Quantity exceeds available stock,Quantity exceeds available stock
+Quick Actions,Quick Actions
+Quotation {0} is Submitted,Quotation {0} is Submitted
+Quotation submitted,Quotation submitted
+QZ Tray connected.,QZ Tray connected.
+QZ Tray is manually disconnected. Press Connect to enable it again.,QZ Tray is manually disconnected. Press Connect to enable it again.
+QZ Tray is not connected.,QZ Tray is not connected.
+QZ Tray Setup,QZ Tray Setup
+Rate,Rate
+Rate adjusted to maximum allowed discount,Rate adjusted to maximum allowed discount
+Ready,Ready
+Ready to resume,Ready to resume
+Ready!,Ready!
+Real-time POS insights for retail operations.,Real-time POS insights for retail operations.
+Rebuild Offline Data,Rebuild Offline Data
+Receive,Receive
+Receive now,Receive now
+Received,Received
+Received:,Received:
+Recent Movement Entries,Recent Movement Entries
+Recent updates about your invoices,Recent updates about your invoices
+Recently Active Customers,Recently Active Customers
+Rechecking connection,Rechecking connection
+Reconcile payment methods and close shift,Reconcile payment methods and close shift
+Reconciling Payments,Reconciling Payments
+"Reconnect and open this page once while online, then offline refreshes will be able to restore it.","Reconnect and open this page once while online, then offline refreshes will be able to restore it."
+Reconnect online to refresh cached offline data from the server.,Reconnect online to refresh cached offline data from the server.
+Recreate local offline prerequisites from scratch,Recreate local offline prerequisites from scratch
+Recv:,Recv:
+Redeem,Redeem
+Redeem / Scan,Redeem / Scan
+Redeem Amount,Redeem Amount
+Redeem Mode,Redeem Mode
+Redeemed Amount,Redeemed Amount
+Redeemed credit cannot be greater than its total.,Redeemed credit cannot be greater than its total.
+Redemption and Totals,Redemption and Totals
+Reference,Reference
+Refresh,Refresh
+Refresh Exchange Rate,Refresh Exchange Rate
+Refresh Offline Data,Refresh Offline Data
+Refresh Printers,Refresh Printers
+Refund,Refund
+Release Notes,Release Notes
+Reload,Reload
+Reload customers,Reload customers
+Reload Items,Reload Items
+Reload Now,Reload Now
+Reload to apply the latest changes. Your current session will be refreshed.,Reload to apply the latest changes. Your current session will be refreshed.
+Reload Workflow,Reload Workflow
+Remarks,Remarks
+Remarks are required.,Remarks are required.
+Remove,Remove
+Remove barcode item,Remove barcode item
+Remove cached data and reload the POS app,Remove cached data and reload the POS app
+Remove item,Remove item
+Remove Offer,Remove Offer
+Reorder / Purchase Suggestions,Reorder / Purchase Suggestions
+Repair Candidate,Repair Candidate
+Repair Change Allocation,Repair Change Allocation
+Repair requires an online connection,Repair requires an online connection
+Repaired,Repaired
+Repairing change allocation,Repairing change allocation
+Repeat Customers,Repeat Customers
+Repeat Rate,Repeat Rate
+Request,Request
+Request ID: {0},Request ID: {0}
+Request Payment,Request Payment
+Requested route: {0},Requested route: {0}
+Required columns cannot be hidden,Required columns cannot be hidden
+Reset,Reset
+Reset item name,Reset item name
+Reset to Default,Reset to Default
+Resource Health,Resource Health
+Restricted,Restricted
+Restricted operational controls for supervisors only.,Restricted operational controls for supervisors only.
+Retry,Retry
+Retry route,Retry route
+Return,Return
+Return Amount,Return Amount
+Return Count,Return Count
+Return items must have negative quantities,Return items must have negative quantities
+Return total must be negative,Return total must be negative
+Return Valid Until,Return Valid Until
+Return window passed,Return window passed
+Return without Invoice,Return without Invoice
+Returns,Returns
+Returns / Voids / Discounts,Returns / Voids / Discounts
+Returns by Currency,Returns by Currency
+Revenue,Revenue
+Review shift totals before submitting the closing entry,Review shift totals before submitting the closing entry
+Round Off,Round Off
+Rows,Rows
+Rows:,Rows:
+Rule,Rule
+Sale,Sale
+Sales,Sales
+Sales Order {0} is Submitted,Sales Order {0} is Submitted
+Sales Person and Print,Sales Person and Print
+Sales Person not found,Sales Person not found
+Sales processed,Sales processed
+Sales Return,Sales Return
+Sales Trend Report,Sales Trend Report
+Save,Save
+Save & Clear,Save & Clear
+Save as POS Profile Default,Save as POS Profile Default
+Save Settings,Save Settings
+Save the selected printer as the POS Profile default so it shows automatically on this setup.,Save the selected printer as the POS Profile default so it shows automatically on this setup.
+Saved as draft because: {0},Saved as draft because: {0}
+Saving...,Saving...
+Scale barcode detected. Quantity here is the number of labels to print.,Scale barcode detected. Quantity here is the number of labels to print.
+Scale barcode settings are not configured. Using item barcode only.,Scale barcode settings are not configured. Using item barcode only.
+Scale template barcode is missing for this item/UOM. Using item barcode only.,Scale template barcode is missing for this item/UOM. Using item barcode only.
+Scan an existing card and top it up without leaving the payment flow.,Scan an existing card and top it up without leaving the payment flow.
+Scan Error,Scan Error
+Scan or enter a gift card code to check balance or redeem.,Scan or enter a gift card code to check balance or redeem.
+Scan or paste the card code below.,Scan or paste the card code below.
+Scan QR Code/Barcode,Scan QR Code/Barcode
+Scan with camera,Scan with camera
+Scan-First Flow,Scan-First Flow
+Scanned Code:,Scanned Code:
+Scanning for: {0},Scanning for: {0}
+Scanning items,Scanning items
+Scan-Ready,Scan-Ready
+Scope,Scope
+Scope: All Profiles,Scope: All Profiles
+Scope: Current Profile,Scope: Current Profile
+Scope: Specific Profile,Scope: Specific Profile
+Search,Search
+Search Account,Search Account
+Search an invoice and continue the return flow without extra steps.,Search an invoice and continue the return flow without extra steps.
+Search customer,Search customer
+Search invoices or customers,Search invoices or customers
+Search item,Search item
+Search item / code,Search item / code
+Search items or barcode,Search items or barcode
+Search Mpesa Payments,Search Mpesa Payments
+Search return invoices or customers,Search return invoices or customers
+Search supplier,Search supplier
+Search unpaid invoices or customers,Search unpaid invoices or customers
+Secure context (HTTPS or localhost) is required for camera access.,Secure context (HTTPS or localhost) is required for camera access.
+Secure context (HTTPS) required for camera access. Please use HTTPS to access the camera.,Secure context (HTTPS) required for camera access. Please use HTTPS to access the camera.
+Select,Select
+Select a cashier first.,Select a cashier first.
+Select a customer,Select a customer
+Select a customer to use coupon,Select a customer to use coupon
+Select a printer to use QZ silent printing.,Select a printer to use QZ silent printing.
+Select Batch,Select Batch
+Select Columns to Display,Select Columns to Display
+Select items to sell,Select items to sell
+Select Payment,Select Payment
+Select Payment Account,Select Payment Account
+Select printer,Select printer
+Select Return Invoice,Select Return Invoice
+Select S.O,Select S.O
+Select Sales Orders,Select Sales Orders
+Select the cashier who is taking over this terminal.,Select the cashier who is taking over this terminal.
+Selected,Selected
+Selected movement type is not allowed by POS Profile.,Selected movement type is not allowed by POS Profile.
+Selected Payments,Selected Payments
+Sensitive actions kept away from quick taps.,Sensitive actions kept away from quick taps.
+Serial,Serial
+Serial Numbers,Serial Numbers
+Server CPU Usage:,Server CPU Usage:
+Server Health,Server Health
+Server Memory Usage:,Server Memory Usage:
+Server Metrics,Server Metrics
+Server Uptime:,Server Uptime:
+Service Charges,Service Charges
+Session,Session
+Set each cashier PIN in the User form and keep terminal members assigned in POS Profile User.,Set each cashier PIN in the User form and keep terminal members assigned in POS Profile User.
+Settings,Settings
+Settings in this section update the POS workspace without changing the current route.,Settings in this section update the POS workspace without changing the current route.
+Setup complete!,Setup complete!
+Share,Share
+Shared terminal,Shared terminal
+Shift Closed Snapshot,Shift Closed Snapshot
+Shift Overview,Shift Overview
+Show,Show
+Show cart on customer-facing screen,Show cart on customer-facing screen
+Show last invoice rate,Show last invoice rate
+Show rate info,Show rate info
+Show Repair Candidates,Show Repair Candidates
+Show search tools,Show search tools
+Show the active cart on a customer-facing screen,Show the active cart on a customer-facing screen
+Showing {0}-{1} of {2},Showing {0}-{1} of {2}
+Showing 0 of 0,Showing 0 of 0
+Shows the distribution of invoices per currency,Shows the distribution of invoices per currency
+Sign out of the current POS session,Sign out of the current POS session
+Size:,Size:
+Skipped Payments,Skipped Payments
+Skipping items without barcodes,Skipping items without barcodes
+Slow Moving,Slow Moving
+Slow Moving Items,Slow Moving Items
+Slow Queries:,Slow Queries:
+Sold,Sold
+Source,Source
+Source Cash Account (Optional Override),Source Cash Account (Optional Override)
+Source Ex. Rate:,Source Ex. Rate:
+Source Rate:,Source Rate:
+Specific Profile,Specific Profile
+Split Invoices,Split Invoices
+Staff / Cashier Performance Report,Staff / Cashier Performance Report
+Status,Status
+Stock,Stock
+Stock Information,Stock Information
+Stock is lower than requested,Stock is lower than requested
+Stock is lower than requested:\n{0},Stock is lower than requested:\n{0}
+Stock Movement Report,Stock Movement Report
+Stock update: {0} has {1} available. Adding {2} will bring the stock below zero.,Stock update: {0} has {1} available. Adding {2} will bring the stock below zero.
+Submit,Submit
+Submit & Print,Submit & Print
+Submit Deposit,Submit Deposit
+Submit Expense,Submit Expense
+Submitted,Submitted
+Submitted Cash Movements,Submitted Cash Movements
+Submitted entries,Submitted entries
+Successfully scanned:,Successfully scanned:
+Suggested,Suggested
+Suggested Qty,Suggested Qty
+Supervisor Access,Supervisor Access
+Supervisor permissions unlock issuance and reloads,Supervisor permissions unlock issuance and reloads
+Supervisor Tools,Supervisor Tools
+Supplier,Supplier
+Supplier and dates are required.,Supplier and dates are required.
+Supplier Invoices,Supplier Invoices
+Supplier is required.,Supplier is required.
+Supplier name is required,Supplier name is required
+Supplier Payments,Supplier Payments
+Supplier Purchase Summary,Supplier Purchase Summary
+Suppliers,Suppliers
+Suppliers not found,Suppliers not found
+Switch Camera,Switch Camera
+Switch Cashier,Switch Cashier
+Switch the POS appearance theme,Switch the POS appearance theme
+Switched to:,Switched to:
+Sync All Invoices,Sync All Invoices
+Sync Offline Cash Movements ({0}),Sync Offline Cash Movements ({0})
+Sync Offline Sales,Sync Offline Sales
+Synced {0} offline cash movement(s).,Synced {0} offline cash movement(s).
+Syncing items in background,Syncing items in background
+System / Diagnostics,System / Diagnostics
+"System actions are low-frequency maintenance controls such as app info, support diagnostics, and session controls.","System actions are low-frequency maintenance controls such as app info, support diagnostics, and session controls."
+System Information,System Information
+System Status,System Status
+Tables:,Tables:
+Tap the button below to redeem a gift card during checkout.,Tap the button below to redeem a gift card during checkout.
+Target,Target
+Target Ex. Rate:,Target Ex. Rate:
+Target Rate:,Target Rate:
+Tax,Tax
+Tax / Charges Report,Tax / Charges Report
+Tax Heads,Tax Heads
+Taxable Amount,Taxable Amount
+Tendered,Tendered
+Terminal,Terminal
+Terminal & Devices,Terminal & Devices
+Terminal locked,Terminal locked
+"Terminal tools affect this checkout station, customer-facing displays, and future printer/device controls.","Terminal tools affect this checkout station, customer-facing displays, and future printer/device controls."
+Territory not found,Territory not found
+The amount paid is not complete,The amount paid is not complete
+The app stores data locally for offline use. This is called cache.,The app stores data locally for offline use. This is called cache.
+The invoice stayed in draft. Please review and submit it manually.,The invoice stayed in draft. Please review and submit it manually.
+The maximum discount allowed is,The maximum discount allowed is
+The quantity for {0} has been adjusted to the maximum available stock.,The quantity for {0} has been adjusted to the maximum available stock.
+The system could not retrieve the item details. Please try again.,The system could not retrieve the item details. Please try again.
+These invoices will be synced when connection is restored,These invoices will be synced when connection is restored
+This action now opens inside the settings workspace.,This action now opens inside the settings workspace.
+This coupon already used !,This coupon already used !
+This invoice does not need change-allocation repair,This invoice does not need change-allocation repair
+This invoice is already repaired,This invoice is already repaired
+This is an item template. Please choose a variant.,This is an item template. Please choose a variant.
+this item,this item
+This POS page could not be opened offline because its code was not cached on this terminal yet.,This POS page could not be opened offline because its code was not cached on this terminal yet.
+This Serial Number {0} has already been added!,This Serial Number {0} has already been added!
+Threshold,Threshold
+Time,Time
+Tip: Clear cache regularly to free up space and keep the app fast.,Tip: Clear cache regularly to free up space and keep the app fast.
+Tip: Close unused tabs or apps to reduce lag.,Tip: Close unused tabs or apps to reduce lag.
+Tip: Monitor slow queries and table size for optimal performance.,Tip: Monitor slow queries and table size for optimal performance.
+To Be Paid,To Be Paid
+To Date,To Date
+Today,Today
+Today Profit,Today Profit
+Today Sales,Today Sales
+Toggle navigation drawer,Toggle navigation drawer
+Toggle Theme,Toggle Theme
+Tools,Tools
+Tools for customer-facing screens and terminal-specific actions.,Tools for customer-facing screens and terminal-specific actions.
+Top Brand,Top Brand
+Top Category,Top Category
+Top Charge Head,Top Charge Head
+Top Customers,Top Customers
+Top Discount,Top Discount
+Top Items by Location,Top Items by Location
+Top Margin,Top Margin
+Top Pending,Top Pending
+Top Profit Item,Top Profit Item
+Top Return Items,Top Return Items
+Top Sales by Cashier,Top Sales by Cashier
+Top Supplier,Top Supplier
+Top Suppliers by Spend,Top Suppliers by Spend
+Top Tables,Top Tables
+Top Tax Head,Top Tax Head
+Top Up Amount,Top Up Amount
+Top Up Card,Top Up Card
+Top Up Mode,Top Up Mode
+Top Variant,Top Variant
+Total,Total
+Total Amount,Total Amount
+Total Change,Total Change
+Total Charges,Total Charges
+Total In,Total In
+Total Invoices,Total Invoices
+Total Items,Total Items
+Total Mpesa,Total Mpesa
+Total Out,Total Out
+Total Payments,Total Payments
+Total Purchase,Total Purchase
+Total Selected :,Total Selected :
+Total Size,Total Size
+Total Stock Qty,Total Stock Qty
+Total:,Total:
+Totals by Invoice Currency,Totals by Invoice Currency
+Track how much cash was handed back to customers,Track how much cash was handed back to customers
+"Track recent sales, collect unpaid balances, and reopen saved work","Track recent sales, collect unpaid balances, and reopen saved work"
+Transaction ID,Transaction ID
+Transfer,Transfer
+Try a different search term or clear the cart search.,Try a different search term or clear the cart search.
+Try adjusting your search or filters,Try adjusting your search or filters
+Try another source or refresh the list.,Try another source or refresh the list.
+Try changing the date range or status filter.,Try changing the date range or status filter.
+Type,Type
+Unable to access camera even with basic settings. Please check your camera permissions and device compatibility.,Unable to access camera even with basic settings. Please check your camera permissions and device compatibility.
+Unable to add offer item {0}. Please refresh and try again.,Unable to add offer item {0}. Please refresh and try again.
+Unable to add offer item. Please refresh and try again.,Unable to add offer item. Please refresh and try again.
+Unable to add scanned item.,Unable to add scanned item.
+Unable to create purchase order,Unable to create purchase order
+Unable to delete draft invoice,Unable to delete draft invoice
+Unable to fetch documents,Unable to fetch documents
+Unable to fetch draft orders,Unable to fetch draft orders
+Unable to fetch invoice history,Unable to fetch invoice history
+Unable to fetch M-Pesa payments,Unable to fetch M-Pesa payments
+Unable to fetch sales orders,Unable to fetch sales orders
+Unable to fetch unpaid invoices,Unable to fetch unpaid invoices
+Unable to generate scale barcode,Unable to generate scale barcode
+Unable to issue gift card.,Unable to issue gift card.
+Unable to load cashier PIN status.,Unable to load cashier PIN status.
+Unable to load document,Unable to load document
+Unable to load draft invoice,Unable to load draft invoice
+Unable to load gift card balance.,Unable to load gift card balance.
+Unable to load invoice details,Unable to load invoice details
+Unable to load parked order,Unable to load parked order
+Unable to load the selected sales order,Unable to load the selected sales order
+Unable to prepare document,Unable to prepare document
+Unable to prepare return invoice,Unable to prepare return invoice
+Unable to print draft invoice,Unable to print draft invoice
+Unable to print submitted invoice,Unable to print submitted invoice
+Unable to process document action,Unable to process document action
+Unable to repair change allocation,Unable to repair change allocation
+Unable to save cashier PIN.,Unable to save cashier PIN.
+Unable to save the rate to the backend price list,Unable to save the rate to the backend price list
+Unable to submit invoice,Unable to submit invoice
+Unable to submit the selected payment,Unable to submit the selected payment
+Unable to top up gift card.,Unable to top up gift card.
+Unable to verify cashier PIN.,Unable to verify cashier PIN.
+Unallocated,Unallocated
+Unallocated:,Unallocated:
+Unavailable,Unavailable
+Unknown,Unknown
+Unknown Item,Unknown Item
+Unknown Warehouse,Unknown Warehouse
+Unlock POS,Unlock POS
+Unpaid,Unpaid
+"Unselected payments stay unallocated first, then auto reconcile after submit.","Unselected payments stay unallocated first, then auto reconcile after submit."
+UOM,UOM
+UOM not found,UOM not found
+Update available,Update available
+Update Customer,Update Customer
+Update PIN,Update PIN
+Update Price List Rate,Update Price List Rate
+Updated,Updated
+Updates and app info that stay out of the cashier flow.,Updates and app info that stay out of the cashier flow.
+Updates automatically,Updates automatically
+Usage,Usage
+Usage Stats,Usage Stats
+Use a 4 to 8 digit PIN for cashier switching and terminal unlock.,Use a 4 to 8 digit PIN for cashier switching and terminal unlock.
+Use Cashier,Use Cashier
+Use date range to search for older invoices,Use date range to search for older invoices
+"Use one field for manual code entry, barcode scans, or QR scans.","Use one field for manual code entry, barcode scans, or QR scans."
+"Use one workflow for balance checks, new issuance, and top ups without leaving POS.","Use one workflow for balance checks, new issuance, and top ups without leaving POS."
+"Use this section when cached prerequisite data needs a refresh, rebuild, or diagnostics review.","Use this section when cached prerequisite data needs a refresh, rebuild, or diagnostics review."
+Use Western numerals,Use Western numerals
+Used:,Used:
+Using basic camera settings due to device limitations,Using basic camera settings due to device limitations
+Using cached customer balance,Using cached customer balance
+Valid until,Valid until
+Variance %,Variance %
+Variants,Variants
+Variant-wise,Variant-wise
+Verify closing amounts for each payment method,Verify closing amounts for each payment method
+View all,View all
+View app information and current build details,View app information and current build details
+View Data Diagnostics,View Data Diagnostics
+View Details,View Details
+View invoice details,View invoice details
+View notifications,View notifications
+View offline invoices,View offline invoices
+View restricted POS insights,View restricted POS insights
+Void Amount,Void Amount
+Void Count,Void Count
+Voids,Voids
+Waiting for cart items,Waiting for cart items
+Waiting for payment...,Waiting for payment...
+Walk-in Customer,Walk-in Customer
+Warehouse,Warehouse
+Warning: High cache usage may affect performance.,Warning: High cache usage may affect performance.
+Warning: High lag may indicate heavy processing or browser slowness.,Warning: High lag may indicate heavy processing or browser slowness.
+Week ?,Week ?
+Week-wise,Week-wise
+Weight (g),Weight (g)
+Weight (grams),Weight (grams)
+We'll let you know if an invoice fails to submit,We'll let you know if an invoice fails to submit
+Workflow,Workflow
+Write off amount cannot exceed the POS profile maximum of {0},Write off amount cannot exceed the POS profile maximum of {0}
+Write off amount exceeds the allowed limit ({0}). Please add payment for the remaining amount.,Write off amount exceeds the allowed limit ({0}). Please add payment for the remaining amount.
+Yes,Yes
+"Yes, Cancel sale","Yes, Cancel sale"
+"Yes, Close","Yes, Close"
+You are not allowed to print draft invoices,You are not allowed to print draft invoices
+You are offline. Add Payment will work again when the connection is restored.,You are offline. Add Payment will work again when the connection is restored.
+You have no notifications right now,You have no notifications right now
+Your Cart,Your Cart

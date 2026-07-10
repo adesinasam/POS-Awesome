@@ -1,0 +1,221 @@
+import importlib.util
+import json
+import pathlib
+import sys
+import types
+import unittest
+from datetime import datetime
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
+
+
+def _install_stubs():
+    frappe_module = types.ModuleType("frappe")
+    frappe_module._ = lambda value: value
+    frappe_module.as_json = lambda value: json.dumps(value, default=str)
+    frappe_module.throw = lambda message: (_ for _ in ()).throw(Exception(message))
+    frappe_module.get_all = lambda *args, **kwargs: []
+    frappe_module.whitelist = lambda *args, **kwargs: (lambda fn: fn)
+    sys.modules["frappe"] = frappe_module
+
+    frappe_utils = types.ModuleType("frappe.utils")
+    frappe_utils.cint = lambda value=0: int(value or 0)
+    frappe_utils.cstr = str
+    frappe_utils.get_datetime = lambda value: value
+    frappe_utils.add_days = lambda date_value, days: f"{date_value}:{days}"
+    frappe_utils.nowdate = lambda: "2026-07-08"
+    sys.modules["frappe.utils"] = frappe_utils
+
+    frappe_cache = types.ModuleType("frappe.utils.caching")
+    frappe_cache.redis_cache = lambda ttl=None: (lambda fn: fn)
+    sys.modules["frappe.utils.caching"] = frappe_cache
+
+    query_builder = types.ModuleType("frappe.query_builder")
+    query_builder.DocType = lambda name: types.SimpleNamespace(name=name)
+    query_builder.Order = types.SimpleNamespace(desc="desc", asc="asc")
+    sys.modules["frappe.query_builder"] = query_builder
+
+    query_functions = types.ModuleType("frappe.query_builder.functions")
+    query_functions.Max = lambda value: value
+    query_functions.Sum = lambda value: value
+    sys.modules["frappe.query_builder.functions"] = query_functions
+
+    fetchers = types.ModuleType("posawesome.posawesome.api.item_fetchers")
+    fetchers.ItemDetailAggregator = object
+    sys.modules["posawesome.posawesome.api.item_fetchers"] = fetchers
+
+    utils = types.ModuleType("posawesome.posawesome.api.utils")
+    utils.HAS_VARIANTS_EXCLUSION = []
+    utils.expand_item_groups = lambda *args, **kwargs: []
+    utils.get_active_pos_profile = lambda *args, **kwargs: {}
+    utils.get_item_groups = lambda *args, **kwargs: []
+    utils._ensure_pos_profile = lambda value: value
+    utils.log_perf_event = lambda *args, **kwargs: None
+    sys.modules["posawesome.posawesome.api.utils"] = utils
+
+    barcode = types.ModuleType("posawesome.posawesome.api.item_processing.barcode")
+    barcode.search_serial_or_batch_or_barcode_number = lambda *args, **kwargs: None
+    sys.modules["posawesome.posawesome.api.item_processing.barcode"] = barcode
+
+    details = types.ModuleType("posawesome.posawesome.api.item_processing.details")
+    details.get_items_details = lambda *args, **kwargs: []
+    sys.modules["posawesome.posawesome.api.item_processing.details"] = details
+
+
+def _load_module():
+    module_name = "test_item_search_serialization_target"
+    file_path = REPO_ROOT / "posawesome" / "posawesome" / "api" / "item_processing" / "search.py"
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+class TestItemSearchSerialization(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        _install_stubs()
+        cls.module = _load_module()
+
+    def test_run_item_query_serializes_datetime_rows_for_details(self):
+        serialized_payloads = []
+
+        def fake_get_all(*args, **kwargs):
+            if fake_get_all.calls == 0:
+                fake_get_all.calls += 1
+                return [
+                    {
+                        "item_code": "ITEM-001",
+                        "item_name": "Item 001",
+                        "modified": datetime(2026, 4, 23, 10, 30, 0),
+                    }
+                ]
+            return []
+
+        fake_get_all.calls = 0
+
+        def fake_get_items_details(pos_profile_json, items_json, **kwargs):
+            serialized_payloads.append(items_json)
+            return [{"item_code": "ITEM-001"}]
+
+        self.module.frappe.get_all = fake_get_all
+        self.module.get_items_details = fake_get_items_details
+        self.module._build_attribute_maps = lambda *args, **kwargs: ({}, {})
+        self.module._shape_item_row = lambda item, detail, plan, **kwargs: item
+        self.module._matches_search_words = lambda *args, **kwargs: True
+
+        plan = self.module.SearchPlan(
+            filters={},
+            or_filters=[],
+            fields=["item_code", "item_name", "modified"],
+            limit_page_length=1,
+            limit_start=0,
+            order_by="item_name asc",
+            page_size=1,
+            initial_page_start=0,
+            item_code_for_search=None,
+            search_words=[],
+            normalized_search_value="",
+            word_filter_active=False,
+            include_description=False,
+            include_image=False,
+            posa_display_items_in_stock=False,
+            posa_show_template_items=False,
+        )
+
+        result = self.module._run_item_query({}, None, None, plan)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["item_code"], "ITEM-001")
+        self.assertEqual(len(serialized_payloads), 1)
+        self.assertIn("2026-04-23 10:30:00", serialized_payloads[0])
+
+    def test_item_code_cursor_uses_keyset_plan_without_offset(self):
+        plan = self.module._build_search_plan(
+            pos_profile={},
+            item_group="",
+            search_value="",
+            limit=1000,
+            offset=5000,
+            start_after=None,
+            start_after_item_code="ITEM-0500",
+            modified_after=None,
+            include_description=False,
+            include_image=False,
+            item_groups=None,
+        )
+
+        self.assertEqual(plan.order_by, "item_code asc")
+        self.assertIsNone(plan.limit_start)
+        self.assertEqual(plan.filters["item_code"], [">", "ITEM-0500"])
+
+    def test_empty_item_code_cursor_orders_first_page_by_item_code(self):
+        plan = self.module._build_search_plan(
+            pos_profile={},
+            item_group="",
+            search_value="",
+            limit=1000,
+            offset=None,
+            start_after=None,
+            start_after_item_code="",
+            modified_after=None,
+            include_description=False,
+            include_image=False,
+            item_groups=None,
+        )
+
+        self.assertEqual(plan.order_by, "item_code asc")
+        self.assertNotIn("item_code", plan.filters)
+
+    def test_hot_catalog_limit_is_bounded(self):
+        self.assertEqual(self.module._coerce_hot_catalog_limit(None), 5000)
+        self.assertEqual(self.module._coerce_hot_catalog_limit(50), 100)
+        self.assertEqual(self.module._coerce_hot_catalog_limit(20000), 10000)
+
+    def test_hot_item_search_fills_sales_ranking_with_active_fallback(self):
+        calls = []
+
+        self.module._get_hot_sales_item_codes = lambda *args, **kwargs: [
+            "ITEM-HOT"
+        ]
+        self.module._enrich_hot_items = lambda _profile, rows, *args, **kwargs: rows
+
+        def fake_get_all(doctype, **kwargs):
+            calls.append((doctype, kwargs))
+            if kwargs.get("filters", {}).get("item_code") == ["in", ["ITEM-HOT"]]:
+                return [{"item_code": "ITEM-HOT", "item_name": "Hot Item"}]
+            return [{"item_code": "ITEM-FALLBACK", "item_name": "Fallback"}]
+
+        self.module.frappe.get_all = fake_get_all
+
+        result = self.module._execute_hot_item_search(
+            json.dumps(
+                {
+                    "name": "POS-1",
+                    "company": "Test Co",
+                    "selling_price_list": "Retail",
+                }
+            ),
+            price_list=None,
+            customer=None,
+            limit=2,
+            days=120,
+            include_description=False,
+            include_image=False,
+            item_groups=[],
+        )
+
+        self.assertEqual(
+            [row["item_code"] for row in result],
+            ["ITEM-HOT", "ITEM-FALLBACK"],
+        )
+        fallback_call = calls[-1][1]
+        self.assertEqual(
+            fallback_call["filters"]["item_code"],
+            ["not in", ["ITEM-HOT"]],
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

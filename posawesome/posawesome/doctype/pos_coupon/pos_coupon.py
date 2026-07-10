@@ -9,6 +9,10 @@ from frappe.utils import strip
 from frappe.utils import getdate, today
 
 
+def _optional_date(value):
+    return getdate(value) if value else None
+
+
 class POSCoupon(Document):
     def autoname(self):
         self.coupon_name = strip(self.coupon_name)
@@ -16,9 +20,7 @@ class POSCoupon(Document):
 
         if not self.coupon_code:
             if self.coupon_type == "Promotional":
-                self.coupon_code = "".join(
-                    i for i in self.coupon_name if not i.isdigit()
-                )[0:8].upper()
+                self.coupon_code = "".join(i for i in self.coupon_name if not i.isdigit())[0:8].upper()
             elif self.coupon_type == "Gift Card":
                 self.coupon_code = frappe.generate_hash()[:10].upper()
 
@@ -29,17 +31,20 @@ class POSCoupon(Document):
                 frappe.throw(_("Please select the customer."))
         pos_offer = frappe.get_doc("POS Offer", self.pos_offer)
         if self.company != pos_offer.company:
-            frappe.throw(
-                _("Please select the correct POS Offer with the same company.")
-            )
+            frappe.throw(_("Please select the correct POS Offer with the same company."))
         if not pos_offer.coupon_based:
             frappe.throw(_("Please select Coupon Code Based POS Offer."))
         if pos_offer.disable:
             frappe.throw(_("POS Offer is disable."))
-        if pos_offer.valid_from and pos_offer.valid_from > getdate(self.valid_from):
-            self.valid_from = pos_offer.valid_from
-        if pos_offer.valid_upto and pos_offer.valid_upto < getdate(self.valid_upto):
-            self.valid_upto = pos_offer.valid_upto
+        offer_valid_from = _optional_date(pos_offer.valid_from)
+        coupon_valid_from = _optional_date(self.valid_from)
+        if offer_valid_from and (not coupon_valid_from or offer_valid_from > coupon_valid_from):
+            self.valid_from = offer_valid_from
+
+        offer_valid_upto = _optional_date(pos_offer.valid_upto)
+        coupon_valid_upto = _optional_date(self.valid_upto)
+        if offer_valid_upto and (not coupon_valid_upto or offer_valid_upto < coupon_valid_upto):
+            self.valid_upto = offer_valid_upto
 
     def create_coupon_from_referral(self):
         if not self.customer:
@@ -49,15 +54,11 @@ class POSCoupon(Document):
         ref_doc = None
         ref_code_exist = frappe.db.exists("Referral Code", self.referral_code)
         if not ref_code_exist:
-            ref_doc = frappe.get_doc(
-                "Referral Code", {"referral_code": self.referral_code}
-            )
+            ref_doc = frappe.get_doc("Referral Code", {"referral_code": self.referral_code})
         else:
             ref_doc = frappe.get_doc("Referral Code", self.referral_code)
         if not ref_doc:
-            frappe.throw(
-                _("Referral Code {0} is not exists").format(self.referral_code)
-            )
+            frappe.throw(_("Referral Code {0} is not exists").format(self.referral_code))
         if ref_doc.disabled:
             frappe.throw(_("Referral Code {0} is disabled").format(self.referral_code))
 
@@ -89,13 +90,16 @@ def check_coupon_code(coupon_code, customer=None, company=None):
 
     coupon = frappe.get_doc("POS Coupon", {"coupon_code": coupon_code.upper()})
     pos_offer = frappe.get_doc("POS Offer", coupon.pos_offer)
+    current_date = getdate(today())
 
-    if coupon.valid_from:
-        if coupon.valid_from > getdate(today()):
+    coupon_valid_from = _optional_date(coupon.valid_from)
+    if coupon_valid_from:
+        if coupon_valid_from > current_date:
             res["msg"] = _("Sorry, this coupon code's validity has not started")
             return res
-    if coupon.valid_upto:
-        if coupon.valid_upto < getdate(today()):
+    coupon_valid_upto = _optional_date(coupon.valid_upto)
+    if coupon_valid_upto:
+        if coupon_valid_upto < current_date:
             res["msg"] = _("Sorry, this coupon code's validity has expired")
             return res
     if coupon.used and coupon.maximum_use and coupon.used >= coupon.maximum_use:
@@ -105,12 +109,14 @@ def check_coupon_code(coupon_code, customer=None, company=None):
     if pos_offer.disable:
         res["msg"] = _("Sorry, this coupon code is no longer valid")
         return res
-    if pos_offer.valid_from:
-        if pos_offer.valid_from > getdate(today()):
+    offer_valid_from = _optional_date(pos_offer.valid_from)
+    if offer_valid_from:
+        if offer_valid_from > current_date:
             res["msg"] = _("Sorry, this coupon code's validity has not started")
             return res
-    if pos_offer.valid_upto:
-        if pos_offer.valid_upto < getdate(today()):
+    offer_valid_upto = _optional_date(pos_offer.valid_upto)
+    if offer_valid_upto:
+        if offer_valid_upto < current_date:
             res["msg"] = _("Sorry, this coupon code's validity has expired")
             return res
 
@@ -154,7 +160,6 @@ def update_coupon_code_count(coupon_name, transaction_type):
     coupon = frappe.get_doc("POS Coupon", coupon_name)
     if coupon:
         if transaction_type == "used":
-
             if coupon.maximum_use and coupon.used >= coupon.maximum_use:
                 frappe.throw(
                     _("{0} Coupon used are {1}. Allowed quantity is exhausted").format(

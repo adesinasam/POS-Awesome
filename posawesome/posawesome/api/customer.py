@@ -1,13 +1,21 @@
 # Copyright (c) 2021, Youssef Restom and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
+"""Customer hooks and compatibility wrappers.
+
+Hook handlers live here; customer CRUD/list APIs are implemented in
+`posawesome.posawesome.api.customers` and exposed via wrappers as needed.
+"""
+
+
 import frappe
-from frappe.utils import flt
 from frappe import _
+
 from posawesome.posawesome.doctype.referral_code.referral_code import (
     create_referral_code,
 )
+
+from . import customers
 
 
 def after_insert(doc, method):
@@ -51,26 +59,13 @@ def validate_referral_code(doc):
         if not exist:
             frappe.throw(_("This Referral Code {0} not exists").format(referral_code))
 
+
 @frappe.whitelist()
-def get_customer_balance(customer):
-    if not customer:
-        return {"balance": 0, "customer_name": None}
+def get_customer_balance(customer, company=None):
+    return customers.get_customer_balance(customer, company)
 
-    try:
-        customer_doc = frappe.get_doc("Customer", customer)
-        customer_name = customer_doc.customer_name
 
-        # Fetch outstanding balance from GL Entries
-        balance = frappe.db.sql("""
-            SELECT SUM(debit - credit) AS balance
-            FROM `tabGL Entry`
-            WHERE party_type = 'Customer' AND party = %s AND docstatus = 1
-        """, (customer,), as_dict=True)
-
-        return {
-            "balance": flt(balance[0].get("balance", 0)) if balance else 0,
-            "customer_name": customer_name
-        }
-    except Exception as e:
-        frappe.log_error(f"Error fetching customer balance: {e}")
-        return {"balance": 0, "customer_name": None}
+@frappe.whitelist()
+def create_customer(*args, **kwargs):
+    """Backward compatible wrapper for ``api.customers.create_customer``."""
+    return customers.create_customer(*args, **kwargs)
